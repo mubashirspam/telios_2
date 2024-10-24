@@ -1,3 +1,5 @@
+import 'package:telios_2/model/survey_question_model.dart';
+
 class SurveyAnswerModel {
   String? geoJsonLevelKey;
   String? geoJsonLevelName;
@@ -6,9 +8,9 @@ class SurveyAnswerModel {
   String? assignedLevelKey;
   String? assignedLevelName;
   List<Answer>? answers;
-  String? aCategory;
-  String? sCategory;
-  String? gCategory;
+  int? aCategory;
+  int? sCategory;
+  int? gCategory;
 
   SurveyAnswerModel({
     this.geoJsonLevelKey,
@@ -31,9 +33,9 @@ class SurveyAnswerModel {
     String? assignedLevelKey,
     String? assignedLevelName,
     List<Answer>? answers,
-    String? aCategory,
-    String? sCategory,
-    String? gCategory,
+    int? aCategory,
+    int? sCategory,
+    int? gCategory,
   }) =>
       SurveyAnswerModel(
         geoJsonLevelKey: geoJsonLevelKey ?? this.geoJsonLevelKey,
@@ -53,22 +55,21 @@ class Answer {
   String? id;
   String? answer;
   String? type;
-  String? category;
+  int? category;
   int? surveyId;
   int? questionId;
   String? question;
   int? typeId;
-  List<String>? answerOptions;
+  List<DItem>? answerOptions;
 
-  Answer({
-    this.id,
-    this.answer,
-    this.type,
-    this.category,
-    this.answerOptions,
-    this.question,
-    this.questionId,
-    this.surveyId,
-    this.typeId
-  });
+  Answer(
+      {this.id,
+      this.answer,
+      this.type,
+      this.category,
+      this.answerOptions,
+      this.question,
+      this.questionId,
+      this.surveyId,
+      this.typeId});
 }

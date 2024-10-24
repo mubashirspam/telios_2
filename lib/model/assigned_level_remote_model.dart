@@ -67,7 +67,7 @@ class DataObject {
   String? userVsAssignVsTeliosUnitUnit;
   int? dataObjectGeojsonLevelCount;
   int? dataObjectSurveyLevelCount;
-  String? assignedLevelId;
+  int? assignedLevelId;
 
   DataObject({
     this.dataObjectSurveyLevel,
@@ -81,7 +81,7 @@ class DataObject {
   });
 
   factory DataObject.fromJson(Map<String, dynamic> json) => DataObject(
-        assignedLevelId: json["userVsTelios_Assignmentuserid::unitId"],
+        assignedLevelId: json["userVsTelios_Assignmentuserid::geoJsonLevelId"],
         dataObjectSurveyLevel:
             json["userVsTelios_Assignmentuserid::surveyLevel"],
         dataObjectUserAssingLevel:

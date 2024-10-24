@@ -1,9 +1,4 @@
-
-
-
-import 'dart:convert';
-
-String surveyToJson(SurveyTempModel data) => json.encode(data.toJson());
+import 'package:telios_2/model/survey_question_model.dart';
 
 class SurveyTempModel {
   final List<SurveyTemp>? surveyTemp;
@@ -11,13 +6,6 @@ class SurveyTempModel {
   SurveyTempModel({
     this.surveyTemp,
   });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'survey':
-          surveyTemp?.map((surveyTemp) => surveyTemp.toJson()).toList(),
-    };
-  }
 }
 
 class SurveyTemp {
@@ -25,6 +13,8 @@ class SurveyTemp {
   final String? surveyLevelKey;
   final String? assignedLevelKey;
   final String? assignedLevelName;
+  final String? geoJsonLevelKey;
+  final String? geoJsonLevelName;
   final List<SurveyTempAnswers>? answers;
 
   SurveyTemp({
@@ -32,34 +22,10 @@ class SurveyTemp {
     this.surveyLevelKey,
     this.assignedLevelKey,
     this.assignedLevelName,
+    this.geoJsonLevelKey,
+    this.geoJsonLevelName,
     this.answers,
   });
-
-  SurveyTemp copyWith({
-    String? surveyLevelName,
-    String? surveyLevelKey,
-    String? assignedLevelKey,
-    String? assignedLevelName,
-    List<SurveyTempAnswers>? answers,
-  }) {
-    return SurveyTemp(
-      surveyLevelName: surveyLevelName ?? this.surveyLevelName,
-      surveyLevelKey: surveyLevelKey ?? this.surveyLevelKey,
-      assignedLevelKey: assignedLevelKey ?? this.assignedLevelKey,
-      assignedLevelName: assignedLevelName ?? this.assignedLevelName,
-      answers: answers ?? this.answers,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'surveyLevelName': surveyLevelName,
-      'surveyLevelKey': surveyLevelKey,
-      'assignedLevelKey': assignedLevelKey,
-      'assignedLevelName': assignedLevelName,
-      'answers': answers?.map((answer) => answer.toJson()).toList(),
-    };
-  }
 }
 
 class SurveyTempAnswers {
@@ -68,7 +34,7 @@ class SurveyTempAnswers {
   final String? question;
   final int? typeId;
   final String? answer;
-  final List<String>? answerOptions;
+  final List<DItem>? answerOptions;
 
   SurveyTempAnswers({
     this.surveyId,
@@ -78,33 +44,4 @@ class SurveyTempAnswers {
     this.answer,
     this.answerOptions,
   });
-
-  SurveyTempAnswers copyWith({
-    int? questionId,
-    int? surveyId,
-    String? question,
-    int? typeId,
-    String? answer,
-    List<String>? answerOptions,
-  }) {
-    return SurveyTempAnswers(
-      questionId: questionId ?? this.questionId,
-      surveyId: surveyId ?? this.surveyId,
-      question: question ?? this.question,
-      typeId: typeId ?? this.typeId,
-      answer: answer ?? this.answer,
-      answerOptions: answerOptions ?? this.answerOptions,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'surveyId': surveyId,
-      'questionId': questionId,
-      'question': question,
-      'typeId': typeId,
-      'answer': answer,
-      'answerOptions': answerOptions,
-    };
-  }
 }

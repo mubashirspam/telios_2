@@ -1,10 +1,8 @@
 import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/view_model/auth/auth.dart';
-
 import '../../settings/settings.dart';
 import '../widgets/widgets.dart';
 
@@ -108,7 +106,6 @@ class LoginScreen extends StatelessWidget {
                               log(usernameController.value.text);
                               if (usernameController.value.text ==
                                   "9562229979") {
-
                                 controller.login(
                                     usernameController.value.text, 'pY29t4');
                               } else {

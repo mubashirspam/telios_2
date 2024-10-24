@@ -23,6 +23,8 @@ class _MapLevelScreenState extends State<MapLevelScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.fetchMapLevel(d);
+
+      Get.find<SurveyController>().syncSurveyAnswers(d);
     });
 
     return Scaffold(
@@ -110,7 +112,8 @@ class _MapLevelScreenState extends State<MapLevelScreen> {
                       );
                     }
                     if (c.mapResponse.state == ResponseState.error) {
-                      return const Center(child: Text("data not found"));
+                      return Center(
+                          child: Text(c.mapResponse.failure!.message));
                     }
                     if (c.mapResponse.state == ResponseState.completed) {
                       final levels = c.filterdMapLevel;

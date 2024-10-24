@@ -1,11 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../theme/colors.dart';
-
 
 class DebouncerFun {
   DebouncerFun({this.milliseconds = 400});
@@ -37,21 +33,29 @@ showSnackBar(String tittle, String subtitle) {
   );
 }
 
-final Map<String, Color> categoryColorMap = {
-  'hc': AppColor.hc,
-  'pc': AppColor.pc,
-  'mc': AppColor.mc,
-  'av': AppColor.av,
-  'Empty': Colors.grey.shade300,
-  '': Colors.white, // Default color if no match
-};
+// final Map<int, ColorMap> categoryColorMap = {
+//   21: ColorMap(color: AppColor.hc, name: "Green"),
+//   22: ColorMap(color: AppColor.mc, name: "Red"),
+//   20: ColorMap(color: AppColor.pc, name: "Blue"),
+//   27: ColorMap(color: AppColor.av, name: "Yellow"),
+//   1: ColorMap(color: Colors.white, name: ""),
+//   0: ColorMap(color: Colors.grey.shade300, name: "Empty"),
+// };
 
+class ColorMap {
+  Color? color;
+  String name;
+  ColorMap({
+    required this.color,
+    required this.name,
+  });
+}
 
-final Map<String, String> categoryMap = {
-  'hc': 'hc',
-  'pc': 'pc',
-  'mc': 'mc',
-  'av': 'av',
-  'Empty': 'Empty',
-  
-};
+// final Map<int, int> categoryMap = {
+//   21: 21,
+//   20: 20,
+//   22: 22,
+//   27: 27,
+//   28: 28,
+//   0: 0,
+// };

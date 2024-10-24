@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/settings/settings.dart';
 import '../../model/model.dart';
-import '../../settings/helper/refresh_token.dart';
 import 'auth_repository.dart';
 
 class AuthService extends GetxService {
@@ -15,15 +15,14 @@ class AuthService extends GetxService {
 
   Future<void> initializeToken() async {
     const duration = Duration(minutes: 13);
-    final tokenResponse = await authRepo.initializeToken();
-    tokenResponse.fold(
-      (failure) => Get.snackbar('Error', failure.message),
-      (initializeModel) async {
-        currentToken.value = initializeModel.response!.token!;
-        await authRepo.saveToken(currentToken.value);
-        await authRepo.saveTokenExpiration(DateTime.now().add(duration));
-      },
-    );
+    try {
+      final tokenResponse = await authRepo.initializeToken();
+      currentToken.value = tokenResponse.response!.token!;
+      await authRepo.saveToken(currentToken.value);
+      await authRepo.saveTokenExpiration(DateTime.now().add(duration));
+    } catch (e) {
+      Get.snackbar('Error', e.toString());
+    }
   }
 
   Future<void> refreshTokenIfNeeded() async {
@@ -53,41 +52,37 @@ class AuthService extends GetxService {
   }
 
   Future<Either<MainFailure, LoginModel>> login(
-    String phoneNumber,
-    String password,
-  ) async {
-    await refreshTokenIfNeeded();
-    return executeWithTokenRefresh(
-      () => authRepo
-          .login(
-            phoneNumber: phoneNumber,
-            password: password,
-            token: currentToken.value,
-          )
-          .then(
-            (result) => result.fold(
-              (failure) {
-                Get.snackbar('Error', failure.message);
-                return Left(failure);
-              },
-              (loginModel) async {
-                final loginDetails = loginModel.response!.data!.first.fieldData;
-                if (loginDetails != null) {
-                  authed.value = true;
-                  final bool isTrapdorValue = loginDetails.message == "alert";
-                  // final bool isAdvancedUserValue = loginDetails.isAdvancedUser ?? false;
-                  await authRepo.saveUserId(loginDetails.userId!);
-                  await authRepo.setTrapdor(isTrapdorValue);
-                  // await authRepo.setAdvancedUser(isAdvancedUserValue);
-                  isTrapdor.value = isTrapdorValue;
-                  // isAdvancedUser.value = isAdvancedUserValue;
-                  Get.offAllNamed(RouterName.splash);
-                }
-                return Right(loginModel);
-              },
-            ),
-          ),
-    );
+      String phoneNumber, String password) async {
+    try {
+      await refreshTokenIfNeeded();
+      return executeWithTokenRefresh(
+        () => authRepo
+            .login(
+                phoneNumber: phoneNumber,
+                password: password,
+                token: currentToken.value)
+            .then(
+          (loginModel) async {
+            final loginDetails = loginModel.response!.data!.first.fieldData;
+            if (loginDetails != null) {
+              authed.value = true;
+              final bool isTrapdorValue = loginDetails.message == "alert";
+              // final bool isAdvancedUserValue = loginDetails.isAdvancedUser ?? false;
+              await authRepo.saveUserId(loginDetails.userId!);
+              await authRepo.setTrapdor(isTrapdorValue);
+              // await authRepo.setAdvancedUser(isAdvancedUserValue);
+              isTrapdor.value = isTrapdorValue;
+              // isAdvancedUser.value = isAdvancedUserValue;
+              Get.offAllNamed(RouterName.splash);
+            }
+            return Right(loginModel);
+          },
+        ),
+      );
+    } on DioException catch (e) {
+       showSnackbar('Error on login', e.toString());
+      return Left(MainFailure(message: e.toString()));
+    }
   }
 
   Future<Either<MainFailure, UserData>> fetchUser({
@@ -95,28 +90,24 @@ class AuthService extends GetxService {
     required bool isRemote,
   }) async {
     if (isRemote) {
-      await refreshTokenIfNeeded();
-      return executeWithTokenRefresh(
-        () => authRepo
-            .fetchUserRemote(
-              userId: userId,
-              token: currentToken.value,
-            )
-            .then(
-              (result) => result.fold(
-                (failure) {
-                  Get.snackbar('Error', failure.message);
-                  return Left(failure);
-                },
-                (userModel) async {
-                  final UserData userData =
-                      userModel.response!.user!.first.userData!;
-                  await authRepo.postUserDB(userData);
-                  return Right(userData);
-                },
-              ),
-            ),
-      );
+      try {
+        await refreshTokenIfNeeded();
+        return executeWithTokenRefresh(
+          () => authRepo
+              .fetchUserRemote(userId: userId, token: currentToken.value)
+              .then(
+            (userModel) async {
+              final UserData userData =
+                  userModel.response!.user!.first.userData!;
+              await authRepo.postUserDB(userData);
+              return Right(userData);
+            },
+          ),
+        );
+      } catch (e) {
+         showSnackbar('Error on user loading', e.toString());
+        return Left(MainFailure(message: e.toString()));
+      }
     } else {
       try {
         final localUserData = await authRepo.fetchUserDB(userId);
@@ -140,4 +131,5 @@ class AuthService extends GetxService {
     authed.value = false;
     Get.offAllNamed('/login');
   }
+
 }

@@ -1,4 +1,3 @@
-
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,12 +5,14 @@ import 'package:syncfusion_flutter_maps/maps.dart';
 import 'package:telios_2/model/model.dart';
 import 'package:telios_2/view_model/view_model.dart';
 import '../../../settings/settings.dart';
+import 'dart:developer';
 
 class SfMapWidget extends StatelessWidget {
   final int selectedIndex;
   final List<ListingModel> levels;
   final Uint8List geoJsonBytes;
   final String shapeDataField;
+  final List<MapColorMapper> colorMapper;
 
   const SfMapWidget({
     super.key,
@@ -19,17 +20,20 @@ class SfMapWidget extends StatelessWidget {
     required this.selectedIndex,
     required this.levels,
     required this.shapeDataField,
+    required this.colorMapper,
   });
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        SizedBox(
+        Padding(
+          padding: const EdgeInsets.all(15),
           child: Column(
             children: [
               Expanded(
                 child: BuildMap(
+                  colorMappers: colorMapper,
                   levels: levels,
                   shapeDataField: shapeDataField,
                   geoJsonBytes: geoJsonBytes,
@@ -49,17 +53,14 @@ class BuildMap extends StatefulWidget {
   final List<ListingModel> levels;
   final Uint8List geoJsonBytes;
   final int selectedIndex;
-
-  // final List<MapColorMapper>? shapeColorMappers;
-  // final dynamic Function(int)? shapeColorValueMapper;
+  final List<MapColorMapper> colorMappers;
 
   const BuildMap({
     required this.shapeDataField,
     required this.geoJsonBytes,
     required this.levels,
-    // required this.shapeColorMappers,
-    // required this.shapeColorValueMapper,
     required this.selectedIndex,
+    required this.colorMappers,
     super.key,
   });
 
@@ -71,19 +72,23 @@ class _BuildMapState extends State<BuildMap> {
   late List<ListingModel> _levels;
   late Uint8List _bytesData;
   late MapShapeSource _dataSource;
+  late List<MapColorMapper> _colorMappers;
+  late int _selectedIndex;
 
   @override
   void initState() {
     _bytesData = widget.geoJsonBytes;
     _levels = widget.levels;
+    _colorMappers = widget.colorMappers;
+    _selectedIndex = widget.selectedIndex;
 
     _dataSource = MapShapeSource.memory(
       _bytesData,
       shapeDataField: widget.shapeDataField,
       dataCount: _levels.length,
       primaryValueMapper: (int index) => _levels[index].name,
-      shapeColorValueMapper: (int index) => _levels[index].category,
-      shapeColorMappers: colorMappers,
+      shapeColorValueMapper: (int index) => _levels[index].category.toString(),
+      shapeColorMappers: _colorMappers,
     );
     super.initState();
   }
@@ -91,6 +96,8 @@ class _BuildMapState extends State<BuildMap> {
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
+
+    log("Selected Index $_selectedIndex ::::::::  ${widget.levels.length}");
 
     return SfMaps(
       layers: [
@@ -102,13 +109,13 @@ class _BuildMapState extends State<BuildMap> {
               strokeWidth: 3,
             );
           },
-          selectedIndex: widget.selectedIndex,
+          selectedIndex: Get.find<LevelController>().selectedLevel.value,
           color: AppColor.primary,
           onSelectionChanged: (int index) {
             Get.find<LevelController>().selectALevel(index);
           },
           strokeColor: AppColor.primary,
-          strokeWidth: 2,
+          strokeWidth: 1,
           selectionSettings: const MapSelectionSettings(
             color: AppColor.primary,
             strokeColor: Colors.black,
@@ -128,46 +135,3 @@ class _BuildMapState extends State<BuildMap> {
     );
   }
 }
-
-final List<MapColorMapper> colorMappers = <MapColorMapper>[
-  const MapColorMapper(value: '', color: Colors.white),
-  const MapColorMapper(value: 'hc', color: AppColor.hc),
-  const MapColorMapper(value: 'pc', color: AppColor.pc),
-  const MapColorMapper(value: 'mc', color: AppColor.mc),
-  const MapColorMapper(value: 'av', color: AppColor.av)
-  // const MapColorMapper(
-  //   from: 1000,
-  //   to: 200000,
-  //   color: Colors.red,
-  //   minOpacity: 0.3,
-  //   maxOpacity: 1.0,
-  // ),
-  // const MapColorMapper(
-  //   from: 200001,
-  //   to: 400000,
-  //   color: Colors.green,
-  //   minOpacity: 0.3,
-  //   maxOpacity: 1.0,
-  // ),
-  // const MapColorMapper(
-  //   from: 400001,
-  //   to: 600000,
-  //   color: Colors.blue,
-  //   minOpacity: 0.3,
-  //   maxOpacity: 1.0,
-  // ),
-  // const MapColorMapper(
-  //   from: 600001,
-  //   to: 800000,
-  //   color: Colors.yellow,
-  //   minOpacity: 0.3,
-  //   maxOpacity: 1.0,
-  // ),
-  // const MapColorMapper(
-  //   from: 800001,
-  //   to: 1000000,
-  //   color: Colors.purple,
-  //   minOpacity: 0.3,
-  //   maxOpacity: 1.0,
-  // ),
-];

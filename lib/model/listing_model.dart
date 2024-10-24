@@ -8,6 +8,6 @@ class ListingModel {
 
   final String name;
   final String id;
-  final String category;
-  final Map<String, dynamic>? categoryList;
+  final int category;
+  final Map<int, int>? categoryList;
 }

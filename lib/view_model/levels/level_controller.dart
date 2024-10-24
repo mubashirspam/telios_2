@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+
 import 'package:telios_2/model/model.dart';
 import '../../settings/settings.dart';
 import '../survey/survey_controller.dart';
@@ -15,6 +17,8 @@ class LevelController extends GetxController {
   ApiResponse<List<AssignedLevel>> response = ApiResponse.initial();
   ApiResponse<List<MapLevel>> mapResponse = ApiResponse.initial();
   ApiResponse<List<SurveyLevel>> surveyResponse = ApiResponse.initial();
+
+  RxBool isSurveyScreenLoading = true.obs;
 
   RxList<ListingModel> surveyLevels = RxList<ListingModel>([]);
 
@@ -35,29 +39,27 @@ class LevelController extends GetxController {
 
   void selectMap() {
     isMapSelected.value = !isMapSelected.value;
-    if (isMapSelected.value) {
-      Future.delayed(const Duration(milliseconds: 100), () {
-        update();
-      });
-    } else {
-      update();
-    }
+    update();
   }
 
-  void selectALevel(int index) {
+  Future<void> selectALevel(int index) async {
     selectedLevel.value = index;
     if (selectedLevel.value == -1) {
       selectedSurveyLevelItem.value = null;
     } else {
       selectedSurveyLevelItem.value = surveyResponse.data![index];
-      _sureveyController.selectAnAnswer(selectedSurveyLevelItem.value!.levelKey??'');
+      await _sureveyController
+          .selectAnAnswer(selectedSurveyLevelItem.value!.levelKey ?? '');
     }
-
+    log("selected value ${selectedLevel.value}");
     update();
   }
 
   void gotToNextLevel(AssignedLevel assignedLevel) {
     final i = assignedLevel.assignedLevelId;
+    
+
+    log("assignedLevel id =============${i}");
 
     if (i != null) {
       level.value = Level(
@@ -80,7 +82,6 @@ class LevelController extends GetxController {
           break;
       }
       Get.toNamed(RouterName.mapLevel, arguments: assignedLevel);
-      log(shapeDataField.value);
     }
     update();
   }
@@ -127,6 +128,17 @@ class LevelController extends GetxController {
 
     update();
 
+    await _sureveyController.fetchSurveyQustions(assignedLevelKey: levelId);
+
+    if (_sureveyController.questionsModelList.isEmpty ||
+        _sureveyController.categoryList.isEmpty ||
+        _sureveyController.categoryList.length < 2) {
+      // mapResponse =
+      //     ApiResponse.error(MainFailure(message: "No Survey Data Found"));
+      log("message: No Survey Data Found");
+      // return;
+    }
+
     final localResult = await _service.fetchMapLevel(
         isRemote: false, levelId: levelId, id: level.value!.mId!);
 
@@ -144,7 +156,6 @@ class LevelController extends GetxController {
             createMapLevelsList(remoteUserModel, answerData);
             filterdMapLevel = remoteUserModel;
             mapResponse = ApiResponse.completed(remoteUserModel);
-
             update();
           },
         );
@@ -161,35 +172,45 @@ class LevelController extends GetxController {
   }
 
   Future<void> fetchSurveyLevel(MapLevel event) async {
+    log("********************Fetch Survey Level Called********************");
     if (surveyResponse.state == ResponseState.loading) {
       return;
     }
+    isSurveyScreenLoading.value = true;
     surveyResponse = ApiResponse.loading();
-
     update();
-    await _sureveyController.fetchSurveyAnswers(
-        geoJsonLevelKey: event.levelKey);
-    await Future.delayed(const Duration(milliseconds: 50));
-    final result = await _service.fetchSurveyLevel(
-        levelId: event.levelKey!, isRemote: false);
+    try {
+      await _sureveyController.fetchSurveyAnswers(
+          geoJsonLevelKey: event.levelKey);
+      await Future.delayed(const Duration(milliseconds: 200));
 
-    result.fold(
-      (failure) async {
-        surveyResponse = ApiResponse.error(failure);
-        update();
-      },
-      (success) async {
-        geoJsonBytes.value =
-            Uint8List.fromList(utf8.encode(event.geoJson ?? ''));
+      final result = await _service.fetchSurveyLevel(
+          levelId: event.levelKey!, isRemote: false);
 
-        createSurveyLevelsList(success, _sureveyController.surveyLevelAnswers);
-        selectALevel(-1);
-        await Future.delayed(const Duration(milliseconds: 50));
-        surveyResponse = ApiResponse.completed(success);
+      result.fold(
+        (failure) async {
+          surveyResponse = ApiResponse.error(failure);
+          update();
+        },
+        (success) async {
+          geoJsonBytes.value =
+              Uint8List.fromList(utf8.encode(event.geoJson ?? ''));
 
-        update();
-      },
-    );
+          createSurveyLevelsList(
+              success, _sureveyController.surveyLevelAnswers);
+          await selectALevel(-1);
+          await Future.delayed(const Duration(milliseconds: 200));
+          surveyResponse = ApiResponse.completed(success);
+
+          update();
+        },
+      );
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      isSurveyScreenLoading.value = false;
+      
+    }
   }
 
   void searchMapLevel(String query) {
@@ -219,18 +240,14 @@ class LevelController extends GetxController {
     List<SurveyAnswerModel>? answers,
   ) {
     surveyLevels.clear();
-
     for (var level in response) {
       SurveyAnswerModel? matchingAnswer = answers?.firstWhere(
         (answer) => answer.surveyLevelKey == level.levelKey,
         orElse: () => SurveyAnswerModel(),
       );
-
-      String category = matchingAnswer?.sCategory ?? '';
-
+      int category = matchingAnswer?.sCategory ?? 0;
       ListingModel newListing = ListingModel(level.levelName ?? 'UnknownLevel',
           category, level.levelKey ?? 'UnknownKey', null);
-
       surveyLevels.add(newListing);
     }
   }
@@ -240,40 +257,36 @@ class LevelController extends GetxController {
     List<SurveyAnswerModel>? answers,
   ) {
     mapLevels.clear();
+    final categoryMap = _sureveyController.categoryList;
 
     for (var level in response) {
-      // Filter answers that match the current level's levelKey
-      List<SurveyAnswerModel> matchingAnswers = answers
-              ?.where((answer) => answer.geoJsonLevelKey == level.levelKey)
-              .toList() ??
+      List<SurveyAnswerModel> matchingAnswers = answers?.where((answer) {
+            return answer.geoJsonLevelKey == level.levelKey;
+          }).toList() ??
           [];
 
-      // Initialize a map to count the occurrences of each category
-      Map<String, int> categoryCount = {};
+      Map<int, int> categoryCount = {};
 
       for (var answer in matchingAnswers) {
-        String category = answer.sCategory ?? '';
+        int category = answer.sCategory ?? 0;
 
-        if (categoryMap.containsKey(category)) {
-          // Increment the count for this category
+        if (categoryMap.any((test) => test.questionId == category)) {
           categoryCount[category] = (categoryCount[category] ?? 0) + 1;
         }
       }
 
-      // Convert categoryCount to Map<String, dynamic> for categoryList
-      Map<String, dynamic> categoryList = {};
+      Map<int, int> categoryList = {};
       categoryCount.forEach((key, value) {
         categoryList[key] = value;
       });
 
-      // Create the new ListingModel with the categoryList
       ListingModel newListing = ListingModel(
         level.levelName ?? 'UnknownLevel',
-        matchingAnswers.isNotEmpty ? matchingAnswers.first.sCategory ?? '' : '',
+        matchingAnswers.isNotEmpty ? matchingAnswers.first.sCategory ?? 0 : 0,
         level.levelKey ?? 'UnknownKey',
         categoryList.isNotEmpty ? categoryList : null,
       );
-
+      debugPrint("catergory List : ${newListing.categoryList}");
       mapLevels.add(newListing);
     }
   }

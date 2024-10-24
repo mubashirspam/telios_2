@@ -1,18 +1,16 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-
 import '../../model/model.dart';
 import '../../settings/settings.dart';
 import 'db/user_db.dart';
 
 class AuthRepository {
-  Future<Either<MainFailure, LoginModel>> login({
-    required String phoneNumber,
-    required String password,
-    required String token,
-  }) async {
+  final Dio _dio = Dio();
+  Future<LoginModel> login(
+      {required String phoneNumber,
+      required String password,
+      required String token}) async {
     try {
       log('Api call => ${ApiEndPoints.login} ');
       var headers = {
@@ -27,52 +25,39 @@ class AuthRepository {
         "script.prerequest": "Login_api",
         "script.prerequest.param": "$phoneNumber,$password"
       });
-      var dio = Dio();
-      final response = await dio.request(
+
+      final response = await _dio.post(
         ApiEndPoints.login,
-        options: Options(
-          method: 'POST',
-          headers: headers,
-        ),
+        options: Options(headers: headers),
         data: data,
       );
-      if (response.statusCode == 200) {
-        return Right(LoginModel.fromJson(response.data));
-      } else {
-        return Left(AppException.failures(response.data));
-      }
-    } on DioException catch (e) {
-      log(e.toString());
-      return Left(AppException.failures(e));
-    } catch (e, stackTrace) {
-      log('Error occurred while fetching places: $e', stackTrace: stackTrace);
-      return Left(MainFailure(message: e.toString()));
+
+      return LoginModel.fromJson(response.data);
+    } on DioException catch (e, stackTrace) {
+      log('Error occurred while login: $e', stackTrace: stackTrace);
+      rethrow;
     }
   }
 
-  Future<Either<MainFailure, InitializeModel>> initializeToken() async {
+  Future<InitializeModel> initializeToken() async {
     log('Api call => ${ApiEndPoints.initializeToken} ');
     try {
       var headers = {
         'Authorization': 'Basic $token==',
         'Content-Type': 'application/json'
       };
-      var dio = Dio();
-      final response = await dio.post(
+
+      final response = await _dio.post(
         ApiEndPoints.initializeToken,
         options: Options(
           headers: headers,
         ),
       );
 
-      if (response.statusCode == 200) {
-        return Right(InitializeModel.fromJson(response.data));
-      } else {
-        return Left(AppException.failures(response.data));
-      }
-    } catch (e) {
-      log(e.toString());
-      return Left(MainFailure(message: e.toString()));
+      return InitializeModel.fromJson(response.data);
+    } catch (e, stackTrace) {
+      log('Error occurred while initializing token: $e', stackTrace: stackTrace);
+      rethrow;
     }
   }
 
@@ -96,7 +81,7 @@ class AuthRepository {
     }
   }
 
-  Future<Either<MainFailure, UserModel>> fetchUserRemote({
+  Future<UserModel> fetchUserRemote({
     required String userId,
     required String token,
   }) async {
@@ -111,29 +96,17 @@ class AuthRepository {
           {"user_id": "=$userId"}
         ]
       });
-      var dio = Dio();
-      final response = await dio.request(
+
+      final response = await _dio.post(
         ApiEndPoints.fetchUser,
-        options: Options(
-          method: 'POST',
-          headers: headers,
-        ),
+        options: Options(headers: headers),
         data: data,
       );
 
-      if (response.statusCode == 200) {
-        final data = UserModel.fromJson(response.data);
-        log(data.response!.user!.first.userData!.userName.toString());
-        return Right(data);
-      } else {
-        return Left(AppException.failures(response.data));
-      }
-    } on DioException catch (e) {
-      log(e.toString());
-      return Left(AppException.failures(e));
-    } catch (e, stackTrace) {
-      log('Error occurred while fetching places: $e', stackTrace: stackTrace);
-      return Left(MainFailure(message: e.toString()));
+      return UserModel.fromJson(response.data);
+    } on DioException catch (e, stackTrace) {
+      log('Error occurred while fetching user: $e', stackTrace: stackTrace);
+      rethrow;
     }
   }
 
@@ -151,7 +124,6 @@ class AuthRepository {
   }
 
   Future<bool> clearUserDB(String userId) async {
-    
     return await UserDB.instance.deleteUser(userId);
   }
 
@@ -163,10 +135,6 @@ class AuthRepository {
   Future<void> saveToken(String token) async {
     await prefs.setString(sessionTokenKey, token);
   }
-
-
-
-
 
   Future<String?> getToken() async {
     return prefs.getString(sessionTokenKey);

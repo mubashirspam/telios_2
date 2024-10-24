@@ -15,6 +15,8 @@ class SurveyTempDB {
         .assignedLevelKeyEqualTo(data.assignedLevelKey)
         .and()
         .surveyLevelKeyEqualTo(data.surveyLevelKey)
+        .and()
+        .geoJsonLevelKeyEqualTo(data.geoJsonLevelKey)
         .findFirst();
     if (existingData == null) {
       await isar?.writeTxn(() async {
@@ -23,11 +25,17 @@ class SurveyTempDB {
           ..surveyLevelKey = data.surveyLevelKey
           ..assignedLevelName = data.assignedLevelName
           ..surveyLevelName = data.surveyLevelName
+          ..geoJsonLevelKey = data.geoJsonLevelKey
+          ..geoJsonLevelName = data.geoJsonLevelName
           ..answers = data.answers?.map((answer) {
             return IsarSurveyTempAnswers()
               ..surveyId = answer.surveyId
               ..answer = answer.answer
               ..answerOptions = answer.answerOptions
+                  ?.map((v) => IsarDItemTemp()
+                    ..id = v.id
+                    ..name = v.name)
+                  .toList()
               ..questionId = answer.questionId
               ..typeId = answer.typeId
               ..question = answer.question;
@@ -41,6 +49,10 @@ class SurveyTempDB {
             ..surveyId = answer.surveyId
             ..answer = answer.answer
             ..answerOptions = answer.answerOptions
+                ?.map((v) => IsarDItemTemp()
+                  ..id = v.id
+                  ..name = v.name)
+                .toList()
             ..questionId = answer.questionId
             ..typeId = answer.typeId
             ..question = answer.question;
@@ -62,11 +74,15 @@ class SurveyTempDB {
             surveyLevelKey: isar.surveyLevelKey!,
             assignedLevelName: isar.assignedLevelName!,
             surveyLevelName: isar.surveyLevelName!,
+            geoJsonLevelKey:isar.geoJsonLevelKey,
+            geoJsonLevelName:isar.geoJsonLevelName,
             answers: isar.answers?.map((isar) {
               return SurveyTempAnswers(
                 surveyId: isar.surveyId!,
                 answer: isar.answer!,
-                answerOptions: isar.answerOptions,
+                answerOptions: isar.answerOptions
+                    ?.map((v) => DItem(v.name ?? '', v.id ?? 0))
+                    .toList(),
                 questionId: isar.questionId!,
                 typeId: isar.typeId!,
                 question: isar.question!,

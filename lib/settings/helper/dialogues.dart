@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../theme/colors.dart';
 
@@ -116,3 +117,15 @@ class CustomAlertDialog extends StatelessWidget {
     );
   }
 }
+
+
+    void showSnackbar(String title, String message) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.redAccent,
+      colorText: Colors.black,
+      margin: const EdgeInsets.all(30),
+    );
+  }

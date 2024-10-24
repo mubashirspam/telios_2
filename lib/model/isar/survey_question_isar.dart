@@ -9,6 +9,7 @@ class IsarSurveyQusetionModel {
   int? sureveyId;
   String? surveyName;
   List<IsarSurveyQusetion>? questions;
+  List<IsarSurveyCategory>? category;
 }
 
 @embedded
@@ -21,4 +22,14 @@ class IsarSurveyQusetion {
   bool? isquestionVisble;
   String? hint;
   bool? isCounter;
+  String? parentQuestionId;
+}
+@embedded
+class IsarSurveyCategory {
+   int? questionId;
+   int?surveyId;
+   String? categoryName;
+   int? colorcode;
+
+
 }

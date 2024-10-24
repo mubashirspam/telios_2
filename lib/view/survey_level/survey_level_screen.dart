@@ -1,4 +1,3 @@
-// import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/view/view.dart';
@@ -6,6 +5,7 @@ import 'package:telios_2/view_model/view_model.dart';
 import '../../model/model.dart';
 import '../../settings/helper/enums.dart';
 import '../../settings/helper/responsive.dart';
+import 'dart:developer';
 
 class SurveyLevelHome extends GetView<LevelController> {
   final MapLevel mapLevel;
@@ -19,13 +19,14 @@ class SurveyLevelHome extends GetView<LevelController> {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Get.find<LevelController>().fetchSurveyLevel(mapLevel);
+      Get.find<SurveyController>().postSurveyAnswerRemote();
       Get.find<SurveyController>().fetchSurveyQustions(
-        assignedLevelKey: mapLevel.assignedLevelKey!,
-      );
+          assignedLevelKey: mapLevel.assignedLevelKey ?? '');
     });
     return GetBuilder<LevelController>(
       builder: (controller) {
-        if (controller.surveyResponse.state == ResponseState.loading) {
+        if (controller.surveyResponse.state == ResponseState.loading ||
+            controller.isSurveyScreenLoading.value) {
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
@@ -41,7 +42,8 @@ class SurveyLevelHome extends GetView<LevelController> {
         }
         if (controller.surveyResponse.state == ResponseState.completed &&
             controller.surveyResponse.data != null &&
-            controller.surveyResponse.data!.isNotEmpty) {
+            controller.surveyResponse.data!.isNotEmpty &&
+            !controller.isSurveyScreenLoading.value) {
           return SurveyLevelScreenBody(
             controller: controller,
             mapLevel: mapLevel,
@@ -69,6 +71,7 @@ class SurveyLevelScreenBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log("================= Rebuided===================");
     return Scaffold(
       body: SizedBox(
         width: double.maxFinite,
@@ -87,13 +90,15 @@ class SurveyLevelScreenBody extends StatelessWidget {
                       if (controller.selectedLevel.value != -1)
                         FormWidget(
                           assignedLevelKey: mapLevel.assignedLevelKey!,
-                          sureveyQustionId: 'Telios',
                           mapLevel: mapLevel,
                           level: controller.selectedSurveyLevelItem.value!,
                         ),
                       Expanded(
-                        child: (controller.isMapSelected.value)
+                        child: (controller.isMapSelected.value ||
+                                controller.selectedLevel.value == -1)
                             ? SfMapWidget(
+                                colorMapper:
+                                    Get.find<SurveyController>().colorMappers,
                                 levels: controller.surveyLevels,
                                 geoJsonBytes: controller.geoJsonBytes.value!,
                                 shapeDataField: controller.shapeDataField.value,
@@ -116,7 +121,6 @@ class SurveyLevelScreenBody extends StatelessWidget {
                   assignedLevelKey: mapLevel.assignedLevelKey!,
                   level: controller.selectedSurveyLevelItem.value!,
                   mapLevel: mapLevel,
-                  sureveyQustionId: 'Telios',
                 ),
               ),
             if ((Responsive.isMobile(context) &&
@@ -124,6 +128,7 @@ class SurveyLevelScreenBody extends StatelessWidget {
                 controller.selectedLevel.value == -1)
               Expanded(
                 child: SfMapWidget(
+                  colorMapper: Get.find<SurveyController>().colorMappers,
                   levels: controller.surveyLevels,
                   geoJsonBytes: controller.geoJsonBytes.value!,
                   shapeDataField: controller.shapeDataField.value,

@@ -12,6 +12,7 @@ class SurveyService extends GetxService {
   final _authService = Get.find<AuthService>();
 
   String get currentToken => _authService.currentToken.value;
+  String get userId => _authService.userId.value;
 
   Future<Either<MainFailure, List<QuestionModel>>> fetchSurveyQustions({
     required bool isRemote,
@@ -30,7 +31,6 @@ class SurveyService extends GetxService {
                   return Left(failure);
                 },
                 (success) async {
-                  log(success.response!.data!.length.toString());
                   final localData = convertSurveyQuestionRemoteToLocal(
                     assignedLevelKey: assignedLevelKey,
                     remoteData: success.response!.data!,
@@ -38,7 +38,7 @@ class SurveyService extends GetxService {
 
                   for (var element in localData) {
                     await _repository.postSurveyQustionlDB(
-                      element.questions,
+                      element,
                       assignedLevelKey,
                       element.surveyId,
                     );
@@ -66,14 +66,39 @@ class SurveyService extends GetxService {
     }
   }
 
-  Future<Either<MainFailure, SurveyTemp>> postSurveyAnswerRemote(
+  Future<Either<MainFailure, PostSurveyResponseModel>> postSurveyAnswerRemote(
       String surveyData) async {
     await _authService.refreshTokenIfNeeded();
     return executeWithTokenRefresh(
-      () => _repository.postSurveyAnswerRemote(currentToken, surveyData).then(
+      () => _repository
+          .postSurveyAnswerRemote(
+              token: currentToken, surveyData: surveyData, userId: userId)
+          .then(
             (result) => result.fold(
               (failure) {
                 Get.snackbar('Error', failure.message);
+                return Left(failure);
+              },
+              (success) async {
+                return Right(success);
+              },
+            ),
+          ),
+    );
+  }
+
+  Future<Either<MainFailure, SyncSurveyAnswerModelRemote>> syncSurveyAnswers(
+    String unitKey,
+  ) async {
+    await _authService.refreshTokenIfNeeded();
+    return executeWithTokenRefresh(
+      () => _repository
+          .syncSurveyAnswers(
+              token: currentToken, unitKey: unitKey,)
+          .then(
+            (result) => result.fold(
+              (failure) {
+                // Get.snackbar('Error', failure.message);
                 return Left(failure);
               },
               (success) async {
@@ -101,9 +126,64 @@ class SurveyService extends GetxService {
     return Left(MainFailure(message: 'No data found'));
   }
 
+  Future<Either<MainFailure, List<MultiDropdownOptionModel>>>
+      fetchDropdownOptions({
+    required bool isRemote,
+    required String levelKey,
+    required int? surveyId,
+  }) async {
+    if (isRemote) {
+      await _authService.refreshTokenIfNeeded();
+      return executeWithTokenRefresh(
+        () => _repository
+            .fetchDropdownOptionsRemote(
+                token: currentToken,
+                levelKey: levelKey,
+                surveyId: surveyId.toString())
+            .then(
+              (result) => result.fold(
+                (failure) {
+                  return Left(failure);
+                },
+                (success) async {
+                  final localData =
+                      convertDropdownOptionRemoteToLocal(success, levelKey);
+                  for (var element in localData) {
+                    await _repository.postDropDownOptionDB(element);
+                  }
+
+                  return Right(localData);
+                },
+              ),
+            ),
+      );
+    } else {
+      try {
+        final localData = await _repository.fetchDropDownOptionDB(
+          levelKey: levelKey,
+          surveyId: surveyId,
+        );
+        if (localData != null) {
+          log("right");
+          return Right(localData);
+        } else {
+          return Left(MainFailure(message: 'User not found in local database'));
+        }
+      } catch (e) {
+        return Left(MainFailure(
+            message:
+                'Error fetching user from local database: ${e.toString()}'));
+      }
+    }
+  }
+
   Future<void> postSurveyAnswerDB(SurveyAnswerModel answerData) async {
     await _repository.postSurveyAnswerDB(answerData);
   }
+
+  //   Future<void> syncSurveyAnswerDB(List<SyncSurveyAnswerModel> answerData, String assignedLevelKey) async {
+  //   await _repository.syncSurveyAnswerDB(answerData,assignedLevelKey);
+  // }
 
   Future<Either<MainFailure, List<SurveyTemp>>> fetchSurveyTempDB() async {
     final localResponse = await _repository.fetchSurveyTempDB();

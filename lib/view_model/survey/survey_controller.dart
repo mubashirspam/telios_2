@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:syncfusion_flutter_maps/maps.dart';
 import 'package:telios_2/model/model.dart';
 import 'package:telios_2/view_model/view_model.dart';
 import '../../settings/settings.dart';
 
 class SurveyController extends GetxController {
   final _service = Get.find<SurveyService>();
+  final empty = SurveyCategory(
+    categoryColor: 0xFFFFFFFF,
+    categoryName: "Empty",
+    questionId: 0,
+  );
 
   ApiResponse<List<QuestionModel>> r = ApiResponse.initial();
   ApiResponse<List<SurveyAnswerModel>> a = ApiResponse.initial();
-  ApiResponse<SurveyTemp> u = ApiResponse.initial();
+  ApiResponse<PostSurveyResponseModel> u = ApiResponse.initial();
+
+  ApiResponse<List<SurveyAnswerModel>> s = ApiResponse.initial();
 
   List<SurveyAnswerModel> geoJsonLevelAnswers = [];
   List<SurveyAnswerModel> surveyLevelAnswers = [];
@@ -17,10 +25,20 @@ class SurveyController extends GetxController {
   RxList<Question> questions = RxList<Question>([]);
   Rxn<SurveyAnswerModel> selectedAnswer = Rxn<SurveyAnswerModel>();
 
+  RxBool presentDataForSync = false.obs;
+
   RxList<QuestionModel> questionsModelList = RxList<QuestionModel>([]);
+  RxList<SurveyCategory> categoryList = RxList<SurveyCategory>([]);
+  RxList<MultiDropdownOptionModel> dropDownOptions =
+      RxList<MultiDropdownOptionModel>([]);
+
+  List<MapColorMapper> colorMappers = <MapColorMapper>[
+    const MapColorMapper(value: "Empty", color: Colors.white),
+  ];
 
   RxBool isUploading = false.obs;
   RxBool isSyncing = false.obs;
+  RxBool isFormLoading = false.obs;
 
   void setQuestion(int surveyId) {
     final QuestionModel? questionModel = questionsModelList
@@ -32,11 +50,18 @@ class SurveyController extends GetxController {
     }
   }
 
-  void selectAnAnswer(String surveyLevelKey) {
+  Future<void> selectAnAnswer(String surveyLevelKey) async {
+    if (surveyLevelAnswers.isEmpty) {
+      return;
+    }
+    isFormLoading.value = true;
+    update();
+    await Future.delayed(const Duration(milliseconds: 100));
+
     selectedAnswer.value = surveyLevelAnswers
         .where((element) => element.surveyLevelKey == surveyLevelKey)
         .firstOrNull;
-
+    isFormLoading.value = false;
     update();
   }
 
@@ -62,25 +87,152 @@ class SurveyController extends GetxController {
         remoteResult.fold(
           (remoteFailure) {
             r = ApiResponse.error(remoteFailure);
+            debugPrint("Error message: ${remoteFailure.message}");
             update();
           },
-          (remoteData) {
-            r = ApiResponse.completed(remoteData);
-            questionsModelList.value = remoteData;
+          (success) async {
+            await _handleSurveyData(success, assignedLevelKey);
+            r = ApiResponse.completed(success);
+
             update();
           },
         );
       },
       (success) async {
-        questionsModelList.value = success;
+        await _handleSurveyData(success, assignedLevelKey);
         r = ApiResponse.completed(success);
+
         update();
       },
     );
   }
 
+  Future<void> fetchDropdownOptions({
+    required String levelKey,
+    required int? surveyId,
+  }) async {
+    final localResult = await _service.fetchDropdownOptions(
+      isRemote: false,
+      levelKey: levelKey,
+      surveyId: surveyId,
+    );
+
+    localResult.fold(
+      (f) async {
+        final remoteResult = await _service.fetchDropdownOptions(
+          isRemote: true,
+          levelKey: levelKey,
+          surveyId: surveyId,
+        );
+        remoteResult.fold(
+          (f) {
+            update();
+          },
+          (s) {
+            dropDownOptions.value = s;
+            update();
+          },
+        );
+      },
+      (s) {
+        dropDownOptions.value = s;
+        update();
+      },
+    );
+  }
+
+  Future<void> _handleSurveyData(List<QuestionModel> data, String key) async {
+    questionsModelList.value = data;
+
+    categoryList
+      ..clear()
+      ..addAll(data.expand((q) => q.surveyCategories))
+      ..add(empty);
+
+    colorMappers
+      ..clear()
+      ..addAll(
+        categoryList.map(
+          (cc) => MapColorMapper(
+            color: Color(cc.categoryColor ?? 0xFF000000),
+            value: cc.questionId.toString(),
+          ),
+        ),
+      );
+
+    await _hndleSurveyOption(data, key);
+  }
+
+  Future<void> _hndleSurveyOption(List<QuestionModel> data, String key) async {
+    for (var questionModel in data) {
+      await fetchDropdownOptions(
+              levelKey: key, surveyId: questionModel.surveyId)
+          .then((r) =>
+              processQuestionsAndOptions(questionModel, dropDownOptions));
+    }
+  }
+
+  void processQuestionsAndOptions(QuestionModel questionModel,
+      RxList<MultiDropdownOptionModel> dropDownOptions) {
+    var matchingDropDownOption = dropDownOptions.firstWhereOrNull(
+        (dropDownOption) => dropDownOption.surveyId == questionModel.surveyId);
+
+    if (matchingDropDownOption != null) {
+      for (Question question in questionModel.questions) {
+        bool? matchingOption = matchingDropDownOption.option
+            ?.any((o) => o.questionId == question.questionId);
+
+        bool? matchingNestedOption = matchingDropDownOption.nestedOptions
+            ?.any((o) => o.questionId == question.questionId);
+
+        if (matchingOption ?? false) {
+          question.options = matchingDropDownOption.option
+              ?.where((option) => option.questionId == question.questionId)
+              .map(
+                  (option) => DItem(option.optionValue ?? '', option.optionId!))
+              .toList();
+        }
+        if (matchingNestedOption ?? false) {
+          Map<int, List<DItem>> result = {};
+
+          for (ChildOption option
+              in matchingDropDownOption.nestedOptions ?? []) {
+            if (option.parentOptionId != null) {
+              result.putIfAbsent(option.parentOptionId!, () => []);
+
+              result[option.parentOptionId!]!.add(DItem(
+                option.optionValue ?? '',
+                option.optionId ?? -1,
+              ));
+            }
+          }
+          question.nestedOptions = result;
+        }
+      }
+    }
+  }
+
+  Future<List<SurveyTemp>?> fetchSurveyTempDB() async {
+    presentDataForSync.value = false;
+    final data = await _service.fetchSurveyTempDB();
+    update();
+    data.fold((l) {
+      return null;
+    }, (r) {
+      if (r.isNotEmpty) {
+        presentDataForSync.value = true;
+        update();
+        return r;
+      }
+      update();
+      return null;
+    });
+    update();
+    return null;
+  }
+
   postSurveyAnswerRemote() async {
-    if (r.state == ResponseState.loading) {
+    if (u.state == ResponseState.loading) {
       return;
     }
 
@@ -94,11 +246,19 @@ class SurveyController extends GetxController {
       update();
       return;
     }, (r) async {
-      final surveyData = surveyToJson(SurveyTempModel(surveyTemp: r));
-
+      final data = convertTempAnswerToPostRemoteAnswer(r);
+      final surveyData = postSurveyToJson(data);
       final result = await _service.postSurveyAnswerRemote(surveyData);
       result.fold((l) => u = ApiResponse.error(l), (r) {
-        u = ApiResponse.completed(r);
+        if (r.response?.data?.first.fieldData?.alert ==
+            "Json has been inserted") {
+          _service.clearSurveyTempDB();
+          presentDataForSync.value = false;
+          u = ApiResponse.completed(r);
+          update();
+        }
+
+        u = ApiResponse.initial();
       });
     });
 
@@ -110,7 +270,7 @@ class SurveyController extends GetxController {
     String? geoJsonLevelKey,
     String? surveyLevelKey,
   }) async {
-    if (r.state == ResponseState.loading) {
+    if (a.state == ResponseState.loading) {
       return;
     }
     a = ApiResponse.loading();
@@ -126,17 +286,17 @@ class SurveyController extends GetxController {
     localResult.fold(
       (failure) async {
         a = ApiResponse.error(failure);
+
         update();
       },
       (success) async {
-        a = ApiResponse.completed(success);
-
         if (success.isNotEmpty && assignedLevelKey != null) {
           geoJsonLevelAnswers = success;
         }
         if (success.isNotEmpty && geoJsonLevelKey != null) {
           surveyLevelAnswers = success;
         }
+        a = ApiResponse.completed(success);
 
         update();
       },
@@ -147,62 +307,74 @@ class SurveyController extends GetxController {
     List<Answer> answers = [];
 
     for (var question in questions) {
-      String category = '';
+      int category = 0;
       if (question.answer.value.isNotEmpty) {
-        category = categoryMap[question.question.toLowerCase()] ?? '';
+        if (categoryList
+            .any((test) => test.questionId == question.questionId)) {
+          category = question.questionId;
+        } else {
+          category = 0;
+        }
       }
 
-      if (question.type == 'multi_dropdown') {
-        answers.add(Answer(
+      answers.add(
+        Answer(
           id: question.question,
-          answer: question.multiAnswer.toList().toString(),
+          answer: question.answer.value,
           type: question.type,
-        ));
-      } else if (question.type == 'nested_dropdown') {
-        answers.add(Answer(
-          id: question.question,
-          answer:
-              'Main: ${question.answer.value}, Nested: ${question.nestedAnswer.value}',
-          type: question.type,
-        ));
-      } else {
-        answers.add(
-          Answer(
-            id: question.question,
-            answer: question.answer.value,
-            type: question.type,
-            category: category,
-            questionId: question.questionId,
-            question: question.question,
-            typeId: question.typeId,
-            surveyId: question.surveyId,
-          ),
-        );
-      }
+          answerOptions: question.multiAnswer.isEmpty
+              ? question.multiAnswernestedAnswer
+              : question.multiAnswer,
+          category: category,
+          questionId: question.questionId,
+          question: question.question,
+          typeId: question.typeId,
+          surveyId: question.surveyId,
+        ),
+      );
+
+      // if (question.type == 'multi_dropdown') {
+      //   answers.add(Answer(
+      //     id: question.question,
+      //     answer: question.multiAnswer.toList().toString(),
+      //     type: question.type,
+      //   ));
+      // } else if (question.type == 'nested_dropdown') {
+      //   answers.add(Answer(
+      //     id: question.question,
+      //     answer:
+      //         'Main: ${question.answer.value}, Nested: ${question.nestedAnswer.value}',
+      //     type: question.type,
+      //   ));
+      // } else {
+
+      // }
     }
     return answers;
   }
 
-  String getSCategory(List<Answer>? answers) {
+  int getSCategory(List<Answer>? answers) {
     if (answers == null || answers.isEmpty) {
-      return '';
+      return 0;
     }
 
-    bool hasAv = answers.any((answer) => answer.category == 'av');
-    bool hasPc = answers.any((answer) => answer.category == 'pc');
-    bool hasMc = answers.any((answer) => answer.category == 'mc');
-    bool hasHc = answers.any((answer) => answer.category == 'hc');
+    bool hasAv =
+        answers.any((answer) => answer.category == 27 || answer.category == 28);
+
+    bool hasPc = answers.any((answer) => answer.category == 20);
+    bool hasMc = answers.any((answer) => answer.category == 22);
+    bool hasHc = answers.any((answer) => answer.category == 21);
 
     if (hasAv) {
-      return 'av';
+      return 27;
     } else if (hasMc) {
-      return 'mc';
+      return 22;
     } else if (hasHc) {
-      return 'hc';
+      return 21;
     } else if (hasPc) {
-      return 'pc';
+      return 20;
     } else {
-      return '';
+      return 0;
     }
   }
 
@@ -225,15 +397,13 @@ class SurveyController extends GetxController {
     try {
       isUploading.value = true;
       update();
-
       final answers = getAnswers();
       final sCategory = getSCategory(answers);
       final answerData = _createSurveyAnswerModel(level, sCategory, answers);
       final answerDataTemp = _createSurveyTemp(level, answers);
-
       await _submitSurveyData(answerData, answerDataTemp);
-      await _updateControllers(event);
       clearAnswers();
+      await _updateControllers(event);
 
       _showSnackbar(
         'Survey submitted successfully for ${level.levelName} (${level.levelKey})',
@@ -257,15 +427,15 @@ class SurveyController extends GetxController {
   void _showSnackbar(String message, {required Color backgroundColor}) {
     Get.showSnackbar(GetSnackBar(
       messageText: Text(message),
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 1),
       backgroundColor: backgroundColor,
-      snackPosition: SnackPosition.TOP,
+      snackPosition: SnackPosition.BOTTOM,
     ));
   }
 
   SurveyAnswerModel _createSurveyAnswerModel(
     SurveyLevel level,
-    String sCategory,
+    int sCategory,
     List<Answer>? answers,
   ) {
     return SurveyAnswerModel(
@@ -276,8 +446,8 @@ class SurveyController extends GetxController {
       geoJsonLevelName: level.geoJsonLevelName,
       surveyLevelName: level.levelName,
       sCategory: sCategory,
-      gCategory: '',
-      aCategory: '',
+      gCategory: 0,
+      aCategory: 0,
       answers: answers,
     );
   }
@@ -288,6 +458,8 @@ class SurveyController extends GetxController {
       surveyLevelKey: level.levelKey,
       assignedLevelName: level.assignedLevelName,
       surveyLevelName: level.levelName,
+      geoJsonLevelKey: level.geoJsonLevelKey,
+      geoJsonLevelName: level.geoJsonLevelName,
       answers: _convertToSurveyTempAnswers(answers),
     );
   }
@@ -311,13 +483,15 @@ class SurveyController extends GetxController {
     SurveyTemp answerDataTemp,
   ) async {
     await _service.postSurveyAnswerDB(answerData);
+    await Future.delayed(const Duration(milliseconds: 200));
     await _service.postSurveyTempDB(answerDataTemp);
-    await Future.delayed(const Duration(milliseconds: 300));
   }
 
   Future<void> _updateControllers(MapLevel event) async {
-    await Get.find<LevelController>().fetchSurveyLevel(event);
+    await fetchSurveyTempDB();
     await Get.find<LevelController>().fetchMapLevel(event.assignedLevelKey!);
+    await Future.delayed(const Duration(milliseconds: 100));
+    await Get.find<LevelController>().fetchSurveyLevel(event);
   }
 
   void clearAnswers() {
@@ -326,5 +500,28 @@ class SurveyController extends GetxController {
       question.nestedAnswer.value = ''; // Clear nested answer if any
       question.multiAnswer.clear(); // Clear multiple answers
     }
+  }
+
+  Future<void> syncSurveyAnswers(String unitKey) async {
+    if (s.state == ResponseState.loading) {
+      return;
+    }
+
+    s = ApiResponse.loading();
+    update();
+    final data = await _service.syncSurveyAnswers(unitKey);
+    data.fold((l) {
+      s = ApiResponse.error(l);
+      update();
+    }, (r) async {
+      final answerData = convertSyncSurveyAnswerToLocal(r);
+      if (answerData.isEmpty) {
+        for (var answer in answerData) {
+          await _service.postSurveyAnswerDB(answer);
+        }
+      }
+      s = ApiResponse.completed(answerData);
+      update();
+    });
   }
 }

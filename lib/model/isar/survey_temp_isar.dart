@@ -9,6 +9,8 @@ class IsarSurveyTemp {
   String? surveyLevelKey;
   String? assignedLevelKey;
   String? assignedLevelName;
+  String? geoJsonLevelKey;
+  String? geoJsonLevelName;
   List<IsarSurveyTempAnswers>? answers;
 }
 
@@ -19,5 +21,11 @@ class IsarSurveyTempAnswers {
   String? question;
   int? typeId;
   String? answer;
-  List<String>? answerOptions;
+  List<IsarDItemTemp>? answerOptions;
+}
+
+@embedded
+class IsarDItemTemp {
+  int? id;
+  String? name;
 }

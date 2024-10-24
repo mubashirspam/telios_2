@@ -12,9 +12,9 @@ class IsarSurveyAnswerModel {
   String? assignedLevelKey;
   String? assignedLevelName;
   List<IsarAnswer>? answers;
-  String? aCategory;
-  String? sCategory;
-  String? gCategory;
+  int? aCategory;
+  int? sCategory;
+  int? gCategory;
 }
 
 @embedded
@@ -22,10 +22,16 @@ class IsarAnswer {
   String? id;
   String? answer;
   String? type;
-  String? category;
+  int? category;
   int? surveyId;
   int? questionId;
   String? question;
   int? typeId;
-  List<String>? answerOptions;
+  List<IsarDItem>? answerOptions;
+}
+@embedded
+class IsarDItem {
+  int? id;
+  String? name;
+
 }

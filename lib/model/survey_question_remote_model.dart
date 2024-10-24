@@ -1,119 +1,164 @@
-class SurveyRemoteQuestionModel {
-  SurveyQuestionResponse? response;
+class RemoteQuestionModel {
+  QuestionResponse? response;
 
-  SurveyRemoteQuestionModel({
+  RemoteQuestionModel({
     this.response,
   });
 
-  factory SurveyRemoteQuestionModel.fromJson(Map<String, dynamic> json) =>
-      SurveyRemoteQuestionModel(
+  factory RemoteQuestionModel.fromJson(Map<String, dynamic> json) =>
+      RemoteQuestionModel(
         response: json["response"] == null
             ? null
-            : SurveyQuestionResponse.fromJson(json["response"]),
+            : QuestionResponse.fromJson(json["response"]),
       );
 }
 
-class SurveyQuestionResponse {
-  List<SurveyQuestionData>? data;
+class QuestionResponse {
+  List<QuestionDatum>? data;
 
-  SurveyQuestionResponse({
+  QuestionResponse({
     this.data,
   });
 
-  factory SurveyQuestionResponse.fromJson(Map<String, dynamic> json) =>
-      SurveyQuestionResponse(
+  factory QuestionResponse.fromJson(Map<String, dynamic> json) =>
+      QuestionResponse(
         data: json["data"] == null
             ? []
-            : List<SurveyQuestionData>.from(
-                json["data"]!.map((x) => SurveyQuestionData.fromJson(x))),
+            : List<QuestionDatum>.from(
+                json["data"]!.map((x) => QuestionDatum.fromJson(x))),
       );
 }
 
-class SurveyQuestionData {
-  SurveyQuestionFieldData? fieldData;
-  SurveyQuestionPortalData? portalData;
+class QuestionDatum {
+  QuestionFieldData? fieldData;
+  QuestionPortalData? portalData;
 
-  SurveyQuestionData({
+  QuestionDatum({
     this.fieldData,
     this.portalData,
   });
 
-  factory SurveyQuestionData.fromJson(Map<String, dynamic> json) =>
-      SurveyQuestionData(
+  factory QuestionDatum.fromJson(Map<String, dynamic> json) => QuestionDatum(
         fieldData: json["fieldData"] == null
             ? null
-            : SurveyQuestionFieldData.fromJson(json["fieldData"]),
+            : QuestionFieldData.fromJson(json["fieldData"]),
         portalData: json["portalData"] == null
             ? null
-            : SurveyQuestionPortalData.fromJson(json["portalData"]),
+            : QuestionPortalData.fromJson(json["portalData"]),
       );
 }
 
-class SurveyQuestionFieldData {
+class QuestionFieldData {
   int? id;
   String? survey;
 
-  SurveyQuestionFieldData({
+  QuestionFieldData({
     this.id,
     this.survey,
   });
 
-  factory SurveyQuestionFieldData.fromJson(Map<String, dynamic> json) =>
-      SurveyQuestionFieldData(
+  factory QuestionFieldData.fromJson(Map<String, dynamic> json) =>
+      QuestionFieldData(
         id: json["id"],
         survey: json["survey"],
       );
 }
 
-class SurveyQuestionPortalData {
-  List<SurveyQuestion>? surveyQuestion;
+class QuestionPortalData {
+  List<SurveyQuestionRemote>? surveyQuestion;
+  List<SurveyVssurveyQuestionsVscategoryX>? surveyVssurveyQuestionsVscategoryX;
 
-  SurveyQuestionPortalData({
+  QuestionPortalData({
     this.surveyQuestion,
+    this.surveyVssurveyQuestionsVscategoryX,
   });
 
-  factory SurveyQuestionPortalData.fromJson(Map<String, dynamic> json) =>
-      SurveyQuestionPortalData(
+  factory QuestionPortalData.fromJson(Map<String, dynamic> json) =>
+      QuestionPortalData(
         surveyQuestion: json["surveyQuestion"] == null
             ? []
-            : List<SurveyQuestion>.from(
-                json["surveyQuestion"]!.map((x) => SurveyQuestion.fromJson(x))),
+            : List<SurveyQuestionRemote>.from(json["surveyQuestion"]!
+                .map((x) => SurveyQuestionRemote.fromJson(x))),
+        surveyVssurveyQuestionsVscategoryX:
+            json["surveyVssurveyQuestionsVscategoryX"] == null
+                ? []
+                : List<SurveyVssurveyQuestionsVscategoryX>.from(
+                    json["surveyVssurveyQuestionsVscategoryX"]!.map(
+                        (x) => SurveyVssurveyQuestionsVscategoryX.fromJson(x))),
       );
 }
 
-class SurveyQuestion {
+class SurveyQuestionRemote {
   String? recordId;
   int? surveyQuestionId;
   String? surveyQuestionQuestion;
   int? surveyQuestionQuestionTypeId;
-  String? surveyQuestionColor;
   String? surveyVsquestionvsquestionTypeQuestionType;
-  String? surveyQuestionIsCounter;
   String? surveyQuestionHint;
+  String? surveyQuestionIsCounter;
+  String? surveyVssurveyQuestionsVscategoryCategoryColor;
+  String? surveyQuestionParentId;
   String? modId;
 
-  SurveyQuestion({
+  SurveyQuestionRemote({
     this.recordId,
     this.surveyQuestionId,
     this.surveyQuestionQuestion,
     this.surveyQuestionQuestionTypeId,
-    this.surveyQuestionColor,
     this.surveyVsquestionvsquestionTypeQuestionType,
-    this.surveyQuestionIsCounter,
     this.surveyQuestionHint,
+    this.surveyQuestionIsCounter,
+    this.surveyVssurveyQuestionsVscategoryCategoryColor,
+    this.surveyQuestionParentId,
     this.modId,
   });
 
-  factory SurveyQuestion.fromJson(Map<String, dynamic> json) => SurveyQuestion(
+  factory SurveyQuestionRemote.fromJson(Map<String, dynamic> json) =>
+      SurveyQuestionRemote(
         recordId: json["recordId"],
         surveyQuestionId: json["surveyQuestion::id"],
         surveyQuestionQuestion: json["surveyQuestion::question"],
         surveyQuestionQuestionTypeId: json["surveyQuestion::questionTypeId"],
-        surveyQuestionColor: json["surveyQuestion::color"],
         surveyVsquestionvsquestionTypeQuestionType:
             json["surveyVsquestionvsquestionType::questionType"],
-        surveyQuestionIsCounter: json["surveyQuestion::isCounter"],
         surveyQuestionHint: json["surveyQuestion::hint"],
+        surveyQuestionIsCounter: json["surveyQuestion::isCounter"],
+        surveyVssurveyQuestionsVscategoryCategoryColor:
+            json["surveyVssurveyQuestionsVscategory::categoryColor"],
+        surveyQuestionParentId: json["surveyQuestion::parentId"],
+        modId: json["modId"],
+      );
+}
+
+class SurveyVssurveyQuestionsVscategoryX {
+  String? recordId;
+  String? surveyVssurveyQuestionsVscategoryXCategoryName;
+  String? surveyVssurveyQuestionsVscategoryXCategoryColor;
+  String? surveyVssurveyQuestionsVscategoryXQuestionId;
+  String? surveyVssurveyQuestionsVscategoryXSurveyId;
+  String? modId;
+
+  SurveyVssurveyQuestionsVscategoryX({
+    this.recordId,
+    this.surveyVssurveyQuestionsVscategoryXCategoryName,
+    this.surveyVssurveyQuestionsVscategoryXCategoryColor,
+    this.surveyVssurveyQuestionsVscategoryXQuestionId,
+    this.surveyVssurveyQuestionsVscategoryXSurveyId,
+    this.modId,
+  });
+
+  factory SurveyVssurveyQuestionsVscategoryX.fromJson(
+          Map<String, dynamic> json) =>
+      SurveyVssurveyQuestionsVscategoryX(
+        recordId: json["recordId"],
+        surveyVssurveyQuestionsVscategoryXCategoryName:
+            json["surveyVssurveyQuestionsVscategoryX::categoryName"],
+        surveyVssurveyQuestionsVscategoryXCategoryColor:
+            json["surveyVssurveyQuestionsVscategoryX::categoryColor"],
+        surveyVssurveyQuestionsVscategoryXQuestionId:
+            json["surveyVssurveyQuestionsVscategoryX::questionId"],
+        surveyVssurveyQuestionsVscategoryXSurveyId:
+            json["surveyVssurveyQuestionsVscategoryX::surveyId"],
         modId: json["modId"],
       );
 }

@@ -23,19 +23,25 @@ const IsarSurveyQusetionModelSchema = CollectionSchema(
       name: r'assignedLevelKey',
       type: IsarType.string,
     ),
-    r'questions': PropertySchema(
+    r'category': PropertySchema(
       id: 1,
+      name: r'category',
+      type: IsarType.objectList,
+      target: r'IsarSurveyCategory',
+    ),
+    r'questions': PropertySchema(
+      id: 2,
       name: r'questions',
       type: IsarType.objectList,
       target: r'IsarSurveyQusetion',
     ),
     r'sureveyId': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'sureveyId',
       type: IsarType.long,
     ),
     r'surveyName': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'surveyName',
       type: IsarType.string,
     )
@@ -61,7 +67,10 @@ const IsarSurveyQusetionModelSchema = CollectionSchema(
     )
   },
   links: {},
-  embeddedSchemas: {r'IsarSurveyQusetion': IsarSurveyQusetionSchema},
+  embeddedSchemas: {
+    r'IsarSurveyQusetion': IsarSurveyQusetionSchema,
+    r'IsarSurveyCategory': IsarSurveyCategorySchema
+  },
   getId: _isarSurveyQusetionModelGetId,
   getLinks: _isarSurveyQusetionModelGetLinks,
   attach: _isarSurveyQusetionModelAttach,
@@ -78,6 +87,20 @@ int _isarSurveyQusetionModelEstimateSize(
     final value = object.assignedLevelKey;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final list = object.category;
+    if (list != null) {
+      bytesCount += 3 + list.length * 3;
+      {
+        final offsets = allOffsets[IsarSurveyCategory]!;
+        for (var i = 0; i < list.length; i++) {
+          final value = list[i];
+          bytesCount +=
+              IsarSurveyCategorySchema.estimateSize(value, offsets, allOffsets);
+        }
+      }
     }
   }
   {
@@ -110,14 +133,20 @@ void _isarSurveyQusetionModelSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.assignedLevelKey);
-  writer.writeObjectList<IsarSurveyQusetion>(
+  writer.writeObjectList<IsarSurveyCategory>(
     offsets[1],
+    allOffsets,
+    IsarSurveyCategorySchema.serialize,
+    object.category,
+  );
+  writer.writeObjectList<IsarSurveyQusetion>(
+    offsets[2],
     allOffsets,
     IsarSurveyQusetionSchema.serialize,
     object.questions,
   );
-  writer.writeLong(offsets[2], object.sureveyId);
-  writer.writeString(offsets[3], object.surveyName);
+  writer.writeLong(offsets[3], object.sureveyId);
+  writer.writeString(offsets[4], object.surveyName);
 }
 
 IsarSurveyQusetionModel _isarSurveyQusetionModelDeserialize(
@@ -128,15 +157,21 @@ IsarSurveyQusetionModel _isarSurveyQusetionModelDeserialize(
 ) {
   final object = IsarSurveyQusetionModel();
   object.assignedLevelKey = reader.readStringOrNull(offsets[0]);
+  object.category = reader.readObjectList<IsarSurveyCategory>(
+    offsets[1],
+    IsarSurveyCategorySchema.deserialize,
+    allOffsets,
+    IsarSurveyCategory(),
+  );
   object.id = id;
   object.questions = reader.readObjectList<IsarSurveyQusetion>(
-    offsets[1],
+    offsets[2],
     IsarSurveyQusetionSchema.deserialize,
     allOffsets,
     IsarSurveyQusetion(),
   );
-  object.sureveyId = reader.readLongOrNull(offsets[2]);
-  object.surveyName = reader.readStringOrNull(offsets[3]);
+  object.sureveyId = reader.readLongOrNull(offsets[3]);
+  object.surveyName = reader.readStringOrNull(offsets[4]);
   return object;
 }
 
@@ -150,15 +185,22 @@ P _isarSurveyQusetionModelDeserializeProp<P>(
     case 0:
       return (reader.readStringOrNull(offset)) as P;
     case 1:
+      return (reader.readObjectList<IsarSurveyCategory>(
+        offset,
+        IsarSurveyCategorySchema.deserialize,
+        allOffsets,
+        IsarSurveyCategory(),
+      )) as P;
+    case 2:
       return (reader.readObjectList<IsarSurveyQusetion>(
         offset,
         IsarSurveyQusetionSchema.deserialize,
         allOffsets,
         IsarSurveyQusetion(),
       )) as P;
-    case 2:
-      return (reader.readLongOrNull(offset)) as P;
     case 3:
+      return (reader.readLongOrNull(offset)) as P;
+    case 4:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -592,6 +634,113 @@ extension IsarSurveyQusetionModelQueryFilter on QueryBuilder<
   }
 
   QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
+      QAfterFilterCondition> categoryIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'category',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
+      QAfterFilterCondition> categoryIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'category',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
+      QAfterFilterCondition> categoryLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'category',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
+      QAfterFilterCondition> categoryIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'category',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
+      QAfterFilterCondition> categoryIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'category',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
+      QAfterFilterCondition> categoryLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'category',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
+      QAfterFilterCondition> categoryLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'category',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
+      QAfterFilterCondition> categoryLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'category',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
       QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -989,6 +1138,14 @@ extension IsarSurveyQusetionModelQueryObject on QueryBuilder<
     IsarSurveyQusetionModel, IsarSurveyQusetionModel, QFilterCondition> {
   QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
           QAfterFilterCondition>
+      categoryElement(FilterQuery<IsarSurveyCategory> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'category');
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetionModel, IsarSurveyQusetionModel,
+          QAfterFilterCondition>
       questionsElement(FilterQuery<IsarSurveyQusetion> q) {
     return QueryBuilder.apply(this, (query) {
       return query.object(q, r'questions');
@@ -1143,6 +1300,13 @@ extension IsarSurveyQusetionModelQueryProperty on QueryBuilder<
     });
   }
 
+  QueryBuilder<IsarSurveyQusetionModel, List<IsarSurveyCategory>?,
+      QQueryOperations> categoryProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'category');
+    });
+  }
+
   QueryBuilder<IsarSurveyQusetionModel, List<IsarSurveyQusetion>?,
       QQueryOperations> questionsProperty() {
     return QueryBuilder.apply(this, (query) {
@@ -1196,23 +1360,28 @@ const IsarSurveyQusetionSchema = Schema(
       name: r'isquestionVisble',
       type: IsarType.bool,
     ),
-    r'question': PropertySchema(
+    r'parentQuestionId': PropertySchema(
       id: 4,
+      name: r'parentQuestionId',
+      type: IsarType.string,
+    ),
+    r'question': PropertySchema(
+      id: 5,
       name: r'question',
       type: IsarType.string,
     ),
     r'questionId': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'questionId',
       type: IsarType.long,
     ),
     r'type': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'type',
       type: IsarType.string,
     ),
     r'typeId': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'typeId',
       type: IsarType.long,
     )
@@ -1231,6 +1400,12 @@ int _isarSurveyQusetionEstimateSize(
   var bytesCount = offsets.last;
   {
     final value = object.hint;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.parentQuestionId;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
@@ -1260,10 +1435,11 @@ void _isarSurveyQusetionSerialize(
   writer.writeString(offsets[1], object.hint);
   writer.writeBool(offsets[2], object.isCounter);
   writer.writeBool(offsets[3], object.isquestionVisble);
-  writer.writeString(offsets[4], object.question);
-  writer.writeLong(offsets[5], object.questionId);
-  writer.writeString(offsets[6], object.type);
-  writer.writeLong(offsets[7], object.typeId);
+  writer.writeString(offsets[4], object.parentQuestionId);
+  writer.writeString(offsets[5], object.question);
+  writer.writeLong(offsets[6], object.questionId);
+  writer.writeString(offsets[7], object.type);
+  writer.writeLong(offsets[8], object.typeId);
 }
 
 IsarSurveyQusetion _isarSurveyQusetionDeserialize(
@@ -1277,10 +1453,11 @@ IsarSurveyQusetion _isarSurveyQusetionDeserialize(
   object.hint = reader.readStringOrNull(offsets[1]);
   object.isCounter = reader.readBoolOrNull(offsets[2]);
   object.isquestionVisble = reader.readBoolOrNull(offsets[3]);
-  object.question = reader.readStringOrNull(offsets[4]);
-  object.questionId = reader.readLongOrNull(offsets[5]);
-  object.type = reader.readStringOrNull(offsets[6]);
-  object.typeId = reader.readLongOrNull(offsets[7]);
+  object.parentQuestionId = reader.readStringOrNull(offsets[4]);
+  object.question = reader.readStringOrNull(offsets[5]);
+  object.questionId = reader.readLongOrNull(offsets[6]);
+  object.type = reader.readStringOrNull(offsets[7]);
+  object.typeId = reader.readLongOrNull(offsets[8]);
   return object;
 }
 
@@ -1302,10 +1479,12 @@ P _isarSurveyQusetionDeserializeProp<P>(
     case 4:
       return (reader.readStringOrNull(offset)) as P;
     case 5:
-      return (reader.readLongOrNull(offset)) as P;
-    case 6:
       return (reader.readStringOrNull(offset)) as P;
+    case 6:
+      return (reader.readLongOrNull(offset)) as P;
     case 7:
+      return (reader.readStringOrNull(offset)) as P;
+    case 8:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1594,6 +1773,160 @@ extension IsarSurveyQusetionQueryFilter
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isquestionVisble',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'parentQuestionId',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'parentQuestionId',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'parentQuestionId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'parentQuestionId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'parentQuestionId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'parentQuestionId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'parentQuestionId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'parentQuestionId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'parentQuestionId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'parentQuestionId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'parentQuestionId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QAfterFilterCondition>
+      parentQuestionIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'parentQuestionId',
+        value: '',
       ));
     });
   }
@@ -2057,3 +2390,480 @@ extension IsarSurveyQusetionQueryFilter
 
 extension IsarSurveyQusetionQueryObject
     on QueryBuilder<IsarSurveyQusetion, IsarSurveyQusetion, QFilterCondition> {}
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+const IsarSurveyCategorySchema = Schema(
+  name: r'IsarSurveyCategory',
+  id: 6443820164992895814,
+  properties: {
+    r'categoryName': PropertySchema(
+      id: 0,
+      name: r'categoryName',
+      type: IsarType.string,
+    ),
+    r'colorcode': PropertySchema(
+      id: 1,
+      name: r'colorcode',
+      type: IsarType.long,
+    ),
+    r'questionId': PropertySchema(
+      id: 2,
+      name: r'questionId',
+      type: IsarType.long,
+    ),
+    r'surveyId': PropertySchema(
+      id: 3,
+      name: r'surveyId',
+      type: IsarType.long,
+    )
+  },
+  estimateSize: _isarSurveyCategoryEstimateSize,
+  serialize: _isarSurveyCategorySerialize,
+  deserialize: _isarSurveyCategoryDeserialize,
+  deserializeProp: _isarSurveyCategoryDeserializeProp,
+);
+
+int _isarSurveyCategoryEstimateSize(
+  IsarSurveyCategory object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  {
+    final value = object.categoryName;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  return bytesCount;
+}
+
+void _isarSurveyCategorySerialize(
+  IsarSurveyCategory object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeString(offsets[0], object.categoryName);
+  writer.writeLong(offsets[1], object.colorcode);
+  writer.writeLong(offsets[2], object.questionId);
+  writer.writeLong(offsets[3], object.surveyId);
+}
+
+IsarSurveyCategory _isarSurveyCategoryDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = IsarSurveyCategory();
+  object.categoryName = reader.readStringOrNull(offsets[0]);
+  object.colorcode = reader.readLongOrNull(offsets[1]);
+  object.questionId = reader.readLongOrNull(offsets[2]);
+  object.surveyId = reader.readLongOrNull(offsets[3]);
+  return object;
+}
+
+P _isarSurveyCategoryDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readStringOrNull(offset)) as P;
+    case 1:
+      return (reader.readLongOrNull(offset)) as P;
+    case 2:
+      return (reader.readLongOrNull(offset)) as P;
+    case 3:
+      return (reader.readLongOrNull(offset)) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+extension IsarSurveyCategoryQueryFilter
+    on QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QFilterCondition> {
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'categoryName',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'categoryName',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'categoryName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'categoryName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'categoryName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'categoryName',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'categoryName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'categoryName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'categoryName',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'categoryName',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'categoryName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      categoryNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'categoryName',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      colorcodeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'colorcode',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      colorcodeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'colorcode',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      colorcodeEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'colorcode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      colorcodeGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'colorcode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      colorcodeLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'colorcode',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      colorcodeBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'colorcode',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      questionIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'questionId',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      questionIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'questionId',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      questionIdEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'questionId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      questionIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'questionId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      questionIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'questionId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      questionIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'questionId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      surveyIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'surveyId',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      surveyIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'surveyId',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      surveyIdEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'surveyId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      surveyIdGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'surveyId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      surveyIdLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'surveyId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QAfterFilterCondition>
+      surveyIdBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'surveyId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+}
+
+extension IsarSurveyCategoryQueryObject
+    on QueryBuilder<IsarSurveyCategory, IsarSurveyCategory, QFilterCondition> {}

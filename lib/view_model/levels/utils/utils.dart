@@ -20,7 +20,7 @@ List<AssignedLevel> convertAssignedRemoteToLocal({
       geoJsonLevel: dataObject.dataObjectGeoJsonLevel,
       geoJsonLevelCount: dataObject.dataObjectGeojsonLevelCount,
       surveyLevelCount: dataObject.dataObjectSurveyLevelCount,
-      assignedLevelId: int.tryParse(dataObject.assignedLevelId ?? '3'),
+      assignedLevelId: dataObject.assignedLevelId 
     );
   }).toList();
 }

@@ -38,6 +38,7 @@ Future<void> dbInit() async {
           IsarSurveyQusetionModelSchema,
           IsarSurveyAnswerModelSchema,
           IsarSurveyTempSchema,
+          IsarMultiDropdownOptionModelSchema
           
         ],
         directory: '${directory?.path}',

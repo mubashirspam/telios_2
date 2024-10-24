@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -20,6 +19,7 @@ class HomeScreen extends StatelessWidget {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.fetchUser();
+      Get.find<SurveyController>().fetchSurveyTempDB();
     });
 
     return Scaffold(
@@ -30,6 +30,7 @@ class HomeScreen extends StatelessWidget {
           child: RefreshIndicator(
             onRefresh: () async {
               await controller.fetchUser();
+              Get.find<SurveyController>().fetchSurveyTempDB();
             },
             child: ListView(
               children: [

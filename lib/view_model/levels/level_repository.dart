@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import '../../model/model.dart';
 import '../../settings/settings.dart';
@@ -14,12 +13,9 @@ class LevelRepository {
   final _dbSurveyLevel = SurveyLevelDB.instance;
 
   /// Fetches assigned levels from the remote server.
-  /// Returns either a [RemoteAssignedLeveleModel] on success or a [MainFailure] on failure.
-  Future<Either<MainFailure, RemoteAssignedLeveleModel>>
-      fetchAssignedLevelRemote({
-    required String userId,
-    required String token,
-  }) async {
+  /// Returns either a [RemoteAssignedLeveleModel] on success
+  Future<RemoteAssignedLeveleModel> fetchAssignedLevelRemote(
+      {required String userId, required String token}) async {
     try {
       log('API call => ${ApiEndPoints.assignedLevel}');
 
@@ -35,28 +31,13 @@ class LevelRepository {
       });
 
       // Make the API request.
-      final response = await Dio().request(
-        ApiEndPoints.assignedLevel,
-        options: Options(
-          method: 'POST',
-          headers: headers,
-        ),
-        data: data,
-      );
-
-      // Check the status code and return the appropriate response.
-      if (response.statusCode == 200) {
-        return Right(RemoteAssignedLeveleModel.fromJson(response.data));
-      } else {
-        return Left(AppException.failures(response.data));
-      }
-    } on DioException catch (e) {
-      log(e.toString());
-      return Left(AppException.failures(e));
-    } catch (e, stackTrace) {
+      final response = await Dio().post(ApiEndPoints.assignedLevel,
+          options: Options(headers: headers), data: data);
+      return RemoteAssignedLeveleModel.fromJson(response.data);
+    } on DioException catch (e, stackTrace) {
       log('Error occurred while fetching assigned levels: $e',
           stackTrace: stackTrace);
-      return Left(MainFailure(message: e.toString()));
+      rethrow;
     }
   }
 
@@ -89,10 +70,8 @@ class LevelRepository {
 
   /// Fetches map levels from the remote server.
   /// Returns either a [RemoteMapLevelModel] on success or a [MainFailure] on failure.
-  Future<Either<MainFailure, RemoteMapLevelModel>> fetchMapLevelRemote({
-    required String levelId,
-    required String token,
-  }) async {
+  Future<RemoteMapLevelModel> fetchMapLevelRemote(
+      {required String levelId, required String token}) async {
     try {
       log('API call => ${ApiEndPoints.mapLevel}');
 
@@ -108,28 +87,15 @@ class LevelRepository {
       });
 
       // Make the API request.
-      final response = await Dio().request(
-        ApiEndPoints.mapLevel,
-        options: Options(
-          method: 'POST',
-          headers: headers,
-        ),
-        data: data,
-      );
+      final response = await Dio().post(ApiEndPoints.mapLevel,
+          options: Options(headers: headers), data: data);
 
       // Check the status code and return the appropriate response.
-      if (response.statusCode == 200) {
-        return Right(RemoteMapLevelModel.fromJson(response.data));
-      } else {
-        return Left(AppException.failures(response.data));
-      }
-    } on DioException catch (e) {
-      log(e.toString());
-      return Left(AppException.failures(e));
-    } catch (e, stackTrace) {
+      return RemoteMapLevelModel.fromJson(response.data);
+    } on DioException catch (e, stackTrace) {
       log('Error occurred while fetching map levels: $e',
           stackTrace: stackTrace);
-      return Left(MainFailure(message: e.toString()));
+      rethrow;
     }
   }
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/model/map_level_model.dart';
-
 import '../../../view_model/levels/level_controller.dart';
 import '../../widgets/back_button_widget.dart';
 
@@ -22,7 +21,17 @@ class AppbarWidget extends StatelessWidget {
         child: SizedBox(
           child: Row(
             children: [
-              const BackButtonWidget(),
+              BackButtonWidget(
+                onPress: () {
+                  final c = Get.find<LevelController>();
+
+                  if (c.selectedLevel.value != -1) {
+                    c.selectALevel(-1);
+                  } else {
+                    Get.back();
+                  }
+                },
+              ),
               const SizedBox(width: 20),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,7 +48,7 @@ class AppbarWidget extends StatelessWidget {
                   )
                 ],
               ),
-              Spacer(),
+              const Spacer(),
               Obx(
                 () => IconButton(
                   onPressed: () {
@@ -47,8 +56,8 @@ class AppbarWidget extends StatelessWidget {
                   },
                   icon: Icon(
                     Get.find<LevelController>().isMapSelected.value
-                        ? Icons.map
-                        : Icons.list,
+                        ? Icons.list_sharp
+                        : Icons.map,
                   ),
                 ),
               )
