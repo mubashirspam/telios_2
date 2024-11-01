@@ -55,32 +55,31 @@ class AuthService extends GetxService {
       String phoneNumber, String password) async {
     try {
       await refreshTokenIfNeeded();
-      return executeWithTokenRefresh(
-        () => authRepo
-            .login(
-                phoneNumber: phoneNumber,
-                password: password,
-                token: currentToken.value)
-            .then(
-          (loginModel) async {
-            final loginDetails = loginModel.response!.data!.first.fieldData;
-            if (loginDetails != null) {
-              authed.value = true;
-              final bool isTrapdorValue = loginDetails.message == "alert";
-              // final bool isAdvancedUserValue = loginDetails.isAdvancedUser ?? false;
-              await authRepo.saveUserId(loginDetails.userId!);
-              await authRepo.setTrapdor(isTrapdorValue);
-              // await authRepo.setAdvancedUser(isAdvancedUserValue);
-              isTrapdor.value = isTrapdorValue;
-              // isAdvancedUser.value = isAdvancedUserValue;
-              Get.offAllNamed(RouterName.splash);
-            }
-            return Right(loginModel);
-          },
-        ),
+      final response = await executeWithTokenRefresh(() => authRepo.login(
+          phoneNumber: phoneNumber,
+          password: password,
+          token: currentToken.value));
+
+      return response.fold(
+        (failure) => Left(failure),
+        (loginModel) async {
+          final loginDetails = loginModel.response!.data!.first.fieldData;
+          if (loginDetails != null) {
+            authed.value = true;
+            final bool isTrapdorValue = loginDetails.message == "alert";
+            // final bool isAdvancedUserValue = loginDetails.isAdvancedUser ?? false;
+            await authRepo.saveUserId(loginDetails.userId!);
+            await authRepo.setTrapdor(isTrapdorValue);
+            // await authRepo.setAdvancedUser(isAdvancedUserValue);
+            isTrapdor.value = isTrapdorValue;
+            // isAdvancedUser.value = isAdvancedUserValue;
+            Get.offAllNamed(RouterName.splash);
+          }
+          return Right(loginModel);
+        },
       );
     } on DioException catch (e) {
-       showSnackbar('Error on login', e.toString());
+      showSnackbar('Error on login', e.toString());
       return Left(MainFailure(message: e.toString()));
     }
   }
@@ -92,20 +91,24 @@ class AuthService extends GetxService {
     if (isRemote) {
       try {
         await refreshTokenIfNeeded();
-        return executeWithTokenRefresh(
-          () => authRepo
-              .fetchUserRemote(userId: userId, token: currentToken.value)
-              .then(
-            (userModel) async {
+        final response = await executeWithTokenRefresh(() => authRepo
+            .fetchUserRemote(userId: userId, token: currentToken.value));
+
+        return response.fold(
+          (failure) => Left(failure),
+          (userModel) async {
+            try {
               final UserData userData =
                   userModel.response!.user!.first.userData!;
               await authRepo.postUserDB(userData);
               return Right(userData);
-            },
-          ),
+            } catch (e) {
+              return Left(MainFailure(message: e.toString()));
+            }
+          },
         );
       } catch (e) {
-         showSnackbar('Error on user loading', e.toString());
+        showSnackbar('Error on user loading', e.toString());
         return Left(MainFailure(message: e.toString()));
       }
     } else {
@@ -131,5 +134,4 @@ class AuthService extends GetxService {
     authed.value = false;
     Get.offAllNamed('/login');
   }
-
 }

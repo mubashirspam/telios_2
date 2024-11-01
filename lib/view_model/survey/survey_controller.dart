@@ -27,6 +27,10 @@ class SurveyController extends GetxController {
 
   RxBool presentDataForSync = false.obs;
 
+  List<SurveyTemp> surveyTemp = [];
+
+
+
   RxList<QuestionModel> questionsModelList = RxList<QuestionModel>([]);
   RxList<SurveyCategory> categoryList = RxList<SurveyCategory>([]);
   RxList<MultiDropdownOptionModel> dropDownOptions =
@@ -221,6 +225,7 @@ class SurveyController extends GetxController {
     }, (r) {
       if (r.isNotEmpty) {
         presentDataForSync.value = true;
+        surveyTemp = r;
         update();
         return r;
       }
@@ -261,6 +266,7 @@ class SurveyController extends GetxController {
         u = ApiResponse.initial();
       });
     });
+    u = ApiResponse.initial();
 
     update();
   }
@@ -286,6 +292,11 @@ class SurveyController extends GetxController {
     localResult.fold(
       (failure) async {
         a = ApiResponse.error(failure);
+        debugPrint("Error message: ${failure.message}=========");
+
+        if (assignedLevelKey != null) {
+          syncSurveyAnswers(assignedLevelKey);
+        }
 
         update();
       },
@@ -489,7 +500,8 @@ class SurveyController extends GetxController {
 
   Future<void> _updateControllers(MapLevel event) async {
     await fetchSurveyTempDB();
-    await Get.find<LevelController>().fetchMapLevel(event.assignedLevelKey!);
+    await Get.find<LevelController>()
+        .fetchMapLevel(event.assignedLevelKey!, '');
     await Future.delayed(const Duration(milliseconds: 100));
     await Get.find<LevelController>().fetchSurveyLevel(event);
   }
@@ -514,13 +526,13 @@ class SurveyController extends GetxController {
       s = ApiResponse.error(l);
       update();
     }, (r) async {
-      final answerData = convertSyncSurveyAnswerToLocal(r);
-      if (answerData.isEmpty) {
-        for (var answer in answerData) {
-          await _service.postSurveyAnswerDB(answer);
-        }
+      for (SurveyAnswerModel answer in r) {
+        answer.sCategory = getSCategory(answer.answers);
+
+        await _service.postSurveyAnswerDB(answer);
       }
-      s = ApiResponse.completed(answerData);
+
+      s = ApiResponse.completed(r);
       update();
     });
   }

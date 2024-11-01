@@ -1,4 +1,4 @@
-
+import 'package:flutter/material.dart';
 
 import '../../../model/model.dart';
 
@@ -20,7 +20,8 @@ List<AssignedLevel> convertAssignedRemoteToLocal({
       geoJsonLevel: dataObject.dataObjectGeoJsonLevel,
       geoJsonLevelCount: dataObject.dataObjectGeojsonLevelCount,
       surveyLevelCount: dataObject.dataObjectSurveyLevelCount,
-      assignedLevelId: dataObject.assignedLevelId 
+      assignedLevelId: dataObject.assignedLevelId,
+      unitId: dataObject.dataObjectUnitId,
     );
   }).toList();
 }
@@ -30,19 +31,21 @@ List<AssignedLevel> convertAssignedRemoteToLocal({
 /// [remoteData] is the data model fetched from the remote source.
 List<MapLevel> convertMapLevelRemoteToLocal({
   required RemoteMapLevelModel remoteData,
+  required String assignedLevelId,
 }) {
   final fieldData = remoteData.response!.data!.first.fieldData!;
   final portalData =
-      remoteData.response!.data!.first.portalData!.unitselfparent;
+      remoteData.response!.data!.first.portalData!.unitFetchVsunits;
 
   return portalData!.map((portal) {
     return MapLevel(
-      levelName: portal.unitselfparentUnit,
-      levelKey: portal.unitselfparentLevelKey,
-      geoJson: portal.unitGeoJsonidGeoJson,
-      assignedLevelKey: fieldData.levelKey,
+      levelName: portal.unitFetchVsunitsUnit,
+      levelKey: portal.unitFetchVsunitsLevelKey,
+      geoJson: portal.unitfetchVsGeoJsonidGeoJson,
+      assignedLevelKey: assignedLevelId,
       assignedLevelName: fieldData.unit,
-      surveyLevelCount: int.tryParse(portal.unitselfparentNumNextLevel ?? '0'),
+      surveyLevelCount:
+          int.tryParse(portal.unitFetchVsunitsNumNextLevel ?? '0'),
     );
   }).toList();
 }
@@ -51,7 +54,12 @@ List<MapLevel> convertMapLevelRemoteToLocal({
 ///
 /// [geoJson] is the string representation of the GeoJSON data.
 Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
-    String geoJson, int id) async {
+    MapLevel level, int id) async {
+  final geoJson = level.geoJson;
+  if (geoJson == null ||level.assignedLevelKey == null) {
+    return [];
+  }
+
   final features = geoMapModelFromJson(geoJson).features;
 
   if (features != null && features.isNotEmpty) {
@@ -62,8 +70,13 @@ Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
       String geoJsonLevelName = '';
       String levelName = '';
       String levelKey = '';
-      String assignedLevelKey = '';
-      String assignedLevelName = '';
+      String assignedLevelKey = level.assignedLevelKey!;
+      String assignedLevelName = level.assignedLevelName??'';
+
+
+      debugPrint(level.assignedLevelKey);
+      debugPrint(level.assignedLevelName);
+
 
       switch (id) {
         case 1:
@@ -71,24 +84,21 @@ Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
           geoJsonLevelName = p?.level1 ?? "";
           levelName = p?.level2 ?? "";
           levelKey = p?.level2Id ?? "";
-          assignedLevelKey = p?.level0Id ?? "";
-          assignedLevelName = p?.level0 ?? "";
+         
           break;
         case 2:
           geoJsonLevelKey = p?.level2Id ?? "";
           geoJsonLevelName = p?.level2 ?? "";
           levelName = p?.level3 ?? "";
           levelKey = p?.level3Id ?? "";
-          assignedLevelKey = p?.level1Id ?? "";
-          assignedLevelName = p?.level1 ?? "";
+       
           break;
         case 3:
           geoJsonLevelKey = p?.level3Id ?? "";
           geoJsonLevelName = p?.level3 ?? "";
           levelName = p?.level4 ?? "";
           levelKey = p?.level4Id ?? "";
-          assignedLevelKey = p?.level2Id ?? "";
-          assignedLevelName = p?.level2 ?? "";
+        
           break;
         // Add more cases as needed
         default:
@@ -96,13 +106,12 @@ Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
           geoJsonLevelName = p?.level3 ?? "";
           levelName = p?.level4 ?? "";
           levelKey = p?.level4Id ?? "";
-          assignedLevelKey = p?.level2Id ?? "";
-          assignedLevelName = p?.level2 ?? "";
+         
           break;
       }
 
       return SurveyLevel(
-        geoJsonLevelKey: geoJsonLevelKey,
+        // geoJsonLevelKey: geoJsonLevelKey,
         geoJsonLevelName: geoJsonLevelName,
         levelName: levelName,
         levelKey: levelKey,

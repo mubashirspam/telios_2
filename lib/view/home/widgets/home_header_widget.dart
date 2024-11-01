@@ -69,9 +69,9 @@ class HomeHeaderWidget extends StatelessWidget {
                 SvgPicture.asset(
                   "assets/images/logo_typ.svg",
                   height: 20,
-                  colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                 ),
-                Spacer(),
+                const Spacer(),
                 GetBuilder<SurveyController>(
                   builder: (s) {
                     return SizedBox(
@@ -165,9 +165,9 @@ class RotatingSyncIcon extends StatefulWidget {
   final bool isLoading; // Pass whether the state is loading or not
 
   const RotatingSyncIcon({
-    Key? key,
+    super.key,
     required this.isLoading,
-  }) : super(key: key);
+  });
 
   @override
   _RotatingSyncIconState createState() => _RotatingSyncIconState();

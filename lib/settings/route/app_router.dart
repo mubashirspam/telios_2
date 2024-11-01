@@ -7,7 +7,7 @@ class AppRoute {
   static final getRouter = [
     GetPage(
       name: RouterName.splash,
-      page: () => SplashScreen(),
+      page: () => const SplashScreen(),
     ),
     GetPage(
       name: RouterName.login,
@@ -16,13 +16,13 @@ class AppRoute {
     ),
     GetPage(
       name: RouterName.home,
-      page: () => HomeScreen(),
+      page: () => const HomeScreen(),
       middlewares: [AuthMiddleware()],
     ),
     GetPage(name: RouterName.otp, page: () => const OtpScreen()),
     GetPage(
       name: RouterName.assignedLevel,
-      page: () => AssignedLevelScreen(),
+      page: () => const AssignedLevelScreen(),
     ),
     GetPage(
       name: RouterName.mapLevel,

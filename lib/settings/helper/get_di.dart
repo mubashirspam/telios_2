@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:telios_2/view_model/survey/survey_service.dart';
 import '../../model/isar/isar.dart';
 import '../../view_model/view_model.dart';
 import 'constants.dart';

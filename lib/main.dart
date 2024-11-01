@@ -9,6 +9,7 @@ Future<void> main() async {
   prefs = await SharedPreferences.getInstance();
   await dbInit();
   await getDiInit();
+ 
   runApp(const MyApp());
 }
 

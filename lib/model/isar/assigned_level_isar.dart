@@ -7,6 +7,7 @@ class IsarAssignedLevel {
   Id id = Isar.autoIncrement;
   @Index(type: IndexType.value)
   String? userId;
+  String? unitId;
   String? levelName;
   String? levelKey;
   String? assignedLevel;

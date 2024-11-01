@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:telios_2/view_model/survey/db/survey_temp_db.dart';
 import '../../model/model.dart';
@@ -10,41 +9,28 @@ import 'db/survey_db.dart';
 class SurveyRepository {
   final _db = SurveyDB.instance;
   final _tempDb = SurveyTempDB.instance;
+  final Dio _dio = Dio();
 
-  Future<Either<MainFailure, RemoteQuestionModel>> fetchSurveyQustionRemote({
-    required String assignedLevelKey,
-    required String token,
-  }) async {
+  Future<RemoteQuestionModel> fetchSurveyQustionRemote(
+      {required String assignedLevelKey, required String token}) async {
     try {
       log('API call => ${ApiEndPoints.surveyQuestions}');
 
-      // Set headers and data for the API request.
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       };
 
       // Make the API request.
-      var response = await Dio().request(
+      final response = await _dio.get(
         ApiEndPoints.surveyQuestions,
-        options: Options(
-          method: 'GET',
-          headers: headers,
-        ),
+        options: Options(headers: headers),
       );
-
-      // Check the status code and return the appropriate response.
-      if (response.statusCode == 200) {
-        return Right(RemoteQuestionModel.fromJson(response.data));
-      } else {
-        return Left(AppException.failures(response.data));
-      }
-    } on DioException catch (e) {
-      return Left(AppException.failures(e));
-    } catch (e, stackTrace) {
-      log('Error occurred while fetching assigned levels: $e',
+      return RemoteQuestionModel.fromJson(response.data);
+    } on DioException catch (e, stackTrace) {
+      log('Error occurred while fetching survey question: $e , $stackTrace',
           stackTrace: stackTrace);
-      return Left(MainFailure(message: e.toString()));
+      rethrow;
     }
   }
 
@@ -64,16 +50,13 @@ class SurveyRepository {
     await _db.postSurveyQuestionDB(data, assignedLevelKey, sureveyId);
   }
 
-  Future<Either<MainFailure, RemoteDropdownOptionsModel>>
-      fetchDropdownOptionsRemote({
-    required String levelKey,
-    required String token,
-    required String surveyId,
-  }) async {
+  Future<RemoteDropdownOptionsModel> fetchDropdownOptionsRemote(
+      {required String levelKey,
+      required String token,
+      required String surveyId}) async {
     try {
       log('API call => ${ApiEndPoints.dropdownOption}');
 
-      // Set headers and data for the API request.
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -85,28 +68,14 @@ class SurveyRepository {
         ]
       });
 
-      final response = await Dio().request(
-        ApiEndPoints.dropdownOption,
-        options: Options(
-          method: 'POST',
-          headers: headers,
-        ),
-        data: data,
-      );
+      final response = await _dio.post(ApiEndPoints.dropdownOption,
+          options: Options(headers: headers), data: data);
 
-      // Check the status code and return the appropriate response.
-      if (response.statusCode == 200) {
-        return Right(RemoteDropdownOptionsModel.fromJson(response.data));
-      } else {
-        return Left(AppException.failures(response.data));
-      }
-    } on DioException catch (e) {
-      // log(e.toString());
-      return Left(AppException.failures(e));
-    } catch (e, stackTrace) {
-      // log('Error occurred while fetching assigned levels: $e',
-      //     stackTrace: stackTrace);
-      return Left(MainFailure(message: e.toString()));
+      return RemoteDropdownOptionsModel.fromJson(response.data);
+    } on DioException catch (e, stackTrace) {
+      log('Error occurred while fetching options$e , $stackTrace',
+          stackTrace: stackTrace);
+      rethrow;
     }
   }
 
@@ -170,65 +139,26 @@ class SurveyRepository {
     return await _tempDb.clearSurveyTempDB();
   }
 
-  Future<Either<MainFailure, SyncSurveyAnswerModelRemote>> syncSurveyAnswers({
-    required String token,
-    required String unitKey,
-  }) async {
+  Future<SyncSurveyAnswerModelRemote> syncSurveyAnswers(
+      {required String token, required String unitKey}) async {
     try {
-      var headers = {
+      final headers = {
         'Content-Type': 'application/json',
-        'Authorization': token
+        'Authorization': 'Bearer $token',
       };
       var data = json.encode({
         "query": [
-          {"levelKey": "IND-AP-504", "answerOptionVsquestion::surveyId": "1"}
+          {"unitKey": unitKey, "latestFlag": 1}
         ]
       });
-      var dio = Dio();
-      var response = await dio.request(
-        'https://techgeneza.in/fmi/data/vLatest/databases/DataV1/layouts/answerOptions/_find',
-        options: Options(
-          method: 'POST',
-          headers: headers,
-        ),
-        data: data,
-      );
-    
 
-      if (response.statusCode == 200) {
-        print(json.encode(response.data));
-      } else {
-        print(response.statusMessage);
-      }
-      return Right(SyncSurveyAnswerModelRemote());
+      var response = await _dio.post(ApiEndPoints.syncSurvey,
+          options: Options(headers: headers), data: data);
 
-      // log('API call => ${ApiEndPoints.syncSurvey}');
-
-      // final headers = {
-      //   'Content-Type': 'application/json',
-      //   'Authorization': 'Bearer $token',
-      // };
-
-      // var data = json.encode({
-      //   "query": [
-      //     {"unitKey": 'IND-AP-504', "latestFlag": 1}
-      //   ]
-      // });
-
-      // final response = await Dio().request(ApiEndPoints.syncSurvey,
-      //     options: Options(method: 'POST', headers: headers), data: data);
-      // if (response.statusCode == 200) {
-      //   log(response.data);
-      //   return Right(SyncSurveyAnswerModelRemote());
-      // } else {
-      //   return Left(AppException.failures(response.data));
-      // }
-    } on DioException catch (e) {
-      log(' syncSurvey  $e');
-      return Left(AppException.failures(e));
-    } catch (e, stackTrace) {
+      return SyncSurveyAnswerModelRemote.fromJson(response.data);
+    } on DioException catch (e, stackTrace) {
       log(' syncSurvey  $e', stackTrace: stackTrace);
-      return Left(MainFailure(message: e.toString()));
+      rethrow;
     }
   }
 
@@ -237,7 +167,7 @@ class SurveyRepository {
   //   await _db.syncSurveyAnswerDB(answerData, assignedLevelKey);
   // }
 
-  Future<Either<MainFailure, PostSurveyResponseModel>> postSurveyAnswerRemote(
+  Future<PostSurveyResponseModel> postSurveyAnswerRemote(
       {required String surveyData,
       required String token,
       required String userId}) async {
@@ -260,27 +190,14 @@ class SurveyRepository {
 
       log(uploadData);
 
-      var response = await Dio().request(
-        ApiEndPoints.postSurvey,
-        options: Options(
-          method: 'POST',
-          headers: headers,
-        ),
-        data: data,
-      );
+      final response = await _dio.post(ApiEndPoints.postSurvey,
+          options: Options(headers: headers), data: data);
 
-      if (response.statusCode == 200) {
-        return Right(PostSurveyResponseModel.fromJson(response.data));
-      } else {
-        return Left(AppException.failures(response.data));
-      }
-    } on DioException catch (e) {
-      // log(e.toString());
-      return Left(AppException.failures(e));
-    } catch (e, stackTrace) {
-      // log('Error occurred while fetching assigned levels: $e',
-      //     stackTrace: stackTrace);
-      return Left(MainFailure(message: e.toString()));
+      return PostSurveyResponseModel.fromJson(response.data);
+    } on DioException catch (e, stackTrace) {
+      log('Error occurred while fetching assigned levels: $e',
+          stackTrace: stackTrace);
+      rethrow;
     }
   }
 }

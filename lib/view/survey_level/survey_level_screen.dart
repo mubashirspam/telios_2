@@ -79,7 +79,7 @@ class SurveyLevelScreenBody extends StatelessWidget {
         child: Column(
           children: [
             AppbarWidget(level: mapLevel),
-            const SizedBox(height: 20),
+           if (!Responsive.isMobile(context)) const SizedBox(height: 20),
             if (!Responsive.isMobile(context))
               Expanded(
                 child: SizedBox(

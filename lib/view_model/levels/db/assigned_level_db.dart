@@ -37,11 +37,17 @@ class AssignedLevelDB {
             ..geoJsonLevel = level.geoJsonLevel
             ..geoJsonLevelCount = level.geoJsonLevelCount
             ..assignedLevelId = level.assignedLevelId
+            ..unitId = level.unitId
             ..surveyLevelCount = level.surveyLevelCount;
 
           await collection?.put(newDistrict);
         } else {
           existingLevel.levelName = level.levelName;
+          existingLevel.surveyLevel = level.surveyLevel;
+          existingLevel.assignedLevel = level.assignedLevel;
+          existingLevel.geoJsonLevel = level.geoJsonLevel;
+          existingLevel.geoJsonLevelCount = level.geoJsonLevelCount;
+          existingLevel.unitId = level.unitId;
           existingLevel.assignedLevelId = level.assignedLevelId;
           await collection?.put(existingLevel);
         }
@@ -66,6 +72,7 @@ class AssignedLevelDB {
           geoJsonLevel: isarDistrict.geoJsonLevel,
           geoJsonLevelCount: isarDistrict.geoJsonLevelCount,
           assignedLevelId: isarDistrict.assignedLevelId,
+          unitId: isarDistrict.unitId,
           surveyLevelCount: isarDistrict.surveyLevelCount,
         );
       }).toList();

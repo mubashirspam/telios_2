@@ -252,11 +252,13 @@ class SurveyDB {
         await collection?.put(newLevel);
       });
     } else {
+      
       await isar?.writeTxn(() async {
         existingData.gCategory = answerData.gCategory;
         existingData.aCategory = answerData.aCategory;
         existingData.sCategory = answerData.sCategory;
         existingData.answers = answerData.answers?.map((answer) {
+          log( "+++++++ ${answer.answer} +++++");
           return IsarAnswer()
             ..id = answer.id
             ..questionId = answer.questionId

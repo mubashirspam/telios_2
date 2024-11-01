@@ -61,7 +61,7 @@ List<MultiDropdownOptionModel> convertDropdownOptionRemoteToLocal(
         // Create ChildOption for fieldData
         ChildOption fieldChildOption = ChildOption(
           optionId: element.fieldData!.id,
-          optionValue: element.fieldData!.optionValue,
+          optionValue: element.fieldData!.optionValue?.replaceAll(' ', ''),
           questionId: element.fieldData!.questionId,
         );
 
@@ -73,7 +73,7 @@ List<MultiDropdownOptionModel> convertDropdownOptionRemoteToLocal(
             // Add nested options with parent questionId
             nestedOptionList.add(ChildOption(
               optionId: nestedOption.answerOptionsVsselfId,
-              optionValue: nestedOption.answerOptionsVsselfOptionValue,
+              optionValue: nestedOption.answerOptionsVsselfOptionValue?.replaceAll(' ', ''),
               questionId: nestedOption.answerOptionsVsselfQuestionId,
               parentOptionId:
                   _parseInt(nestedOption.answerOptionsVsselfParentOptionId),
@@ -178,7 +178,11 @@ List<SurveyAnswerModel> convertSyncSurveyAnswerToLocal(
                         return a?.map((answer) {
                               return Answer(
                                 surveyId: _parseInt(e.surveyId),
+                                id: answer.question,
                                 questionId: answer.questionId,
+                                category: answer.answer?.isNotEmpty == true
+                                    ? answer.questionId
+                                    : 0,
                                 question: answer.question,
                                 typeId: answer.typeId,
                                 answer: answer.answer,

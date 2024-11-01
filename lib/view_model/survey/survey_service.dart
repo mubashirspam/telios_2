@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/model/model.dart';
 import '../../settings/settings.dart';
@@ -20,34 +21,31 @@ class SurveyService extends GetxService {
   }) async {
     if (isRemote) {
       await _authService.refreshTokenIfNeeded();
-      return executeWithTokenRefresh(
-        () => _repository
-            .fetchSurveyQustionRemote(
-                token: currentToken, assignedLevelKey: assignedLevelKey)
-            .then(
-              (result) => result.fold(
-                (failure) {
-                  Get.snackbar('Error', failure.message);
-                  return Left(failure);
-                },
-                (success) async {
-                  final localData = convertSurveyQuestionRemoteToLocal(
-                    assignedLevelKey: assignedLevelKey,
-                    remoteData: success.response!.data!,
-                  );
+      final response = await executeWithTokenRefresh(() =>
+          _repository.fetchSurveyQustionRemote(
+              token: currentToken, assignedLevelKey: assignedLevelKey));
 
-                  for (var element in localData) {
-                    await _repository.postSurveyQustionlDB(
-                      element,
-                      assignedLevelKey,
-                      element.surveyId,
-                    );
-                  }
-
-                  return Right(localData);
-                },
-              ),
-            ),
+      return response.fold(
+        (failure) => Left(failure),
+        (success) async {
+          try {
+            final localData = convertSurveyQuestionRemoteToLocal(
+              assignedLevelKey: assignedLevelKey,
+              remoteData: success.response!.data!,
+            );
+            for (var element in localData) {
+              await _repository.postSurveyQustionlDB(
+                element,
+                assignedLevelKey,
+                element.surveyId,
+              );
+            }
+            return Right(localData);
+          } catch (e) {
+            return Left(
+                MainFailure(message: 'Error processing data: ${e.toString()}'));
+          }
+        },
       );
     } else {
       try {
@@ -68,45 +66,33 @@ class SurveyService extends GetxService {
 
   Future<Either<MainFailure, PostSurveyResponseModel>> postSurveyAnswerRemote(
       String surveyData) async {
-    await _authService.refreshTokenIfNeeded();
-    return executeWithTokenRefresh(
-      () => _repository
-          .postSurveyAnswerRemote(
-              token: currentToken, surveyData: surveyData, userId: userId)
-          .then(
-            (result) => result.fold(
-              (failure) {
-                Get.snackbar('Error', failure.message);
-                return Left(failure);
-              },
-              (success) async {
-                return Right(success);
-              },
-            ),
-          ),
-    );
+    try {
+      await _authService.refreshTokenIfNeeded();
+      return executeWithTokenRefresh(() => _repository.postSurveyAnswerRemote(
+          token: currentToken, surveyData: surveyData, userId: userId));
+    } on DioException catch (e) {
+      showSnackbar('Error on uploading survey', e.toString());
+      return Left(MainFailure(message: e.toString()));
+    }
   }
 
-  Future<Either<MainFailure, SyncSurveyAnswerModelRemote>> syncSurveyAnswers(
+  
+
+  Future<Either<MainFailure, List<SurveyAnswerModel>>> syncSurveyAnswers(
     String unitKey,
   ) async {
     await _authService.refreshTokenIfNeeded();
-    return executeWithTokenRefresh(
-      () => _repository
-          .syncSurveyAnswers(
-              token: currentToken, unitKey: unitKey,)
-          .then(
-            (result) => result.fold(
-              (failure) {
-                // Get.snackbar('Error', failure.message);
-                return Left(failure);
-              },
-              (success) async {
-                return Right(success);
-              },
-            ),
-          ),
+    final response = await executeWithTokenRefresh(
+      () =>
+          _repository.syncSurveyAnswers(token: currentToken, unitKey: unitKey),
     );
+
+    return response.fold((failure) => Left(failure), (success)  {
+      final answerData = convertSyncSurveyAnswerToLocal(success);
+
+     
+      return Right(answerData);
+    });
   }
 
   Future<Either<MainFailure, List<SurveyAnswerModel>>> fetchSurveyAnswerDB({
@@ -127,35 +113,34 @@ class SurveyService extends GetxService {
   }
 
   Future<Either<MainFailure, List<MultiDropdownOptionModel>>>
-      fetchDropdownOptions({
-    required bool isRemote,
-    required String levelKey,
-    required int? surveyId,
-  }) async {
+      fetchDropdownOptions(
+          {required bool isRemote,
+          required String levelKey,
+          required int? surveyId}) async {
     if (isRemote) {
       await _authService.refreshTokenIfNeeded();
-      return executeWithTokenRefresh(
-        () => _repository
-            .fetchDropdownOptionsRemote(
-                token: currentToken,
-                levelKey: levelKey,
-                surveyId: surveyId.toString())
-            .then(
-              (result) => result.fold(
-                (failure) {
-                  return Left(failure);
-                },
-                (success) async {
-                  final localData =
-                      convertDropdownOptionRemoteToLocal(success, levelKey);
-                  for (var element in localData) {
-                    await _repository.postDropDownOptionDB(element);
-                  }
 
-                  return Right(localData);
-                },
-              ),
-            ),
+      final response = await executeWithTokenRefresh(() =>
+          _repository.fetchDropdownOptionsRemote(
+              token: currentToken,
+              levelKey: levelKey,
+              surveyId: surveyId.toString()));
+
+      return response.fold(
+        (failure) => Left(failure),
+        (success) async {
+          try {
+            final localData =
+                convertDropdownOptionRemoteToLocal(success, levelKey);
+            for (var element in localData) {
+              await _repository.postDropDownOptionDB(element);
+            }
+            return Right(localData);
+          } catch (e) {
+            return Left(
+                MainFailure(message: 'Error processing data: ${e.toString()}'));
+          }
+        },
       );
     } else {
       try {

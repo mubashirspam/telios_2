@@ -62,8 +62,13 @@ const IsarAssignedLevelSchema = CollectionSchema(
       name: r'surveyLevelCount',
       type: IsarType.long,
     ),
-    r'userId': PropertySchema(
+    r'unitId': PropertySchema(
       id: 9,
+      name: r'unitId',
+      type: IsarType.string,
+    ),
+    r'userId': PropertySchema(
+      id: 10,
       name: r'userId',
       type: IsarType.string,
     )
@@ -139,6 +144,12 @@ int _isarAssignedLevelEstimateSize(
     }
   }
   {
+    final value = object.unitId;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
     final value = object.userId;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
@@ -162,7 +173,8 @@ void _isarAssignedLevelSerialize(
   writer.writeString(offsets[6], object.levelName);
   writer.writeString(offsets[7], object.surveyLevel);
   writer.writeLong(offsets[8], object.surveyLevelCount);
-  writer.writeString(offsets[9], object.userId);
+  writer.writeString(offsets[9], object.unitId);
+  writer.writeString(offsets[10], object.userId);
 }
 
 IsarAssignedLevel _isarAssignedLevelDeserialize(
@@ -182,7 +194,8 @@ IsarAssignedLevel _isarAssignedLevelDeserialize(
   object.levelName = reader.readStringOrNull(offsets[6]);
   object.surveyLevel = reader.readStringOrNull(offsets[7]);
   object.surveyLevelCount = reader.readLongOrNull(offsets[8]);
-  object.userId = reader.readStringOrNull(offsets[9]);
+  object.unitId = reader.readStringOrNull(offsets[9]);
+  object.userId = reader.readStringOrNull(offsets[10]);
   return object;
 }
 
@@ -212,6 +225,8 @@ P _isarAssignedLevelDeserializeProp<P>(
     case 8:
       return (reader.readLongOrNull(offset)) as P;
     case 9:
+      return (reader.readStringOrNull(offset)) as P;
+    case 10:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1688,6 +1703,160 @@ extension IsarAssignedLevelQueryFilter
   }
 
   QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'unitId',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'unitId',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'unitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'unitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'unitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'unitId',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'unitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'unitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'unitId',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'unitId',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'unitId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
+      unitIdIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'unitId',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterFilterCondition>
       userIdIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -1977,6 +2146,20 @@ extension IsarAssignedLevelQuerySortBy
   }
 
   QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterSortBy>
+      sortByUnitId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unitId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterSortBy>
+      sortByUnitIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unitId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterSortBy>
       sortByUserId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'userId', Sort.asc);
@@ -2133,6 +2316,20 @@ extension IsarAssignedLevelQuerySortThenBy
   }
 
   QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterSortBy>
+      thenByUnitId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unitId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterSortBy>
+      thenByUnitIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'unitId', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QAfterSortBy>
       thenByUserId() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'userId', Sort.asc);
@@ -2214,6 +2411,13 @@ extension IsarAssignedLevelQueryWhereDistinct
   }
 
   QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QDistinct>
+      distinctByUnitId({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'unitId', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, IsarAssignedLevel, QDistinct>
       distinctByUserId({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'userId', caseSensitive: caseSensitive);
@@ -2288,6 +2492,12 @@ extension IsarAssignedLevelQueryProperty
       surveyLevelCountProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'surveyLevelCount');
+    });
+  }
+
+  QueryBuilder<IsarAssignedLevel, String?, QQueryOperations> unitIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'unitId');
     });
   }
 

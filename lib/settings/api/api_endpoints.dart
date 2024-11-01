@@ -7,7 +7,7 @@ class ApiEndPoints {
 
   static final login = '$v/Telios_user/_find';
 
-  static final mapLevel = '$v/geoJsonLevel/_find';
+  static final mapLevel = '$v/Telios_Unit_fetch/_find';
 
   static final language = '$v/Telios_Language/_find';
 

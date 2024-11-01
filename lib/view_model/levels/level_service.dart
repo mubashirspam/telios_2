@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
@@ -21,25 +20,31 @@ class LevelService extends GetxService {
     required bool isRemote,
   }) async {
     if (isRemote) {
-      try {
-        await _authService.refreshTokenIfNeeded();
-        return executeWithTokenRefresh(
-          () => _repository
-              .fetchAssignedLevelRemote(userId: userId, token: currentToken)
-              .then((success) async {
+      await _authService.refreshTokenIfNeeded();
+      final response = await executeWithTokenRefresh(
+        () => _repository.fetchAssignedLevelRemote(
+          userId: userId,
+          token: currentToken,
+        ),
+      );
+
+      return response.fold(
+        (failure) => Left(failure),
+        (success) async {
+          try {
             final localData = convertAssignedRemoteToLocal(
                 userId: userId,
                 remoteData:
                     success.response!.data!.first.portalData!.dataObject!);
-            log(localData.length.toString());
+
             await _repository.postAssignedLevelDB(localData, userId);
             return Right(localData);
-          }),
-        );
-      } on DioException catch (e) {
-        showSnackbar('Error on assigned level loading', e.toString());
-        return Left(MainFailure(message: e.toString()));
-      }
+          } catch (e) {
+            return Left(
+                MainFailure(message: 'Error processing data: ${e.toString()}'));
+          }
+        },
+      );
     } else {
       try {
         final localData = await _repository.fetchAssignedLevelDB(userId);
@@ -59,18 +64,22 @@ class LevelService extends GetxService {
   Future<Either<MainFailure, List<MapLevel>>> fetchMapLevel({
     required bool isRemote,
     required String levelId,
+    required String unitId,
     required int id,
   }) async {
     if (isRemote) {
       try {
         await _authService.refreshTokenIfNeeded();
-        return executeWithTokenRefresh(
-          () => _repository
-              .fetchMapLevelRemote(levelId: levelId, token: currentToken)
-              .then(
-            (success) async {
+        final response = await executeWithTokenRefresh(() =>
+            _repository.fetchMapLevelRemote(
+                unitId: unitId, token: currentToken, userId: userId));
+
+        return response.fold(
+          (failure) => Left(failure),
+          (success) async {
+            try {
               final localData =
-                  convertMapLevelRemoteToLocal(remoteData: success);
+                  convertMapLevelRemoteToLocal(remoteData: success,assignedLevelId: levelId);
               await _repository.postMapLevelDB(localData, levelId);
 
               for (MapLevel level in localData) {
@@ -78,7 +87,7 @@ class LevelService extends GetxService {
                     level.geoJson!.isNotEmpty &&
                     level.levelKey != null) {
                   final surveyLevel =
-                      await convertGeojsontoSurveyLevel(level.geoJson!, id);
+                      await convertGeojsontoSurveyLevel(level, id, );
                   await _repository.postSurveyLevelDB(
                       surveyLevel, level.levelKey!);
                   await _repository.updateSurveyLevelCount(
@@ -87,8 +96,11 @@ class LevelService extends GetxService {
               }
 
               return Right(localData);
-            },
-          ),
+            } catch (e) {
+              return Left(MainFailure(
+                  message: 'Error processing data: ${e.toString()}'));
+            }
+          },
         );
       } on DioException catch (e) {
         showSnackbar('Error on piechart loading', e.toString());
@@ -139,6 +151,4 @@ class LevelService extends GetxService {
       }
     }
   }
-
-
 }

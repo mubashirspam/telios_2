@@ -7,7 +7,6 @@ import '../../../model/model.dart';
 import '../../../settings/helper/helper.dart';
 import '../../../settings/theme/colors.dart';
 import '../../../view_model/survey/survey.dart';
-import 'dart:developer';
 
 class FormWidget extends StatelessWidget {
   final String assignedLevelKey;
@@ -25,7 +24,7 @@ class FormWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: Responsive.isMobile(context) ? double.maxFinite : 700,
-      margin: const EdgeInsets.all(20),
+      margin: EdgeInsets.all(Responsive.isMobile(context) ? 0 : 20),
       width: !Responsive.isMobile(context) ? 350 : double.maxFinite,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
@@ -85,13 +84,26 @@ class TabBarWidegt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log("********************* TabBarWidegt Rebuided *********************");
+    int initialIndex = 0;
+
+    for (int i = 0; i < questionModelList.length; i++) {
+      if (controller.selectedAnswer.value?.answers?.any((element) =>
+              questionModelList[i]
+                  .questions
+                  .any((q) => q.questionId == element.questionId)) ??
+          false) {
+        initialIndex = i;
+        break;
+      }
+    }
+
     return questionModelList.isEmpty
         ? const Center(
             child: Text('No Data'),
           )
         : DefaultTabController(
             length: questionModelList.length,
+            initialIndex: initialIndex,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -277,12 +289,12 @@ class _QuestionWidgetState extends State<QuestionWidget> {
         );
       }).toList());
 
-      _Mcontroller?.setSelectedOptions(widget.a?.answerOptions
-              ?.map((e) => ValueItem(
-                    label: e.name,
-                    value: e.id,
-                  ))
-              .toList() ??
+      _Mcontroller?.setSelectedOptions(widget.a?.answerOptions?.map((e) {
+            return ValueItem(
+              label: e.name,
+              value: e.id,
+            );
+          }).toList() ??
           []);
     }
 
@@ -315,8 +327,6 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       ..clear()
       ..addAll(widget.a?.answerOptions ?? []);
     widget.question.answer.value = _controller.text;
-
-
   }
 
   @override
@@ -578,7 +588,7 @@ class MultiDropdownWidget extends StatelessWidget {
       controller: controller,
       onOptionSelected: onSelectionChange,
       disabledOptions: disabledOptions,
-      options: [],
+      options: const [],
       selectionType: SelectionType.multi,
       chipConfig: const ChipConfig(wrapType: WrapType.scroll),
       dropdownHeight: 300,

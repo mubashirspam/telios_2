@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+
 import 'package:isar/isar.dart';
 import 'package:telios_2/model/model.dart';
 
@@ -26,12 +27,14 @@ class SurveyLevelDB {
 
     if (existingLevel == null) {
       await isar.writeTxn(() async {
+       
         final newLevel = IsarSurveyLevelModel()
           ..geoJsonLevelKey = levelId
           ..geoJsonLevelName = levels.first.geoJsonLevelName
           ..assignedLevelKey = levels.first.assignedLevelKey
           ..assignedLevelName = levels.first.assignedLevelName
           ..levels = levels.map((level) {
+             
             return IsarSureveyLevel()
               ..levelName = level.levelName
               ..levelKey = level.levelKey

@@ -59,7 +59,8 @@ class LevelController extends GetxController {
     final i = assignedLevel.assignedLevelId;
     
 
-    log("assignedLevel id =============${i}");
+    log("assignedLevel id =============$i");
+    //
 
     if (i != null) {
       level.value = Level(
@@ -120,7 +121,7 @@ class LevelController extends GetxController {
     );
   }
 
-  Future<void> fetchMapLevel(String levelId) async {
+  Future<void> fetchMapLevel(String levelId, String unitId) async {
     if (mapResponse.state == ResponseState.loading) {
       return;
     }
@@ -140,12 +141,12 @@ class LevelController extends GetxController {
     }
 
     final localResult = await _service.fetchMapLevel(
-        isRemote: false, levelId: levelId, id: level.value!.mId!);
+        isRemote: false, levelId: levelId, id: level.value!.mId!, unitId: unitId);
 
     localResult.fold(
       (failure) async {
         final remoteResult = await _service.fetchMapLevel(
-            isRemote: true, levelId: levelId, id: level.value!.mId!);
+            isRemote: true, levelId: levelId, id: level.value!.mId!, unitId: unitId);
         remoteResult.fold(
           (remoteFailure) {
             mapResponse = ApiResponse.error(remoteFailure);

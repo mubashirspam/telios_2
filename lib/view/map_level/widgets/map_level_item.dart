@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -111,7 +110,7 @@ class MapLevelItem extends StatelessWidget {
             child: ColoredBox(color: AppColor.backround),
           ),
           Padding(
-            padding: EdgeInsets.all(15),
+            padding: const EdgeInsets.all(15),
             child: SizedBox(
               child: Row(
                 children: [

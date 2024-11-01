@@ -71,9 +71,9 @@ class LevelRepository {
   /// Fetches map levels from the remote server.
   /// Returns either a [RemoteMapLevelModel] on success or a [MainFailure] on failure.
   Future<RemoteMapLevelModel> fetchMapLevelRemote(
-      {required String levelId, required String token}) async {
+      {required String unitId, required String userId, required String token}) async {
     try {
-      log('API call => ${ApiEndPoints.mapLevel}');
+      log('API call => ${ApiEndPoints.mapLevel} with unitId: $unitId and userId: $userId');
 
       // Set headers and data for the API request.
       final headers = {
@@ -82,8 +82,10 @@ class LevelRepository {
       };
       final data = json.encode({
         "query": [
-          {"levelKey": "==$levelId"}
-        ]
+          {"userId": "=$userId"}
+        ],
+        "script.prerequest": "findAssignedGeojson",
+        "script.prerequest.param": "{\"unit\": \"$unitId\", \"userId\": \"$userId\"}"
       });
 
       // Make the API request.
@@ -93,7 +95,7 @@ class LevelRepository {
       // Check the status code and return the appropriate response.
       return RemoteMapLevelModel.fromJson(response.data);
     } on DioException catch (e, stackTrace) {
-      log('Error occurred while fetching map levels: $e',
+      log('Error occurred while fetching map levels: $e , $stackTrace',
           stackTrace: stackTrace);
       rethrow;
     }

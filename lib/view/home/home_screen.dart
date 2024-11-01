@@ -7,6 +7,7 @@ import 'package:telios_2/settings/route/app_router.dart';
 import '../../settings/helper/helper.dart';
 import '../../settings/theme/colors.dart';
 import '../../view_model/view_model.dart';
+import 'pending_page.dart';
 import 'widgets/widgets.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -54,7 +55,7 @@ class HomeScreen extends StatelessWidget {
                     if (c.userResponse.data!
                             .teliosPersonVsTeliosSettingsstaticApkVersion !=
                         apkVersion) {
-                      Future.delayed(Duration(milliseconds: 100))
+                      Future.delayed(const Duration(milliseconds: 100))
                           .then((onValue) {
                         showUpdateDialog(
                           context: context,
@@ -105,13 +106,11 @@ class HomeScreen extends StatelessWidget {
                 ),
                 InkWell(
                   onTap: () {
-                    // Navigator.of(context).push(
-                    //   MaterialPageRoute(
-                    //     builder: (context) => PendingPage(
-                    //       state: state,
-                    //     ),
-                    //   ),
-                    // );
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => PendingPage(),
+                      ),
+                    );
                   },
                   child: button(
                     context,

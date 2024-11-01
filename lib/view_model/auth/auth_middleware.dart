@@ -15,12 +15,12 @@ class AuthMiddleware extends GetMiddleware {
 
     // If not logged in and trying to access a protected route, redirect to login
     if (!authController.isLoggedIn && route != RouterName.login) {
-      return RouteSettings(name: RouterName.login);
+      return const RouteSettings(name: RouterName.login);
     }
 
     // If logged in and trying to access login, redirect to home
     if (authController.isLoggedIn && route == RouterName.login) {
-      return RouteSettings(name: RouterName.home);
+      return const RouteSettings(name: RouterName.home);
     }
 
     // Allow the requested route for all other cases
