@@ -51,7 +51,8 @@ class SyncFieldData {
   String? unitKey;
   String? latestFlag;
   String? unitIdName;
-  String? responseJson;
+ 
+  String? responseJsonFetch;
 
   SyncFieldData({
     this.id,
@@ -62,7 +63,8 @@ class SyncFieldData {
     this.unitKey,
     this.latestFlag,
     this.unitIdName,
-    this.responseJson,
+   
+    this.responseJsonFetch,
   });
 
   factory SyncFieldData.fromJson(Map<String, dynamic> json) => SyncFieldData(
@@ -74,6 +76,7 @@ class SyncFieldData {
         unitKey: json["unitKey"],
         latestFlag: json["latestFlag"],
         unitIdName: json["unitId_name"],
-        responseJson: json["responseJson"],
+       
+        responseJsonFetch: json["responseJsonFetch"],
       );
 }

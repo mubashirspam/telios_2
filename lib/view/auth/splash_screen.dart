@@ -28,6 +28,10 @@ class _SplashScreenState extends State<SplashScreen> {
     // Add a small delay to allow for a smooth transition
     await Future.delayed(const Duration(seconds: 1));
 
+    if (authController.isTrapdor) {
+      authController.clearLocalDB();
+    }
+
     if (authController.isLoggedIn) {
       Get.offNamed(RouterName.home);
     } else {

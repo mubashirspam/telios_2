@@ -56,7 +56,7 @@ List<MapLevel> convertMapLevelRemoteToLocal({
 Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
     MapLevel level, int id) async {
   final geoJson = level.geoJson;
-  if (geoJson == null ||level.assignedLevelKey == null) {
+  if (geoJson == null || level.assignedLevelKey == null) {
     return [];
   }
 
@@ -66,47 +66,40 @@ Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
     return features.map((feature) {
       final p = feature.properties;
 
-      String geoJsonLevelKey = '';
       String geoJsonLevelName = '';
       String levelName = '';
       String levelKey = '';
       String assignedLevelKey = level.assignedLevelKey!;
-      String assignedLevelName = level.assignedLevelName??'';
-
+      String assignedLevelName = level.assignedLevelName ?? '';
 
       debugPrint(level.assignedLevelKey);
       debugPrint(level.assignedLevelName);
 
-
       switch (id) {
         case 1:
-          geoJsonLevelKey = p?.level1Id ?? "";
           geoJsonLevelName = p?.level1 ?? "";
           levelName = p?.level2 ?? "";
           levelKey = p?.level2Id ?? "";
-         
+
           break;
         case 2:
-          geoJsonLevelKey = p?.level2Id ?? "";
           geoJsonLevelName = p?.level2 ?? "";
           levelName = p?.level3 ?? "";
           levelKey = p?.level3Id ?? "";
-       
+
           break;
         case 3:
-          geoJsonLevelKey = p?.level3Id ?? "";
           geoJsonLevelName = p?.level3 ?? "";
           levelName = p?.level4 ?? "";
           levelKey = p?.level4Id ?? "";
-        
+
           break;
         // Add more cases as needed
         default:
-          geoJsonLevelKey = p?.level3Id ?? "";
           geoJsonLevelName = p?.level3 ?? "";
           levelName = p?.level4 ?? "";
           levelKey = p?.level4Id ?? "";
-         
+
           break;
       }
 

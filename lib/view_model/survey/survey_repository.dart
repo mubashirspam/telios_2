@@ -62,10 +62,13 @@ class SurveyRepository {
         'Authorization': 'Bearer $token',
       };
 
-      var data = json.encode({
+      final data = json.encode({
         "query": [
-          {"levelKey": levelKey, "answerOptionVsquestion::surveyId": surveyId}
-        ]
+          {"levelKey": levelKey, "answerOptionVsquestion::surveyId": surveyId},
+          {"common": 1, "answerOptionVsquestion::surveyId": surveyId}
+        ],
+        "limit": 500,
+        "offset": 1
       });
 
       final response = await _dio.post(ApiEndPoints.dropdownOption,
@@ -124,6 +127,9 @@ class SurveyRepository {
     return await _db.clearSurveyQustionDB();
   }
 
+  Future<bool> clearSurveyAnswerDB() async {
+    return await _db.clearSurveyAnswerDB();
+  }
   // Survey Temporay Access
 
   Future<List<SurveyTemp>?> fetchSurveyTempDB() async {
@@ -188,7 +194,8 @@ class SurveyRepository {
         "script.param": uploadData
       });
 
-      log(uploadData);
+      // log(uploadData);
+      log(data);
 
       final response = await _dio.post(ApiEndPoints.postSurvey,
           options: Options(headers: headers), data: data);

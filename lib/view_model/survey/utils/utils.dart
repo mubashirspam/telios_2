@@ -61,7 +61,8 @@ List<MultiDropdownOptionModel> convertDropdownOptionRemoteToLocal(
         // Create ChildOption for fieldData
         ChildOption fieldChildOption = ChildOption(
           optionId: element.fieldData!.id,
-          optionValue: element.fieldData!.optionValue?.replaceAll(' ', ''),
+          // optionValue: element.fieldData!.optionValue?.replaceAll(' ', ''),
+          optionValue: element.fieldData!.optionValue,
           questionId: element.fieldData!.questionId,
         );
 
@@ -73,7 +74,8 @@ List<MultiDropdownOptionModel> convertDropdownOptionRemoteToLocal(
             // Add nested options with parent questionId
             nestedOptionList.add(ChildOption(
               optionId: nestedOption.answerOptionsVsselfId,
-              optionValue: nestedOption.answerOptionsVsselfOptionValue?.replaceAll(' ', ''),
+              optionValue: nestedOption.answerOptionsVsselfOptionValue,
+              //  optionValue: nestedOption.answerOptionsVsselfOptionValue?.replaceAll(' ', ''),
               questionId: nestedOption.answerOptionsVsselfQuestionId,
               parentOptionId:
                   _parseInt(nestedOption.answerOptionsVsselfParentOptionId),
@@ -161,7 +163,7 @@ List<SurveyAnswerModel> convertSyncSurveyAnswerToLocal(
   newSurvey = remoteData.response?.data
           ?.map(
             (v) {
-              String? data = v.fieldData?.responseJson;
+              String? data = v.fieldData?.responseJsonFetch;
               if (data != null) {
                 Survey survey = surveyFromJson(data);
 

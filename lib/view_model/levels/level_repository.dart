@@ -62,7 +62,7 @@ class LevelRepository {
 
   /// Clears assigned levels from the local database.
   /// Returns a boolean indicating success or failure.
-  Future<bool> clearAssignedLevelDB(String userId) async {
+  Future<bool> clearAssignedLevelDB() async {
     return await _db.deleteAssignedLevel();
   }
 
@@ -125,7 +125,7 @@ class LevelRepository {
 
   /// Clears map levels from the local database.
   /// Returns a boolean indicating success or failure.
-  Future<bool> clearMapLevelDB(String userId) async {
+  Future<bool> clearMapLevelDB() async {
     return await _dbMapLevel.deleteMapLevelDB();
   }
 
@@ -150,7 +150,7 @@ class LevelRepository {
 
   /// Clears survey levels from the local database.
   /// Returns a boolean indicating success or failure.
-  Future<bool> clearSurveyLevelDB(String userId) async {
+  Future<bool> clearSurveyLevelDB() async {
     return await _dbSurveyLevel.deleteSurveyLevelDB();
   }
 }

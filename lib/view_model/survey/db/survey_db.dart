@@ -444,4 +444,23 @@ class SurveyDB {
       return false;
     }
   }
+
+
+  Future<bool> clearSurveyAnswerDB() async {
+    try {
+      var isar = Isar.getInstance(db);
+      final collection = isar!.collection<IsarSurveyAnswerModel>();
+      final data = await collection.where().findAll();
+
+      await isar.writeTxn(() async {
+        for (IsarSurveyAnswerModel dta in data) {
+          await collection.delete(dta.id);
+        }
+      });
+      return true;
+    } catch (error) {
+      log('Error deleting data: $error');
+      return false;
+    }
+  }
 }

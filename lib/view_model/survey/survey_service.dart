@@ -186,4 +186,12 @@ class SurveyService extends GetxService {
   Future<bool> clearSurveyTempDB() async {
     return await _repository.clearSurveyTempDB();
   }
+
+
+    Future<bool> clearSurveyDB() async {
+    await _repository.clearDropDownOptioDB();
+    await _repository.clearSurveyQustionDB();
+    await _repository.clearSurveyAnswerDB();
+    return true;
+  }
 }

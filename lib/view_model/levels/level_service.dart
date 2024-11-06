@@ -78,16 +78,18 @@ class LevelService extends GetxService {
           (failure) => Left(failure),
           (success) async {
             try {
-              final localData =
-                  convertMapLevelRemoteToLocal(remoteData: success,assignedLevelId: levelId);
+              final localData = convertMapLevelRemoteToLocal(
+                  remoteData: success, assignedLevelId: levelId);
               await _repository.postMapLevelDB(localData, levelId);
 
               for (MapLevel level in localData) {
                 if (level.geoJson != null &&
                     level.geoJson!.isNotEmpty &&
                     level.levelKey != null) {
-                  final surveyLevel =
-                      await convertGeojsontoSurveyLevel(level, id, );
+                  final surveyLevel = await convertGeojsontoSurveyLevel(
+                    level,
+                    id,
+                  );
                   await _repository.postSurveyLevelDB(
                       surveyLevel, level.levelKey!);
                   await _repository.updateSurveyLevelCount(
@@ -150,5 +152,12 @@ class LevelService extends GetxService {
         );
       }
     }
+  }
+
+  Future<bool> clearLevelsDB() async {
+    await _repository.clearAssignedLevelDB();
+    await _repository.clearMapLevelDB();
+    await _repository.clearSurveyLevelDB();
+    return true;
   }
 }

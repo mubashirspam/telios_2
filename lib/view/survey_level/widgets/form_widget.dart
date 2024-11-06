@@ -162,6 +162,7 @@ class TabBarWidegt extends StatelessWidget {
                 const SizedBox(height: 10),
                 Expanded(
                   child: TabBarView(
+                    // physics: Scrollable(viewportBuilder: viewportBuilder),
                     children: questionModelList.map((model) {
                       return QuestionListView(
                         controller: controller,
@@ -204,7 +205,9 @@ class _QuestionListViewState extends State<QuestionListView> {
       padding: const EdgeInsets.all(15),
       child: Form(
         key: _formKey,
-        child: Column(
+        child:
+        
+         ListView(
           children: List.generate(widget.model.questions.length + 1, (index) {
             if (index == widget.model.questions.length) {
               return Obx(

@@ -1,11 +1,16 @@
 import 'package:get/get.dart';
 import 'package:telios_2/model/model.dart';
+import 'package:telios_2/view_model/view_model.dart';
 
 import '../../settings/settings.dart';
 import 'auth_service.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
+
+  final _levelService = Get.find<LevelService>();
+  final _surveyService = Get.find<SurveyService>();
+
   ApiResponse<LoginModel> response = ApiResponse.initial();
   ApiResponse<UserData> userResponse = ApiResponse.initial();
   bool isPasswordVisible = false;
@@ -47,6 +52,12 @@ class AuthController extends GetxController {
 
   Future<void> checkLoginStatus() async {
     await _authService.checkLoginStatus();
+    update();
+  }
+
+  Future<void> clearLocalDB() async {
+    await _levelService.clearLevelsDB();
+    await _surveyService.clearSurveyDB();
     update();
   }
 
