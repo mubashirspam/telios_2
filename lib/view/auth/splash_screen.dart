@@ -8,6 +8,8 @@ import '../../settings/theme/colors.dart';
 import '../../view_model/auth/auth_controller.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -24,7 +26,11 @@ class _SplashScreenState extends State<SplashScreen> {
     await authController.checkLoginStatus();
 
     // Add a small delay to allow for a smooth transition
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (authController.isTrapdor) {
+      authController.clearLocalDB();
+    }
 
     if (authController.isLoggedIn) {
       Get.offNamed(RouterName.home);

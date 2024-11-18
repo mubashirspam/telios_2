@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:telios_2/model/model.dart';
+import 'package:telios_2/view_model/view_model.dart';
 
 import '../../../settings/settings.dart';
 
@@ -10,6 +12,7 @@ class HomeHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return Container(
       width: double.maxFinite,
       clipBehavior: Clip.antiAlias,
@@ -66,39 +69,43 @@ class HomeHeaderWidget extends StatelessWidget {
                 SvgPicture.asset(
                   "assets/images/logo_typ.svg",
                   height: 20,
-                  colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                 ),
-                Spacer(),
-                SizedBox(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 5),
-                      InkWell(
-                        highlightColor: Colors.red,
-                        hoverColor: Colors.yellow,
-                        onTap: () {},
-                        borderRadius: BorderRadius.circular(50),
-                        radius: 25,
-                        child: const CircleAvatar(
-                          backgroundColor: Colors.amber,
-                          radius: 25,
-                          child: Icon(
-                            Icons.sync,
-                            color: Colors.black, // Change the color as needed
+                const Spacer(),
+                GetBuilder<SurveyController>(
+                  builder: (s) {
+                    return SizedBox(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 5),
+                          InkWell(
+                            highlightColor: Colors.red,
+                            hoverColor: Colors.yellow,
+                            onTap: () {
+
+                              s.postSurveyAnswerRemote();
+                            },
+                            borderRadius: BorderRadius.circular(50),
+                            radius: 25,
+                            child:  CircleAvatar(
+                              backgroundColor: Colors.amber,
+                              radius: 25,
+                              child: RotatingSyncIcon(isLoading: s.u.state == ResponseState.loading ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 5),
+                          Text(
+                       s.u.state == ResponseState.loading ? 'Syncing' :   s.presentDataForSync.value ? 'Sync' :  'Synced',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(color: Colors.white, ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 5),
-                      Text(
-                        'Synced',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium!
-                            .copyWith(color: Colors.white),
-                      ),
-                    ],
-                  ),
+                    );
+                  }
                 ),
               ],
             ),
@@ -154,15 +161,19 @@ class HomeHeaderWidget extends StatelessWidget {
     );
   }
 }
+class RotatingSyncIcon extends StatefulWidget {
+  final bool isLoading; // Pass whether the state is loading or not
 
-class RotatingIcon extends StatefulWidget {
-  const RotatingIcon({super.key});
+  const RotatingSyncIcon({
+    super.key,
+    required this.isLoading,
+  });
 
   @override
-  _RotatingIconState createState() => _RotatingIconState();
+  _RotatingSyncIconState createState() => _RotatingSyncIconState();
 }
 
-class _RotatingIconState extends State<RotatingIcon>
+class _RotatingSyncIconState extends State<RotatingSyncIcon>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
@@ -170,34 +181,43 @@ class _RotatingIconState extends State<RotatingIcon>
   void initState() {
     super.initState();
     _controller = AnimationController(
+      duration: const Duration(seconds: 2),
       vsync: this,
-      duration: const Duration(seconds: 2), // Adjust the duration as needed
-    )..repeat();
+    );
+    
+    if (widget.isLoading) {
+      _controller.repeat();
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (BuildContext context, Widget? child) {
-        return Transform.rotate(
-          angle: _controller.value * 2 * 3.1415, // 2*pi radians = 360 degrees
-          child: const CircleAvatar(
-            backgroundColor: Colors.amber,
-            radius: 25,
-            child: Icon(
-              Icons.sync,
-              color: Colors.black, // Change the color as needed
-            ),
-          ),
-        );
-      },
-    );
+  void didUpdateWidget(covariant RotatingSyncIcon oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isLoading && !_controller.isAnimating) {
+      _controller.repeat();
+    } else if (!widget.isLoading && _controller.isAnimating) {
+      _controller.stop();
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RotationTransition(
+      turns: _controller,
+      child: const CircleAvatar(
+        backgroundColor: Colors.amber,
+        radius: 25,
+        child: Icon(
+          Icons.sync,
+          color: Colors.black, // Change the color as needed
+        ),
+      ),
+    );
   }
 }

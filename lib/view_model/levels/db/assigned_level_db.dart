@@ -1,72 +1,70 @@
 import 'dart:developer';
-import 'package:isar/isar.dart';
-import 'package:telios_2/model/model.dart';
-import '../../../settings/settings.dart';
+import 'package:hive/hive.dart';
+import '../../../model/model.dart';
+import '../../../settings/helper/get_di.dart';
 
 class AssignedLevelDB {
   AssignedLevelDB._();
   static final instance = AssignedLevelDB._();
 
+  final box = Hive.box<HiveAssignedLevel>(HiveBoxes.assignedLevels);
+
   Future<void> postAssignedLevel(
       List<AssignedLevel>? levels, String userId) async {
     if (levels == null || levels.isEmpty) {
-      
       return;
     }
 
-    var isar = Isar.getInstance(db);
-    final collection = isar?.collection<IsarAssignedLevel>();
+    for (AssignedLevel level in levels) {
+      // Create a unique key combining userId and levelKey
+      final String uniqueKey = '${userId}_${level.levelKey}';
 
-    await isar?.writeTxn(() async {
-      for (AssignedLevel level in levels) {
-        final existingLevel = await collection
-            ?.where()
-            .filter()
-            .userIdEqualTo(userId)
-            .and()
-            .levelKeyEqualTo(level.levelKey)
-            .findFirst();
+      // Check if the record already exists
+      final existingLevel = box.get(uniqueKey);
 
-        if (existingLevel == null) {
-          final newDistrict = IsarAssignedLevel()
-            ..userId = userId
-            ..levelKey = level.levelKey
-            ..levelName = level.levelName
-            ..surveyLevel = level.surveyLevel
-            ..assignedLevel = level.assignedLevel
-            ..geoJsonLevel = level.geoJsonLevel
-            ..geoJsonLevelCount = level.geoJsonLevelCount
-            ..assignedLevelId = level.assignedLevelId
-            ..surveyLevelCount = level.surveyLevelCount;
+      if (existingLevel == null) {
+        final newLevel = HiveAssignedLevel()
+          ..userId = userId
+          ..levelKey = level.levelKey
+          ..levelName = level.levelName
+          ..surveyLevel = level.surveyLevel
+          ..assignedLevel = level.assignedLevel
+          ..geoJsonLevel = level.geoJsonLevel
+          ..geoJsonLevelCount = level.geoJsonLevelCount
+          ..assignedLevelId = level.assignedLevelId
+          ..unitId = level.unitId
+          ..surveyLevelCount = level.surveyLevelCount;
 
-          await collection?.put(newDistrict);
-        } else {
-          existingLevel.levelName = level.levelName;
-          existingLevel.assignedLevelId = level.assignedLevelId;
-          await collection?.put(existingLevel);
-        }
+        await box.put(uniqueKey, newLevel);
+      } else {
+        existingLevel.levelName = level.levelName;
+        existingLevel.surveyLevel = level.surveyLevel;
+        existingLevel.assignedLevel = level.assignedLevel;
+        existingLevel.geoJsonLevel = level.geoJsonLevel;
+        existingLevel.geoJsonLevelCount = level.geoJsonLevelCount;
+        existingLevel.unitId = level.unitId;
+        existingLevel.assignedLevelId = level.assignedLevelId;
+        await box.put(uniqueKey, existingLevel);
       }
-    });
+    }
   }
 
   Future<List<AssignedLevel>?> fetchAssignedLevel(String userId) async {
-    var isar = Isar.getInstance(db);
-    final collection = isar!.collection<IsarAssignedLevel>();
-
-    final data =
-        await collection.where().filter().userIdEqualTo(userId).findAll();
+    // Filter entries by userId
+    final data = box.values.where((level) => level.userId == userId).toList();
 
     if (data.isNotEmpty) {
-      return data.map((isarDistrict) {
+      return data.map((hiveLevel) {
         return AssignedLevel(
-          levelKey: isarDistrict.levelKey,
-          levelName: isarDistrict.levelName,
-          surveyLevel: isarDistrict.surveyLevel,
-          assignedLevel: isarDistrict.assignedLevel,
-          geoJsonLevel: isarDistrict.geoJsonLevel,
-          geoJsonLevelCount: isarDistrict.geoJsonLevelCount,
-          assignedLevelId: isarDistrict.assignedLevelId,
-          surveyLevelCount: isarDistrict.surveyLevelCount,
+          levelKey: hiveLevel.levelKey,
+          levelName: hiveLevel.levelName,
+          surveyLevel: hiveLevel.surveyLevel,
+          assignedLevel: hiveLevel.assignedLevel,
+          geoJsonLevel: hiveLevel.geoJsonLevel,
+          geoJsonLevelCount: hiveLevel.geoJsonLevelCount,
+          assignedLevelId: hiveLevel.assignedLevelId,
+          unitId: hiveLevel.unitId,
+          surveyLevelCount: hiveLevel.surveyLevelCount,
         );
       }).toList();
     }
@@ -75,15 +73,7 @@ class AssignedLevelDB {
 
   Future<bool> deleteAssignedLevel() async {
     try {
-      var isar = Isar.getInstance(db);
-      final collection = isar!.collection<IsarAssignedLevel>();
-      final data = await collection.where().findAll();
-
-      await isar.writeTxn(() async {
-        for (IsarAssignedLevel dta in data) {
-          await collection.delete(dta.id);
-        }
-      });
+      await box.clear();
       return true;
     } catch (error) {
       log('Error deleting data: $error');

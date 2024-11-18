@@ -105,7 +105,7 @@ class AssignedLevelItem extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Responsive.isMobile(context)
-                ? Column(
+                ? const Column(
                     children: [
                       SizedBox(
                         child: Row(
@@ -127,7 +127,7 @@ class AssignedLevelItem extends StatelessWidget {
                       // ),
                     ],
                   )
-                : Row(
+                : const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Expanded(child: _buildDistrictPiChart(context)),

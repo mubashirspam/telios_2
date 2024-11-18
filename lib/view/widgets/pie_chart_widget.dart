@@ -1,12 +1,13 @@
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../settings/settings.dart';
+import '../../view_model/survey/survey_controller.dart';
 
 class PieChartWidget extends StatelessWidget {
   final double? centerSpaceRadius;
   final double? radius;
-  final Map<String, dynamic> data;
+  final Map<int, dynamic> data;
   final bool isNotGlobel;
   const PieChartWidget({
     super.key,
@@ -18,6 +19,7 @@ class PieChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final categoryMap = Get.find<SurveyController>().categoryList;
     return AspectRatio(
         aspectRatio: 1,
         child: PieChart(PieChartData(
@@ -29,20 +31,22 @@ class PieChartWidget extends StatelessWidget {
             (index) {
               final category = data.keys.elementAt(index);
 
-              if (category == '') {
-                return PieChartSectionData(
-                  color: Colors.transparent,
-                  value: 0,
-                  title: '',
-                );
-              }
-
               final value = data[category]?.toDouble() ?? 0;
 
-              final color = categoryColorMap[category] ?? Colors.white;
+              Color cardColor = Colors.white;
+              for (var c in categoryMap) {
+                if (c.questionId == category && c.categoryColor != null) {
+                  cardColor = Color(c.categoryColor!);
+                  break;
+                }
+              }
+
+              if (category == 0) {
+                cardColor = Colors.grey.shade300;
+              }
 
               return PieChartSectionData(
-                color: color,
+                color: cardColor,
                 value: value,
                 title: '${value.toStringAsFixed(0)} %',
                 radius: radius ?? 35,

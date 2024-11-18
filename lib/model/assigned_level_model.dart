@@ -2,6 +2,7 @@
 
 class AssignedLevel {
    String? userId;
+   String? unitId;
   String? levelName;
   String? levelKey;
   String? assignedLevel;
@@ -22,6 +23,7 @@ class AssignedLevel {
     this.geoJsonLevel,
     this.geoJsonLevelCount,
     this.assignedLevelId,
+    this.unitId,
   });
 
   AssignedLevel copyWith({
@@ -34,6 +36,7 @@ class AssignedLevel {
     String? geoJsonLevel,
     int? geoJsonLevelCount,
     int? assignedLevelId,
+    String? unitId,
   }) =>
       AssignedLevel(
         userId: userId ?? this.userId,
@@ -45,5 +48,6 @@ class AssignedLevel {
         geoJsonLevel: geoJsonLevel ?? this.geoJsonLevel,
         geoJsonLevelCount: geoJsonLevelCount ?? this.geoJsonLevelCount,
         assignedLevelId: assignedLevelId ?? this.assignedLevelId,
+        unitId: unitId ?? this.unitId,
       );
 }

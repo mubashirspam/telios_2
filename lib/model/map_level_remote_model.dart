@@ -32,11 +32,9 @@ class MapDatum {
   MapFieldData? fieldData;
   MapPortalData? portalData;
 
-
   MapDatum({
     this.fieldData,
     this.portalData,
-  
   });
 
   factory MapDatum.fromJson(Map<String, dynamic> json) => MapDatum(
@@ -46,7 +44,6 @@ class MapDatum {
         portalData: json["portalData"] == null
             ? null
             : MapPortalData.fromJson(json["portalData"]),
-      
       );
 }
 
@@ -78,49 +75,84 @@ class MapFieldData {
 }
 
 class MapPortalData {
-  List<Unitselfparent>? unitselfparent;
+  List<UnitFetchVsunit>? unitFetchVsunits;
 
   MapPortalData({
-    this.unitselfparent,
+    this.unitFetchVsunits,
   });
 
   factory MapPortalData.fromJson(Map<String, dynamic> json) => MapPortalData(
-        unitselfparent: json["Unitselfparent "] == null
+        unitFetchVsunits: json["unitFetchVsunits"] == null
             ? []
-            : List<Unitselfparent>.from(json["Unitselfparent "]!
-                .map((x) => Unitselfparent.fromJson(x))),
+            : List<UnitFetchVsunit>.from(json["unitFetchVsunits"]!
+                .map((x) => UnitFetchVsunit.fromJson(x))),
       );
 }
 
-class Unitselfparent {
+// class Unitselfparent {
+//   String? recordId;
+//   String? unitselfparentId;
+//   String? unitselfparentLevelKey;
+//   String? unitselfparentUnit;
+//   String? unitselfparentCountryLevelId;
+//   String? unitselfparentNumNextLevel;
+//   String? unitGeoJsonidGeoJson;
+//   String? modId;
+
+//   Unitselfparent({
+//     this.recordId,
+//     this.unitselfparentId,
+//     this.unitselfparentLevelKey,
+//     this.unitselfparentUnit,
+//     this.unitselfparentCountryLevelId,
+//     this.unitselfparentNumNextLevel,
+//     this.unitGeoJsonidGeoJson,
+//     this.modId,
+//   });
+
+//   factory Unitselfparent.fromJson(Map<String, dynamic> json) => Unitselfparent(
+//         recordId: json["recordId"],
+//         unitselfparentId: json["Unitselfparent ::id"],
+//         unitselfparentLevelKey: json["Unitselfparent ::levelKey"],
+//         unitselfparentUnit: json["Unitselfparent ::unit"],
+//         unitselfparentCountryLevelId: json["Unitselfparent ::countryLevelId"],
+//         unitselfparentNumNextLevel: json["Unitselfparent ::numNextLevel"],
+//         unitGeoJsonidGeoJson: json["unitGeoJsonid::geoJson"],
+//         modId: json["modId"],
+//       );
+// }
+
+class UnitFetchVsunit {
   String? recordId;
-  String? unitselfparentId;
-  String? unitselfparentLevelKey;
-  String? unitselfparentUnit;
-  String? unitselfparentCountryLevelId;
-  String? unitselfparentNumNextLevel;
-  String? unitGeoJsonidGeoJson;
+  String? unitFetchVsunitsId;
+  String? unitFetchVsunitsLevelKey;
+  String? unitFetchVsunitsUnit;
+  String? unitFetchVsunitsNumNextLevel;
+  String? unitFetchVsunitsCountryLevelId;
+  String? unitfetchVsGeoJsonidGeoJson;
   String? modId;
 
-  Unitselfparent({
+  UnitFetchVsunit({
     this.recordId,
-    this.unitselfparentId,
-    this.unitselfparentLevelKey,
-    this.unitselfparentUnit,
-    this.unitselfparentCountryLevelId,
-    this.unitselfparentNumNextLevel,
-    this.unitGeoJsonidGeoJson,
+    this.unitFetchVsunitsId,
+    this.unitFetchVsunitsLevelKey,
+    this.unitFetchVsunitsUnit,
+    this.unitFetchVsunitsNumNextLevel,
+    this.unitFetchVsunitsCountryLevelId,
+    this.unitfetchVsGeoJsonidGeoJson,
     this.modId,
   });
 
-  factory Unitselfparent.fromJson(Map<String, dynamic> json) => Unitselfparent(
+  factory UnitFetchVsunit.fromJson(Map<String, dynamic> json) =>
+      UnitFetchVsunit(
         recordId: json["recordId"],
-        unitselfparentId: json["Unitselfparent ::id"],
-        unitselfparentLevelKey: json["Unitselfparent ::levelKey"],
-        unitselfparentUnit: json["Unitselfparent ::unit"],
-        unitselfparentCountryLevelId: json["Unitselfparent ::countryLevelId"],
-        unitselfparentNumNextLevel: json["Unitselfparent ::numNextLevel"],
-        unitGeoJsonidGeoJson: json["unitGeoJsonid::geoJson"],
+        unitFetchVsunitsId: json["unitFetchVsunits::id"],
+        unitFetchVsunitsLevelKey: json["unitFetchVsunits::levelKey"],
+        unitFetchVsunitsUnit: json["unitFetchVsunits::unit"],
+        unitFetchVsunitsNumNextLevel: json["unitFetchVsunits::numNextLevel"],
+        unitFetchVsunitsCountryLevelId:
+            json["unitFetchVsunits::countryLevelId"],
+        unitfetchVsGeoJsonidGeoJson: json["unitfetchVsGeoJsonid::geoJson"],
         modId: json["modId"],
       );
 }

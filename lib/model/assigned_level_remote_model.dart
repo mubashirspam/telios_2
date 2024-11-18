@@ -60,6 +60,7 @@ class AssignedPortalData {
 }
 
 class DataObject {
+  String? dataObjectUnitId;
   String? dataObjectSurveyLevel;
   String? dataObjectUserAssingLevel;
   String? dataObjectGeoJsonLevel;
@@ -67,7 +68,7 @@ class DataObject {
   String? userVsAssignVsTeliosUnitUnit;
   int? dataObjectGeojsonLevelCount;
   int? dataObjectSurveyLevelCount;
-  String? assignedLevelId;
+  int? assignedLevelId;
 
   DataObject({
     this.dataObjectSurveyLevel,
@@ -78,10 +79,13 @@ class DataObject {
     this.dataObjectGeojsonLevelCount,
     this.dataObjectSurveyLevelCount,
     this.assignedLevelId,
+    this.dataObjectUnitId,
   });
 
   factory DataObject.fromJson(Map<String, dynamic> json) => DataObject(
-        assignedLevelId: json["userVsTelios_Assignmentuserid::unitId"],
+        dataObjectUnitId:
+            json["userVsTelios_Assignmentuserid::unitId"],
+        assignedLevelId: json["userVsTelios_Assignmentuserid::geoJsonLevelId"],
         dataObjectSurveyLevel:
             json["userVsTelios_Assignmentuserid::surveyLevel"],
         dataObjectUserAssingLevel:

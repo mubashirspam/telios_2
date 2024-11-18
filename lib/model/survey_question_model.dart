@@ -3,12 +3,14 @@ import 'package:get/get.dart';
 class QuestionModel {
   final int surveyId;
   final String surveyName;
-  final List<Question> questions;
+  List<Question> questions;
+  final List<SurveyCategory> surveyCategories;
 
   QuestionModel({
     required this.surveyId,
     required this.surveyName,
     required this.questions,
+    required this.surveyCategories,
   });
 }
 
@@ -19,11 +21,13 @@ class Question {
   final int typeId;
   final int surveyId;
   final String surveyName;
-  final List<String>? options;
-  final Map<String, List<String>>? nestedOptions;
-  final RxString answer = RxString('');
+  final String? parentQuestionId;
+  List<DItem>? options;
+  Map<int, List<DItem>>? nestedOptions;
+  RxString answer = RxString('');
   final RxString nestedAnswer = RxString('');
-  final RxList<String> multiAnswer = RxList<String>([]);
+  final RxList<DItem> multiAnswer = RxList<DItem>([]);
+  final RxList<DItem> multiAnswernestedAnswer = RxList<DItem>([]);
   final int? colorcode;
   final bool? isquestionVisble;
   final String? hint;
@@ -42,5 +46,26 @@ class Question {
     required this.isCounter,
     required this.surveyId,
     required this.typeId,
+    this.parentQuestionId,
   });
+}
+
+class SurveyCategory {
+  final int? questionId;
+  final int? surveyId;
+  final String? categoryName;
+  final int? categoryColor;
+
+  SurveyCategory({
+    this.questionId,
+    this.categoryColor,
+    this.surveyId,
+    this.categoryName,
+  });
+}
+
+class DItem {
+  String name;
+  int id;
+  DItem(this.name, this.id);
 }

@@ -1,9 +1,9 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/settings/settings.dart';
 import 'package:telios_2/view/view.dart';
+import 'package:telios_2/view_model/view_model.dart';
 import '../../../model/model.dart';
 import '../../widgets/widgets.dart';
 
@@ -21,28 +21,32 @@ class MapLevelItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log("-=============");
+    RxList<SurveyCategory> categoryMap =
+        Get.find<SurveyController>().categoryList;
+
     final ListingModel chartData =
         pieChartData.firstWhere((element) => element.id == mapLevel.levelKey);
 
-    final Map<String, dynamic> categoryList =
+    final Map<int, dynamic> categoryList =
         Map.from(chartData.categoryList ?? {});
 
-    final Map<String, double> finalCategoryMap = {};
+    final Map<int, double> finalCategoryMap = {};
     int totalCountInCategories = 0;
 
-    categoryMap.forEach((key, value) {
-      int count = categoryList[key] ?? 0;
+    for (var value in categoryMap) {
+      int questionId = value.questionId ?? 0;
+
+      int count = categoryList[questionId] ?? 0;
       totalCountInCategories += count;
 
-      finalCategoryMap[key] =
+      finalCategoryMap[value.questionId ?? 0] =
           surveyLevelCount > 0 ? (count / surveyLevelCount) * 100 : 0;
-    });
+    }
 
     final int remainingCount = surveyLevelCount - totalCountInCategories;
     if (remainingCount > 0) {
-      categoryList["Empty"] = remainingCount;
-      finalCategoryMap['Empty'] = (remainingCount / surveyLevelCount) * 100;
+      categoryList[0] = remainingCount;
+      finalCategoryMap[0] = (remainingCount / surveyLevelCount) * 100;
     }
 
     return Container(
@@ -106,7 +110,7 @@ class MapLevelItem extends StatelessWidget {
             child: ColoredBox(color: AppColor.backround),
           ),
           Padding(
-            padding: EdgeInsets.all(15),
+            padding: const EdgeInsets.all(15),
             child: SizedBox(
               child: Row(
                 children: [
@@ -142,20 +146,26 @@ class MapLevelItem extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ...categoryColorMap.keys.map((category) {
-                            if (category == '') {
-                              return const SizedBox();
+                          ...categoryMap.map((category) {
+                            final count =
+                                categoryList[category.questionId] ?? 0;
+                            Color color = category.categoryColor == null
+                                ? Colors.grey.shade300
+                                : category.categoryColor == null
+                                    ? Colors.grey.shade300
+                                    : Color(category.categoryColor!);
+
+                            if (category.questionId == 0) {
+                              color = Colors.grey.shade300;
                             }
 
-                            final count = categoryList[category] ?? 0;
-                            final color =
-                                categoryColorMap[category] ?? Colors.white;
+                            final name = category.categoryName;
 
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 5),
                               child: idetification(
                                 color,
-                                "$category : $count",
+                                "$name : $count",
                                 context,
                               ),
                             );

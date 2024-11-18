@@ -1,6 +1,6 @@
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:telios_2/settings/helper/utils.dart';
 import '../../../model/model.dart';
 import '../../../settings/helper/responsive.dart';
 import '../../../settings/theme/colors.dart';
@@ -15,6 +15,7 @@ class ListViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final categoryMap = Get.find<SurveyController>().categoryList;
     return SizedBox(
       width: Responsive.isMobile(context) ? double.maxFinite : 350,
       child: Column(
@@ -28,10 +29,17 @@ class ListViewWidget extends StatelessWidget {
                 padding: const EdgeInsets.all(15).copyWith(top: 0),
                 itemBuilder: (context, index) {
                   final level = levels[index];
-                  final bool isActive = controller.selectedLevel.value == index;
 
-                  final Color cardColor =
-                      categoryColorMap[level.category] ?? Colors.white;
+                  final bool isActive = controller.selectedLevel.value == index;
+                  Color cardColor = Colors.white;
+
+                  for (var c in categoryMap) {
+                    if (c.questionId == level.category &&
+                        c.categoryColor != null) {
+                      cardColor = Color(c.categoryColor!);
+                      break; 
+                    }
+                  }
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: 15),
@@ -75,4 +83,3 @@ class ListViewWidget extends StatelessWidget {
     );
   }
 }
-
