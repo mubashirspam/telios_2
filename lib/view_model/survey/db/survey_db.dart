@@ -188,23 +188,7 @@ class SurveyDB {
     return result;
   }
 
-  Future<bool> clearDropDownOptioDB() async {
-    try {
-      var isar = Isar.getInstance(db);
-      final collection = isar!.collection<IsarMultiDropdownOptionModel>();
-      final data = await collection.where().findAll();
 
-      await isar.writeTxn(() async {
-        for (IsarMultiDropdownOptionModel dta in data) {
-          await collection.delete(dta.id);
-        }
-      });
-      return true;
-    } catch (error) {
-      log('Error deleting data: $error');
-      return false;
-    }
-  }
 
   Future<void> postSurveyAnswerDB(SurveyAnswerModel answerData) async {
     final isar = Isar.getInstance(db);
@@ -280,41 +264,6 @@ class SurveyDB {
     }
   }
 
-  // Future<void> syncSurveyAnswerDB(
-  //     List<SyncSurveyAnswerModel> answerData, String assignedLevelKey) async {
-  //   final isar = Isar.getInstance(db);
-  //   final collection = isar?.collection<IsarSurveyAnswerModel>();
-
-  //   final existingData = await collection
-  //       ?.where()
-  //       .filter()
-  //       .assignedLevelKeyEqualTo(assignedLevelKey)
-  //       .findAll();
-
-  //   if (existingData == null || existingData.isEmpty) {
-  //     await isar?.writeTxn(() async {
-  //       for (var item in answerData) {
-  //         final newItem = IsarSurveyAnswerModel()
-  //           ..surveyLevelKey = item.levelKey
-  //           ..surveyLevelName = item.levelName
-  //           ..assignedLevelKey = assignedLevelKey
-  //           ..answers = item.answers?.map((a) {
-  //             return IsarAnswer()
-  //               ..id = a.questionId?.toString()
-  //               ..answer = a.answer
-  //               ..questionId = a.questionId
-  //               ..answerOptions = a.answerOptions?.map((option) {
-  //                 return IsarDItem()
-  //                   ..id = option.id
-  //                   ..name = option.name;
-  //               }).toList();
-  //           }).toList();
-
-  //         await collection?.put(newItem);
-  //       }
-  //     });
-  //   }
-  // }
 
   Future<List<SurveyAnswerModel>?> fetchSurveyAnswerDB(
       {String? assignedLevelKey,
@@ -454,6 +403,24 @@ class SurveyDB {
 
       await isar.writeTxn(() async {
         for (IsarSurveyAnswerModel dta in data) {
+          await collection.delete(dta.id);
+        }
+      });
+      return true;
+    } catch (error) {
+      log('Error deleting data: $error');
+      return false;
+    }
+  }
+
+    Future<bool> clearDropDownOptioDB() async {
+    try {
+      var isar = Isar.getInstance(db);
+      final collection = isar!.collection<IsarMultiDropdownOptionModel>();
+      final data = await collection.where().findAll();
+
+      await isar.writeTxn(() async {
+        for (IsarMultiDropdownOptionModel dta in data) {
           await collection.delete(dta.id);
         }
       });
