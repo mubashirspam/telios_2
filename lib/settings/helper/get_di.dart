@@ -1,13 +1,10 @@
 import 'dart:developer';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:isar/isar.dart';
-import 'package:path_provider/path_provider.dart';
-import '../../model/isar/isar.dart';
+import '../../model/hive/isar.dart';
 import '../../view_model/view_model.dart';
-import 'constants.dart';
+
 
 late final SharedPreferences prefs;
 
@@ -20,30 +17,78 @@ Future<void> getDiInit() async {
   Get.put(LevelController());
 }
 
+// Future<void> dbInit() async {
+//   try {
+//     if (!kIsWeb) {
+//       Future<Directory?>? dir;
+//       dir = getApplicationSupportDirectory();
+//       final Directory? directory = await dir;
+
+//       await Isar.open(
+//         name: db,
+//         [
+//           IsarUserSchema,
+//           IsarAssignedLevelSchema,
+//           IsarMapLevelModelSchema,
+//           IsarSurveyLevelModelSchema,
+//           IsarSurveyQusetionModelSchema,
+//           IsarSurveyAnswerModelSchema,
+//           IsarSurveyTempSchema,
+//           IsarMultiDropdownOptionModelSchema
+
+//         ],
+//         directory: '${directory?.path}',
+//       );
+//     }
+//   } catch (e) {
+//     log(e.toString());
+//   }
+// }
+
 Future<void> dbInit() async {
   try {
-    if (!kIsWeb) {
-      Future<Directory?>? dir;
-      dir = getApplicationSupportDirectory();
-      final Directory? directory = await dir;
+    await Hive.initFlutter();
+    Hive.registerAdapter(HiveUserAdapter());
+    Hive.registerAdapter(HiveAssignedLevelAdapter());
+    Hive.registerAdapter(HiveMultiDropdownOptionModelAdapter());
+    Hive.registerAdapter(HiveChildOptionAdapter());
+    Hive.registerAdapter(HiveMapLevelModelAdapter());
+    Hive.registerAdapter(HiveMapLevelAdapter());
+    Hive.registerAdapter(HiveSurveyAnswerModelAdapter());
+    Hive.registerAdapter(HiveAnswerAdapter());
+    Hive.registerAdapter(HiveDItemAdapter());
+    Hive.registerAdapter(HiveSurveyLevelModelAdapter());
+    Hive.registerAdapter(HiveSurveyLevelAdapter());
+    Hive.registerAdapter(HiveSurveyQuestionModelAdapter());
+    Hive.registerAdapter(HiveSurveyQuestionAdapter());
+    Hive.registerAdapter(HiveSurveyCategoryAdapter());
+    Hive.registerAdapter(HiveSurveyTempAdapter());
+    Hive.registerAdapter(HiveSurveyTempAnswersAdapter());
+    Hive.registerAdapter(HiveDItemTempAdapter());
 
-      await Isar.open(
-        name: db,
-        [
-          IsarUserSchema,
-          IsarAssignedLevelSchema,
-          IsarMapLevelModelSchema,
-          IsarSurveyLevelModelSchema,
-          IsarSurveyQusetionModelSchema,
-          IsarSurveyAnswerModelSchema,
-          IsarSurveyTempSchema,
-          IsarMultiDropdownOptionModelSchema
-          
-        ],
-        directory: '${directory?.path}',
-      );
-    }
+    await Hive.openBox<HiveUser>(HiveBoxes.users);
+    await Hive.openBox<HiveAssignedLevel>(HiveBoxes.assignedLevels);
+    await Hive.openBox<HiveMultiDropdownOptionModel>(
+        HiveBoxes.multiDropdownOptions);
+    await Hive.openBox<HiveMapLevelModel>(HiveBoxes.mapLevels);
+    await Hive.openBox<HiveSurveyAnswerModel>(HiveBoxes.surveyAnswers);
+    await Hive.openBox<HiveSurveyLevelModel>(HiveBoxes.surveyLevels);
+    await Hive.openBox<HiveSurveyQuestionModel>(HiveBoxes.surveyQuestions);
+    await Hive.openBox<HiveSurveyTemp>(HiveBoxes.surveyTemp);
+
+    log("Hive initialized successfully");
   } catch (e) {
-    log(e.toString());
+    log('Failed to initialize Hive: $e');
   }
+}
+
+class HiveBoxes {
+  static const String users = 'users';
+  static const String assignedLevels = 'assigned_levels';
+  static const String mapLevels = 'map_levels';
+  static const String surveyLevels = 'survey_levels';
+  static const String surveyQuestions = 'survey_questions';
+  static const String surveyAnswers = 'survey_answers';
+  static const String surveyTemp = 'survey_temp';
+  static const String multiDropdownOptions = 'multi_dropdown_options';
 }

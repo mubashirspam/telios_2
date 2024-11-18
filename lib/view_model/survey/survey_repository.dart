@@ -102,7 +102,7 @@ class SurveyRepository {
   }
 
   Future<bool> clearDropDownOptioDB() async {
-    return await _db.clearDropDownOptioDB();
+    return await _db.clearDropDownOptionDB();
   }
 
   // Survey Answer Access
@@ -124,7 +124,7 @@ class SurveyRepository {
   }
 
   Future<bool> clearSurveyQustionDB() async {
-    return await _db.clearSurveyQustionDB();
+    return await _db.clearSurveyQuestionDB();
   }
 
   Future<bool> clearSurveyAnswerDB() async {
