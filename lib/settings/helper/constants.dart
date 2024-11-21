@@ -18,6 +18,11 @@ const recordIdKey = "recordIdKey_key@surveyApp";
 const syncIdKey = "syncIdKey_key@surveyApp";
 
 
-final baseUrl = dotenv.env['BaseUrl'];
-final token = dotenv.env['Token'];
-final version =dotenv.env['Version'];
+// final baseUrl = dotenv.env['BaseUrl'];
+// final token = dotenv.env['Token'];
+// final version =dotenv.env['Version'];
+
+const baseUrl = 'https://techgeneza.in';
+const token = 'c3VzaGlsOkphY29iNw';
+const version ='fmi/data/vLatest/databases/DataV1';
+

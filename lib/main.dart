@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'settings/settings.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+  // await dotenv.load(fileName: '.env');
   prefs = await SharedPreferences.getInstance();
   await dbInit();
   await getDiInit();

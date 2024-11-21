@@ -70,7 +70,7 @@ flutter:
     - assets/fonts/
     - assets/icons/
     - assets/geojson/
-    - .env
+    # - .env
 
 fonts:
   - family: Poppins

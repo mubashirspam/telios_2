@@ -205,9 +205,7 @@ class _QuestionListViewState extends State<QuestionListView> {
       padding: const EdgeInsets.all(15),
       child: Form(
         key: _formKey,
-        child:
-        
-         ListView(
+        child: ListView(
           children: List.generate(widget.model.questions.length + 1, (index) {
             if (index == widget.model.questions.length) {
               return Obx(
@@ -363,6 +361,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
         return widget.question.typeId == 5
             ? _buildCounterRow()
             : TextFieldWidget(
+                // labelText: widget.question.question,
                 fillColor: Color(widget.question.colorcode ?? 0xFFFFFFFF),
                 textEditingController: _controller,
                 onChanged: (value) => widget.question.answer.value = value,
@@ -374,6 +373,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
               );
       case 6:
         return TextFieldWidget(
+          // labelText: widget.question.question,
           onChanged: (value) => widget.question.answer.value = value,
           textEditingController: _controller,
           fillColor: Color(widget.question.colorcode ?? 0xFFFFFFFF),
@@ -401,6 +401,8 @@ class _QuestionWidgetState extends State<QuestionWidget> {
                 widget.question.options!.isNotEmpty
             ? MultiDropdownWidget(
                 hintText: widget.question.hint ?? '',
+                question: widget.question.question,
+
                 items: widget.question.options!.map((option) {
                   return ValueItem(
                     label: option.name,
@@ -422,6 +424,8 @@ class _QuestionWidgetState extends State<QuestionWidget> {
                     d.isNotEmpty
                 ? MultiDropdownWidget(
                     hintText: widget.question.hint ?? '',
+                    question: widget.question.question,
+
                     items: d,
                     controller: _Mcontroller,
                     onSelectionChange: (value) {
@@ -576,10 +580,12 @@ class MultiDropdownWidget extends StatelessWidget {
   final List<ValueItem<dynamic>> disabledOptions;
 
   final String hintText;
+  final String question;
 
   const MultiDropdownWidget(
       {super.key,
       required this.hintText,
+      required this.question,
       required this.items,
       required this.onSelectionChange,
       this.disabledOptions = const [],
@@ -587,20 +593,30 @@ class MultiDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiSelectDropDown(
-      controller: controller,
-      onOptionSelected: onSelectionChange,
-      disabledOptions: disabledOptions,
-      options: const [],
-      selectionType: SelectionType.multi,
-      chipConfig: const ChipConfig(wrapType: WrapType.scroll),
-      dropdownHeight: 300,
-      optionTextStyle: const TextStyle(fontSize: 16),
-      selectedOptionIcon: const Icon(Icons.check_circle),
-      borderRadius: 7,
-      fieldBackgroundColor: AppColor.backround,
-      borderColor: AppColor.primary,
-      hint: hintText,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(question),
+        const SizedBox(height: 5),
+        MultiSelectDropDown(
+          controller: controller,
+          
+          onOptionSelected: onSelectionChange,
+          disabledOptions: disabledOptions,
+          options: const [],
+          selectionType: SelectionType.multi,
+          chipConfig: const ChipConfig(wrapType: WrapType.scroll),
+          dropdownHeight: 300,
+          optionTextStyle: const TextStyle(fontSize: 16),
+          selectedOptionIcon: const Icon(Icons.check_circle),
+          borderRadius: 7,
+          fieldBackgroundColor: AppColor.backround,
+          borderColor: AppColor.primary,
+          hint: hintText,
+        ),
+      ],
     );
   }
 }
