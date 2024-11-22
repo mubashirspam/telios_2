@@ -21,11 +21,9 @@ class _MapLevelScreenState extends State<MapLevelScreen> {
     final LevelController controller = Get.find<LevelController>();
     final levelKey = widget.assignedLevel.levelKey!;
     final unitId = widget.assignedLevel.unitId!;
-    
-
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.fetchMapLevel(levelKey,unitId);
+      controller.fetchMapLevel(levelKey, unitId);
 
       // Get.find<SurveyController>().syncSurveyAnswers(levelKey);
     });
@@ -128,7 +126,7 @@ class _MapLevelScreenState extends State<MapLevelScreen> {
                         width: double.maxFinite,
                         child: RefreshIndicator(
                           onRefresh: () async {
-                            controller.fetchMapLevel(levelKey,unitId);
+                            controller.fetchMapLevel(levelKey, unitId);
                           },
                           child: GridView.builder(
                             gridDelegate:

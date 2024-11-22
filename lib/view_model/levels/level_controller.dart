@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
+
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -287,7 +287,7 @@ class LevelController extends GetxController {
         level.levelKey ?? 'UnknownKey',
         categoryList.isNotEmpty ? categoryList : null,
       );
-      debugPrint("catergory List : ${newListing.categoryList}");
+    
       mapLevels.add(newListing);
     }
   }

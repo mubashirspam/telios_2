@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:telios_2/model/model.dart';
 
 PostSurvey convertTempAnswerToPostRemoteAnswer(List<SurveyTemp> surveyTemp) {
@@ -190,6 +192,7 @@ List<SurveyAnswerModel> convertSyncSurveyAnswerToLocal(
                                 answer: answer.answer,
                                 answerOptions:
                                     answer.answerOptions?.map((option) {
+                                      log(answer.answerOptions.toString());
                                   return DItem(
                                     option.optionValue ?? '',
                                     option.optionId ?? 0,

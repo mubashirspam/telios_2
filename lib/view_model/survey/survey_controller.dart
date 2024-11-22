@@ -91,7 +91,7 @@ class SurveyController extends GetxController {
         remoteResult.fold(
           (remoteFailure) {
             r = ApiResponse.error(remoteFailure);
-            debugPrint("Error message: ${remoteFailure.message}");
+          
             update();
           },
           (success) async {
@@ -275,6 +275,7 @@ class SurveyController extends GetxController {
     String? assignedLevelKey,
     String? geoJsonLevelKey,
     String? surveyLevelKey,
+
   }) async {
     if (a.state == ResponseState.loading) {
       return;
@@ -292,9 +293,9 @@ class SurveyController extends GetxController {
     localResult.fold(
       (failure) async {
         a = ApiResponse.error(failure);
-        debugPrint("Error message: ${failure.message}=========");
 
-        if (assignedLevelKey != null) {
+
+        if (assignedLevelKey != null ) {
           syncSurveyAnswers(assignedLevelKey);
         }
 
@@ -514,7 +515,7 @@ class SurveyController extends GetxController {
     }
   }
 
-  Future<void> syncSurveyAnswers(String unitKey) async {
+  Future<void> syncSurveyAnswers(String unitKey ) async {
     if (s.state == ResponseState.loading) {
       return;
     }
@@ -533,6 +534,8 @@ class SurveyController extends GetxController {
       }
 
       s = ApiResponse.completed(r);
+     
+      
       update();
     });
   }

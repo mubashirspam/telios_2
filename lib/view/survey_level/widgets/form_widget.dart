@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -281,45 +283,65 @@ class _QuestionWidgetState extends State<QuestionWidget> {
     super.initState();
     _controller = TextEditingController(text: widget.a?.answer ?? '');
     _Mcontroller = MultiSelectController<dynamic>();
+
+    // Handle regular options
     if (widget.question.options != null &&
         widget.question.options!.isNotEmpty) {
-      _Mcontroller?.setOptions(widget.question.options!.map((option) {
+      final availableOptions = widget.question.options!.map((option) {
         return ValueItem(
           label: option.name,
           value: option.id,
         );
-      }).toList());
+      }).toList();
 
-      _Mcontroller?.setSelectedOptions(widget.a?.answerOptions?.map((e) {
+      _Mcontroller?.setOptions(availableOptions);
+
+      // Filter selected options to only include those in the available options
+      final selectedOptions = widget.a?.answerOptions?.where((answer) {
+            return availableOptions.any((option) => option.value == answer.id);
+          }).map((e) {
             return ValueItem(
               label: e.name,
               value: e.id,
             );
           }).toList() ??
-          []);
+          [];
+
+      _Mcontroller?.setSelectedOptions(selectedOptions);
     }
 
+    // Handle nested options
     if (widget.question.nestedOptions != null &&
         widget.question.nestedOptions!.isNotEmpty) {
-      _Mcontroller?.setOptions(
-        widget.question.nestedOptions?.values.expand((option) {
-              return option.map((e) {
-                return ValueItem(
-                  label: e.name,
-                  value: e.id,
-                );
-              });
-            }).toList() ??
-            [],
-      );
-      _Mcontroller?.setSelectedOptions(widget.a?.answerOptions
-              ?.map((e) => ValueItem(
+      final availableNestedOptions =
+          widget.question.nestedOptions?.values.expand((option) {
+                return option.map((e) {
+                  return ValueItem(
+                    label: e.name,
+                    value: e.id,
+                  );
+                });
+              }).toList() ??
+              [];
+
+      _Mcontroller?.setOptions(availableNestedOptions);
+
+      // Filter selected options to only include those in the available nested options
+      final selectedNestedOptions = widget.a?.answerOptions
+              ?.where((answer) {
+                return availableNestedOptions
+                    .any((option) => option.value == answer.id);
+              })
+              .map((e) => ValueItem(
                     label: e.name,
                     value: e.id,
                   ))
               .toList() ??
-          []);
+          [];
+
+      _Mcontroller?.setSelectedOptions(selectedNestedOptions);
     }
+
     widget.question.multiAnswernestedAnswer
       ..clear()
       ..addAll(widget.a?.answerOptions ?? []);
@@ -327,6 +349,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
     widget.question.multiAnswer
       ..clear()
       ..addAll(widget.a?.answerOptions ?? []);
+
     widget.question.answer.value = _controller.text;
   }
 
@@ -402,7 +425,6 @@ class _QuestionWidgetState extends State<QuestionWidget> {
             ? MultiDropdownWidget(
                 hintText: widget.question.hint ?? '',
                 question: widget.question.question,
-
                 items: widget.question.options!.map((option) {
                   return ValueItem(
                     label: option.name,
@@ -425,7 +447,6 @@ class _QuestionWidgetState extends State<QuestionWidget> {
                 ? MultiDropdownWidget(
                     hintText: widget.question.hint ?? '',
                     question: widget.question.question,
-
                     items: d,
                     controller: _Mcontroller,
                     onSelectionChange: (value) {
@@ -602,7 +623,6 @@ class MultiDropdownWidget extends StatelessWidget {
         const SizedBox(height: 5),
         MultiSelectDropDown(
           controller: controller,
-          
           onOptionSelected: onSelectionChange,
           disabledOptions: disabledOptions,
           options: const [],
