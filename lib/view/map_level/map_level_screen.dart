@@ -5,6 +5,7 @@ import 'package:telios_2/view_model/view_model.dart';
 import '../../settings/helper/enums.dart';
 import '../widgets/widgets.dart';
 import 'widgets/map_level_item.dart';
+import 'widgets/shimmer_card.dart';
 
 class MapLevelScreen extends StatefulWidget {
   final AssignedLevel assignedLevel;
@@ -108,7 +109,7 @@ class _MapLevelScreenState extends State<MapLevelScreen> {
                   init: LevelController(),
                   builder: (c) {
                     if (c.mapResponse.state == ResponseState.loading) {
-                      return const Center(
+                      return Center(
                         child: CircularProgressIndicator(),
                       );
                     }
@@ -122,6 +123,20 @@ class _MapLevelScreenState extends State<MapLevelScreen> {
                       if (levels.isEmpty) {
                         return const Center(child: Text("data not found"));
                       }
+                      // return GridView.builder(
+                      //   gridDelegate:
+                      //       const SliverGridDelegateWithMaxCrossAxisExtent(
+                      //     crossAxisSpacing: 20,
+                      //     mainAxisExtent: 250,
+                      //     mainAxisSpacing: 20,
+                      //     maxCrossAxisExtent: 400,
+                      //   ),
+                      //   itemCount: 20,
+                      //   padding: const EdgeInsets.all(20).copyWith(top: 0),
+                      //   itemBuilder: (context, index) {
+                      //     return ShimmerCard();
+                      //   },
+                      // );
                       return SizedBox(
                         width: double.maxFinite,
                         child: RefreshIndicator(
