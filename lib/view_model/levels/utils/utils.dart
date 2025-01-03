@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+
 
 import '../../../model/model.dart';
 
@@ -72,8 +72,7 @@ Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
       String assignedLevelKey = level.assignedLevelKey!;
       String assignedLevelName = level.assignedLevelName ?? '';
 
-      debugPrint(level.assignedLevelKey);
-      debugPrint(level.assignedLevelName);
+
 
       switch (id) {
         case 1:

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../model/model.dart';
@@ -37,7 +36,7 @@ class ListViewWidget extends StatelessWidget {
                     if (c.questionId == level.category &&
                         c.categoryColor != null) {
                       cardColor = Color(c.categoryColor!);
-                      break; 
+                      break;
                     }
                   }
 
@@ -59,19 +58,71 @@ class ListViewWidget extends StatelessWidget {
                                       : AppColor.textPrimary,
                                 ),
                       ),
-                      subtitle: Text(level.id,
-                          style:
-                              Theme.of(context).textTheme.titleSmall!.copyWith(
-                                    color: isActive
-                                        ? AppColor.backround
-                                        : AppColor.textPrimary,
-                                  )),
-                      trailing: Icon(
-                        Icons.chevron_right_rounded,
-                        color: isActive
-                            ? AppColor.backround
-                            : AppColor.textPrimary,
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: double.maxFinite,
+                            child: Text(level.id,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall!
+                                    .copyWith(
+                                      color: isActive
+                                          ? AppColor.backround
+                                          : AppColor.textPrimary,
+                                    )),
+                          ),
+                          // ignore: prefer_const_constructors
+                          SizedBox(height: 10),
+                          SizedBox(
+                            width: double.maxFinite,
+                            child: Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.start,
+                              runSpacing: 5,
+                              spacing: 5,
+                              alignment: WrapAlignment.spaceBetween,
+                              children: [
+                                if (levels[index].answers != null)
+                                  ...levels[index].answers!.map((entry) {
+                                    return Chip(
+                                      // decoration: BoxDecoration(
+                                      //     color: Color(int.parse(entry.color)),
+                                      //     border: Border.all(
+                                      //         width: 1,
+                                      //         color: Colors.blueGrey)),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(100.0),
+                                          side: BorderSide(
+                                          color:    Colors.blueGrey.shade100,
+                                          )),
+                                    
+
+                                      padding: const EdgeInsets.all(5),
+                                      label: Text(
+                                        "${entry.question}: ${entry.answer}",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                              ],
+                            ),
+                          )
+                        ],
                       ),
+                      trailing: levels[index].answers != null &&
+                              levels[index].answers!.isNotEmpty
+                          ? null
+                          : Icon(
+                              Icons.chevron_right_rounded,
+                              color: isActive
+                                  ? AppColor.backround
+                                  : AppColor.textPrimary,
+                            ),
                     ),
                   );
                 },

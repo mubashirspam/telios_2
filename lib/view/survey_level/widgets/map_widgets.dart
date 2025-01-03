@@ -130,6 +130,50 @@ class _BuildMapState extends State<BuildMap> {
               fontSize: themeData.textTheme.bodySmall!.fontSize,
             ),
           ),
+          tooltipSettings: const MapTooltipSettings(
+            strokeWidth: 0,
+            color: Colors.white,
+            strokeColor: Colors.transparent,
+          ),
+          shapeTooltipBuilder: (BuildContext context, int index) {
+            return SizedBox(
+              width: 250,
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_levels[index].answers != null) ...[
+                      ..._levels[index].answers!.map((entry) {
+                        return Container(
+                          
+                          margin: const EdgeInsets.only(bottom: 5),
+                          decoration: BoxDecoration(
+                            color: Color(int.parse(entry.color)),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          padding: const EdgeInsets.all(5),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "${entry.question}:",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(entry.answer),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ]
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ],
     );

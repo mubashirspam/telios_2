@@ -1,4 +1,6 @@
+
 import 'dart:developer';
+
 import 'package:hive/hive.dart';
 
 import '../../../model/model.dart';
@@ -91,6 +93,21 @@ class MapLevelDB {
       }).toList();
     }
     return null;
+  }
+
+  Future<List<LevelInfo>> fetchAllMapLevels() async {
+    try {
+      return box.values
+          .expand((model) => model.levels ?? [])
+          .map((e) => LevelInfo(
+                levelKey: e.levelKey ?? '',
+                levelName: e.levelName ?? '',
+              ))
+          .toList();
+    } catch (e) {
+      log('Error fetching all map levels: $e');
+      return [];
+    }
   }
 
   Future<bool> deleteMapLevelDB() async {

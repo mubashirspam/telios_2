@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -57,7 +55,6 @@ class LevelController extends GetxController {
 
   void gotToNextLevel(AssignedLevel assignedLevel) {
     final i = assignedLevel.assignedLevelId;
-    
 
     log("assignedLevel id =============$i");
     //
@@ -82,7 +79,9 @@ class LevelController extends GetxController {
           shapeDataField.value = 'Level4';
           break;
       }
-      Get.toNamed(RouterName.mapLevel, arguments: assignedLevel);
+      // Get.toNamed(RouterName.mapLevel, arguments: assignedLevel);
+      appRouter.push(ScreenPaths.map(assignedLevel.levelKey), extra: assignedLevel);
+      
     }
     update();
   }
@@ -141,12 +140,18 @@ class LevelController extends GetxController {
     }
 
     final localResult = await _service.fetchMapLevel(
-        isRemote: false, levelId: levelId, id: level.value!.mId!, unitId: unitId);
+        isRemote: false,
+        levelId: levelId,
+        id: level.value!.mId!,
+        unitId: unitId);
 
     localResult.fold(
       (failure) async {
         final remoteResult = await _service.fetchMapLevel(
-            isRemote: true, levelId: levelId, id: level.value!.mId!, unitId: unitId);
+            isRemote: true,
+            levelId: levelId,
+            id: level.value!.mId!,
+            unitId: unitId);
         remoteResult.fold(
           (remoteFailure) {
             mapResponse = ApiResponse.error(remoteFailure);
@@ -210,9 +215,9 @@ class LevelController extends GetxController {
       log(e.toString());
     } finally {
       isSurveyScreenLoading.value = false;
-      
     }
   }
+
 
   void searchMapLevel(String query) {
     debouncer.run(() {
@@ -236,6 +241,20 @@ class LevelController extends GetxController {
     });
   }
 
+  AssignedLevel getAssignedLevelByKey(String key) {
+    return response.data!.firstWhere(
+      (level) => level.levelKey == key,
+      orElse: () => throw Exception('AssignedLevel not found for key: $key'),
+    );
+  }
+
+  MapLevel getMapLevelByKey(String key) {
+    return filterdMapLevel.firstWhere(
+      (level) => level.levelKey == key,
+      orElse: () => throw Exception('MapLevel not found for key: $key'),
+    );
+  }
+
   void createSurveyLevelsList(
     List<SurveyLevel> response,
     List<SurveyAnswerModel>? answers,
@@ -246,9 +265,33 @@ class LevelController extends GetxController {
         (answer) => answer.surveyLevelKey == level.levelKey,
         orElse: () => SurveyAnswerModel(),
       );
-      int category = matchingAnswer?.sCategory ?? 0;
-      ListingModel newListing = ListingModel(level.levelName ?? 'UnknownLevel',
-          category, level.levelKey ?? 'UnknownKey', null);
+      final int category = matchingAnswer?.sCategory ?? 0;
+      final List<SurveyCategory>? c = _sureveyController.categoryList;
+      final List<Answer>? a = matchingAnswer?.answers?.toList();
+
+// Creating a new list
+      List<ListingAnswers> newList = [];
+
+      if (c != null && a != null) {
+        for (var answer in a) {
+          for (var category in c) {
+            if (answer.questionId == category.questionId) {
+              newList.add(ListingAnswers(
+                answer: answer.answer ?? 'No answer',
+                question: answer.question ?? 'No question',
+                color: category.categoryColor?.toString() ?? 'No color',
+              ));
+              break; // Exit the inner loop once a match is found
+            }
+          }
+        }
+      }
+
+      ListingModel newListing = ListingModel(
+          name: level.levelName ?? 'UnknownLevel',
+          category: category,
+          id: level.levelKey ?? 'UnknownKey',
+          answers: newList);
       surveyLevels.add(newListing);
     }
   }
@@ -282,12 +325,14 @@ class LevelController extends GetxController {
       });
 
       ListingModel newListing = ListingModel(
-        level.levelName ?? 'UnknownLevel',
-        matchingAnswers.isNotEmpty ? matchingAnswers.first.sCategory ?? 0 : 0,
-        level.levelKey ?? 'UnknownKey',
-        categoryList.isNotEmpty ? categoryList : null,
+        name: level.levelName ?? 'UnknownLevel',
+        category: matchingAnswers.isNotEmpty
+            ? matchingAnswers.first.sCategory ?? 0
+            : 0,
+        id: level.levelKey ?? 'UnknownKey',
+        categoryList: categoryList.isNotEmpty ? categoryList : null,
       );
-      debugPrint("catergory List : ${newListing.categoryList}");
+
       mapLevels.add(newListing);
     }
   }

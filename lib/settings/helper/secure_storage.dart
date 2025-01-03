@@ -1,42 +1,44 @@
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// //!==================DATABASE=============================
-// //!=======================================================
+AndroidOptions _getAndroidOptions() => const AndroidOptions(
+      encryptedSharedPreferences: true,
+    );
 
-// AndroidOptions _getAndroidOptions() => const AndroidOptions(
-//       encryptedSharedPreferences: true,
-//     );
-// final storage = FlutterSecureStorage(aOptions: _getAndroidOptions());
-// // add
-// Future<void> addToSS(String key, String value) async {
-//   await storage.write(key: key, value: value);
-// }
+IOSOptions _getIOSOptions() => const IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+      synchronizable: true,
+    );
 
-// // get
-// Future<String?> getFromSS(String key) async {
-//   final value = await storage.read(key: key);
-//   return value;
-// }
+final storage = FlutterSecureStorage(
+  aOptions: _getAndroidOptions(),
+  iOptions: _getIOSOptions(),
+);
 
-// // delete
-// Future<void> deleteFromSS(String key) async {
-//   await storage.delete(key: key);
-// }
+// add
+Future<void> setString(String key, String value) async {
+  await storage.write(key: key, value: value);
+}
 
-// Future<void> deleteAllFromSS() async {
-//   await storage.deleteAll();
-// }
+Future<void> setBool(String key, bool value) async {
+  await storage.write(key: key, value: value.toString());
+}
 
-// //! token
-// void addTokenToSS(String key, String value) {
-//   storage.write(key: key, value: value);
-// }
+// get
+Future<String?> getString(String key) async {
+  final value = await storage.read(key: key);
+  return value;
+}
 
-// Future<String?> getTokenFromSS(String key) async {
-//   return await storage.read(key: key);
-// }
+Future<bool> getBool(String key) async {
+  final value = await storage.read(key: key);
+  return value == 'true';
+}
 
-// Future<String> getNameFromSS(String key) async {
-//   final name = await storage.read(key: key);
-//   return name ?? '';
-// }
+// delete
+Future<void> remove(String key) async {
+  await storage.delete(key: key);
+}
+
+Future<void> removeAll() async {
+  await storage.deleteAll();
+}

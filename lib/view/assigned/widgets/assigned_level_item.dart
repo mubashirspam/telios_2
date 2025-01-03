@@ -14,93 +14,173 @@ class AssignedLevelItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // int total = (assignedLevel.pc ?? 0) +
-    //     (assignedLevel.hc ?? 0) +
-    //     (assignedLevel.mc ?? 0) +
-    //     (assignedLevel.av ?? 0);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        shadows: [
-          BoxShadow(
-            color: Colors.black12.withOpacity(0.04),
-            blurRadius: 100,
-            offset: const Offset(1, 1),
-            spreadRadius: 10,
-          )
-        ],
-      ),
+    return ContainerWidget(
+      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.only(bottom: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.all(15),
-            child: SizedBox(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: const EdgeInsets.all(5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  level.levelName ?? '',
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                BackButtonWidget(
+                  isForward: true,
+                  onPress: () {
+                    Get.find<LevelController>().gotToNextLevel(level);
+                  },
+                )
+              ],
+            ),
+          ),
+          const Divider(height: 3, color: AppColor.backround),
+          Column(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(),
+              Text(
+                "Basic Details",
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              Column(
+                spacing: 5,
                 children: [
-                  Text(
-                    level.levelName!,
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                          fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          spacing: 5,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${level.assignedLevel} Code',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: AppColor.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                            Text(
+                              'Number of ${level.geoJsonLevel}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: AppColor.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                            Text(
+                              'Number of ${level.surveyLevel}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: AppColor.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ],
                         ),
+                      ),
+                      SizedBox(
+                        width: 20,
+                        child: Column(
+                          spacing: 5,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              ":",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: AppColor.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                            Text(
+                              ":",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: AppColor.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                            Text(
+                              ":",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: AppColor.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        child: Column(
+                          spacing: 5,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              level.levelKey.toString(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: AppColor.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            Text(
+                              level.geoJsonLevelCount.toString(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: AppColor.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            Text(
+                              level.surveyLevelCount.toString(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: AppColor.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
                   ),
-                  BackButtonWidget(
-                    isForward: true,
-                    onPress: () {
-                      
-                        Get.find<LevelController>().gotToNextLevel(level);
-                    },
-                  )
                 ],
               ),
-            ),
-          ),
-          const SizedBox(
-            width: double.maxFinite,
-            height: 5,
-            child: ColoredBox(color: AppColor.backround),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 20, top: 15),
-            child: Text(
-              "Basic Details",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium!
-                  .copyWith(fontWeight: FontWeight.w500),
-            ),
-          ),
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20).copyWith(top: 20),
-            child:
-                content(context, "${level.assignedLevel} Code", level.levelKey),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            child: content(context, "Number of ${level.geoJsonLevel}",
-                level.geoJsonLevelCount),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            child: content(context, "Number of ${level.surveyLevel}",
-                level.surveyLevelCount),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 20, top: 20, bottom: 10),
-            child: Text(
-              "Survey Status",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium!
-                  .copyWith(fontWeight: FontWeight.w500),
-            ),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -271,38 +351,5 @@ class AssignedLevelItem extends StatelessWidget {
                 .copyWith(color: AppColor.textSecondary),
           )
         ],
-      );
-
-  Widget content(BuildContext context, String heading, content) => SizedBox(
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                heading,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall!
-                    .copyWith(color: AppColor.textSecondary),
-              ),
-            ),
-            Text(
-              ":",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall!
-                  .copyWith(color: AppColor.textSecondary),
-            ),
-            Expanded(
-              child: Text(
-                content.toString(),
-                textAlign: TextAlign.right,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall!
-                    .copyWith(color: AppColor.textSecondary),
-              ),
-            ),
-          ],
-        ),
       );
 }

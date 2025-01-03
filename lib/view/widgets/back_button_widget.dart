@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class BackButtonWidget extends StatelessWidget {
@@ -15,13 +14,13 @@ class BackButtonWidget extends StatelessWidget {
             Navigator.pop(context);
           },
       child: Container(
-        width: 50,
-        height: 50,
+        width: 40,
+        height: 40,
         decoration: ShapeDecoration(
           color: Colors.white,
           shape: RoundedRectangleBorder(
             side: const BorderSide(width: 1, color: Color(0xFFE8ECF4)),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
         child: Center(

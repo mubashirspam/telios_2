@@ -5,14 +5,16 @@ import 'package:telios_2/view_model/view_model.dart';
 import '../../model/model.dart';
 import '../../settings/helper/enums.dart';
 import '../../settings/helper/responsive.dart';
-import 'dart:developer';
+
 
 class SurveyLevelHome extends GetView<LevelController> {
   final MapLevel mapLevel;
+  final String id;
 
   const SurveyLevelHome({
     super.key,
     required this.mapLevel,
+    required this.id,
   });
 
   @override
@@ -71,7 +73,7 @@ class SurveyLevelScreenBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log("================= Rebuided===================");
+    
     return Scaffold(
       body: SizedBox(
         width: double.maxFinite,

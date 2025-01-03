@@ -263,8 +263,6 @@ class SurveyDB {
     return null;
   }
 
-
-
   Future<List<SurveyAnswerModel>?> fetchSurveyAnswerDB({
     String? assignedLevelKey,
     String? geoJsonLevelKey,
@@ -333,7 +331,50 @@ class SurveyDB {
     }
   }
 
-    Future<bool> clearSurveyQuestionDB() async {
+  Future<List<SurveyAnswerModel>?> fetchAllSurveyAnswerDB() async {
+    try {
+      final allAnswers = answerBox.values.toList();
+      
+      if (allAnswers.isNotEmpty) {
+        return allAnswers.map((hive) {
+          return SurveyAnswerModel(
+            assignedLevelKey: hive.assignedLevelKey,
+            geoJsonLevelKey: hive.geoJsonLevelKey,
+            surveyLevelKey: hive.surveyLevelKey,
+            assignedLevelName: hive.assignedLevelName,
+            geoJsonLevelName: hive.geoJsonLevelName,
+            surveyLevelName: hive.surveyLevelName,
+            gCategory: hive.gCategory,
+            aCategory: hive.aCategory,
+            sCategory: hive.sCategory,
+            answers: hive.answers?.map((answer) {
+              return Answer(
+                id: answer.id,
+                answer: answer.answer,
+                type: answer.type,
+                category: answer.category,
+                answerOptions: answer.answerOptions
+                    ?.map((v) => DItem(v.name ?? '', v.id ?? 0))
+                    .toList(),
+                question: answer.question,
+                questionId: answer.questionId,
+                surveyId: answer.surveyId,
+                typeId: answer.typeId,
+              );
+            }).toList(),
+          );
+        }).toList();
+      }
+      return null;
+    } catch (error) {
+      log('Error fetching all survey answers: $error');
+      return null;
+    }
+  }
+
+
+
+  Future<bool> clearSurveyQuestionDB() async {
     try {
       await questionBox.clear();
       return true;

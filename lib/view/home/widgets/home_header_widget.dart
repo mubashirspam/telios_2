@@ -12,7 +12,6 @@ class HomeHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return Container(
       width: double.maxFinite,
       clipBehavior: Clip.antiAlias,
@@ -69,44 +68,47 @@ class HomeHeaderWidget extends StatelessWidget {
                 SvgPicture.asset(
                   "assets/images/logo_typ.svg",
                   height: 20,
-                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  colorFilter:
+                      const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                 ),
                 const Spacer(),
-                GetBuilder<SurveyController>(
-                  builder: (s) {
-                    return SizedBox(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 5),
-                          InkWell(
-                            highlightColor: Colors.red,
-                            hoverColor: Colors.yellow,
-                            onTap: () {
-
-                              s.postSurveyAnswerRemote();
-                            },
-                            borderRadius: BorderRadius.circular(50),
+                GetBuilder<SurveyController>(builder: (s) {
+                  return SizedBox(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 5),
+                        InkWell(
+                          highlightColor: Colors.red,
+                          hoverColor: Colors.yellow,
+                          onTap: () {
+                            s.postSurveyAnswerRemote();
+                          },
+                          borderRadius: BorderRadius.circular(50),
+                          radius: 25,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.amber,
                             radius: 25,
-                            child:  CircleAvatar(
-                              backgroundColor: Colors.amber,
-                              radius: 25,
-                              child: RotatingSyncIcon(isLoading: s.u.state == ResponseState.loading ),
-                            ),
+                            child: RotatingSyncIcon(
+                                isLoading: s.u.state == ResponseState.loading),
                           ),
-                          const SizedBox(height: 5),
-                          Text(
-                       s.u.state == ResponseState.loading ? 'Syncing' :   s.presentDataForSync.value ? 'Sync' :  'Synced',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(color: Colors.white, ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          s.u.state == ResponseState.loading
+                              ? 'Syncing'
+                              : s.presentDataForSync.value
+                                  ? 'Sync'
+                                  : 'Synced',
+                          style:
+                              Theme.of(context).textTheme.titleMedium!.copyWith(
+                                    color: Colors.white,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -122,9 +124,12 @@ class HomeHeaderWidget extends StatelessWidget {
                         ? const SizedBox()
                         : CircleAvatar(
                             radius: 40,
-                            backgroundImage: NetworkImage(
-                              user.userProfileAvatar!,
-                            )),
+                            // child: Image.network(
+                            //   user.userProfileAvatar!,
+                            //   errorBuilder: (context, error, stackTrace) =>
+                            //       Icon(Icons.person),
+                            // ),
+                          ),
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -161,6 +166,7 @@ class HomeHeaderWidget extends StatelessWidget {
     );
   }
 }
+
 class RotatingSyncIcon extends StatefulWidget {
   final bool isLoading; // Pass whether the state is loading or not
 
@@ -184,7 +190,7 @@ class _RotatingSyncIconState extends State<RotatingSyncIcon>
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    
+
     if (widget.isLoading) {
       _controller.repeat();
     }

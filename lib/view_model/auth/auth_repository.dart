@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../../model/model.dart';
 import '../../settings/settings.dart';
 import 'db/user_db.dart';
@@ -56,7 +57,8 @@ class AuthRepository {
 
       return InitializeModel.fromJson(response.data);
     } catch (e, stackTrace) {
-      log('Error occurred while initializing token: $e', stackTrace: stackTrace);
+      log('Error occurred while initializing token: $e',
+          stackTrace: stackTrace);
       rethrow;
     }
   }
@@ -128,59 +130,81 @@ class AuthRepository {
   }
 
   Future<void> saveUserId(String userId) async {
-    await prefs.setString(userIdKey, userId);
-    await prefs.setBool(isLoginedKey, true);
+    debugPrint('Saving user ID: $userId');
+    await setString(userIdKey, userId);
+    await setBool(isLoginedKey, true);
+    debugPrint('User ID saved, isLoggedIn set to true');
+    log('User ID saved: $userId');
+    log('isLoginedKey saved: $isLoginedKey');
   }
 
   Future<void> saveToken(String token) async {
-    await prefs.setString(sessionTokenKey, token);
+    debugPrint('Saving token: $token');
+    await setString(sessionTokenKey, token);
   }
 
   Future<String?> getToken() async {
-    return prefs.getString(sessionTokenKey);
+    final token = await getString(sessionTokenKey);
+    debugPrint('Retrieved token: $token');
+    return token;
   }
 
   Future<void> saveTokenExpiration(DateTime expirationTime) async {
-    await prefs.setString(tokenExpirationKey, expirationTime.toIso8601String());
+    debugPrint('Saving token expiration: $expirationTime');
+    await setString(tokenExpirationKey, expirationTime.toIso8601String());
   }
 
   Future<DateTime?> getTokenExpiration() async {
-    final expirationString = prefs.getString(tokenExpirationKey);
-    return expirationString != null ? DateTime.parse(expirationString) : null;
+    final expirationString = await getString(tokenExpirationKey);
+    final expiration = expirationString != null ? DateTime.parse(expirationString) : null;
+    debugPrint('Token expiration: $expiration');
+    return expiration;
   }
 
   Future<bool> isTokenExpired() async {
     final expiration = await getTokenExpiration();
-    return expiration == null || DateTime.now().isAfter(expiration);
+    final isExpired = expiration == null || DateTime.now().isAfter(expiration);
+    debugPrint('Token expired: $isExpired (expiration: $expiration)');
+    return isExpired;
   }
 
   Future<void> clearUserId() async {
-    await prefs.remove(userIdKey);
-    await prefs.setBool(isLoginedKey, false);
-    await prefs.setBool(isTrapdorKey, false);
-  }
-
-  Future<void> setTrapdor(p) async {
-    await prefs.setBool(isTrapdorKey, p);
-  }
-
-  Future<void> setAdvancedUser(p) async {
-    await prefs.setBool(isTrapdorKey, p);
+    debugPrint('Clearing user ID and auth state');
+    await remove(userIdKey);
+    await setBool(isLoginedKey, false);
+    await setBool(isTrapdorKey, false);
+    debugPrint('User ID cleared, auth state reset');
   }
 
   Future<String?> getUserId() async {
-    return prefs.getString(userIdKey);
+    final id = await getString(userIdKey);
+    debugPrint('Retrieved user ID: $id');
+    return id;
   }
 
   Future<bool> isLoggedIn() async {
-    return prefs.getBool(isLoginedKey) ?? false;
+    final isLoggedIn = await getBool(isLoginedKey);
+    debugPrint('isLoggedIn from storage: $isLoggedIn');
+    return isLoggedIn;
   }
 
   Future<bool> isTrapdor() async {
-    return prefs.getBool(isTrapdorKey) ?? false;
+    final isTrapdor = await getBool(isTrapdorKey);
+    debugPrint('isTrapdor from storage: $isTrapdor');
+    return isTrapdor;
   }
 
   Future<bool> isAdvancedUser() async {
-    return prefs.getBool(isTrapdorKey) ?? false;
+    final isAdvanced = await getBool(isTrapdorKey);
+    debugPrint('isAdvancedUser from storage: $isAdvanced');
+    return isAdvanced;
+  }
+
+  Future<void> setTrapdor(p) async {
+    await setBool(isTrapdorKey, p);
+  }
+
+  Future<void> setAdvancedUser(p) async {
+    await setBool(isTrapdorKey, p);
   }
 }
