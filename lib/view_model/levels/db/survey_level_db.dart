@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:hive/hive.dart';
 
 import '../../../model/model.dart';
@@ -66,6 +67,21 @@ class SurveyLevelDB {
     return null;
   }
 
+  Future<List<LevelInfo>> fetchAllSurveyLevels() async {
+    try {
+      return box.values
+          .expand((model) => model.levels ?? [])
+          .map((e) => LevelInfo(
+                levelKey: e.levelKey ?? '',
+                levelName: e.levelName ?? '',
+              ))
+          .toList();
+    } catch (e) {
+      log('Error fetching all survey levels: $e');
+      return [];
+    }
+  }
+
   Future<bool> deleteSurveyLevelDB() async {
     try {
       await box.clear();
@@ -76,3 +92,4 @@ class SurveyLevelDB {
     }
   }
 }
+

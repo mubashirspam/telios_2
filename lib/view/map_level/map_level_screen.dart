@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/model/model.dart';
+import 'package:telios_2/settings/settings.dart';
 import 'package:telios_2/view_model/view_model.dart';
-import '../../settings/helper/enums.dart';
 import '../widgets/widgets.dart';
 import 'widgets/map_level_item.dart';
-import 'widgets/shimmer_card.dart';
 
 class MapLevelScreen extends StatefulWidget {
   final AssignedLevel assignedLevel;
-  const MapLevelScreen({super.key, required this.assignedLevel});
+  final String id;
+
+  const MapLevelScreen(
+      {super.key, required this.assignedLevel, required this.id});
 
   @override
   State<MapLevelScreen> createState() => _MapLevelScreenState();
@@ -40,76 +42,96 @@ class _MapLevelScreenState extends State<MapLevelScreen> {
               bottom: false,
               left: false,
               right: false,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: SizedBox(
-                  child: Row(
-                    children: [
-                      const BackButtonWidget(),
-                      const SizedBox(width: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.assignedLevel.levelName!,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge!
-                                .copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+              child: ContainerWidget(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                        child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            appRouter.pop();
+                          },
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: AppColor.primary,
                           ),
-                          Text(
-                            widget.assignedLevel.geoJsonLevel!,
-                            style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(width: 20),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.assignedLevel.levelName!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            Text(
+                              widget.assignedLevel.geoJsonLevel!,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            )
+                          ],
+                        ),
+                      ],
+                    )),
+                    SizedBox(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SearchBar(
+                            constraints: const BoxConstraints(
+                                maxWidth: 400, minHeight: 40),
+                            controller: searchQuery,
+                            onChanged: (value) {
+                              Get.find<LevelController>()
+                                  .searchMapLevel(searchQuery.text);
+                            },
+                            hintText: "Search",
+                            hintStyle:
+                                WidgetStateProperty.resolveWith<TextStyle>(
+                              (states) => TextStyle(fontSize: 12),
+                            ),
+                            elevation: WidgetStateProperty.resolveWith<double>(
+                              (states) => 0,
+                            ),
+                            backgroundColor:
+                                WidgetStateProperty.resolveWith<Color>(
+                              (states) => Color(0xFFF7F8F9),
+                            ),
+                          ),
+                          SizedBox(width: 15),
+                          IconButton(
+                            style: IconButton.styleFrom(
+                              backgroundColor: Color(0xFFF7F8F9),
+                            ),
+                            icon: const Icon(Icons.filter_alt_outlined),
+                            onPressed: () {},
+                            color: AppColor.primary,
                           )
                         ],
-                      )
-                    ],
-                  ),
+                      ),
+                    ),
+                    SizedBox()
+                  ],
                 ),
               ),
             ),
-            Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFieldWidget(
-                        suffixIcon: InkWell(
-                          child: const Icon(Icons.search),
-                          onTap: () {
-                            Get.find<LevelController>()
-                                .searchMapLevel(searchQuery.text);
-                            searchQuery.clear();
-                          },
-                        ),
-                        hintText: "Search",
-                        textEditingController: searchQuery,
-                        onChanged: (value) {
-                          Get.find<LevelController>()
-                              .searchMapLevel(searchQuery.text);
-                        },
-                        fillColor: Colors.white,
-                        keyboardType: TextInputType.name,
-                        validate: (_) {
-                          return;
-                        },
-                      ),
-                    ),
-
-                    // BackButtonWidget(
-                    //   onPress: () {},
-                    //   icon: Icons.filter_alt_outlined,
-                    // ),
-                  ],
-                )),
             Expanded(
               child: GetBuilder(
                   init: LevelController(),
                   builder: (c) {
                     if (c.mapResponse.state == ResponseState.loading) {
-                      return Center(
+                      return const Center(
                         child: CircularProgressIndicator(),
                       );
                     }

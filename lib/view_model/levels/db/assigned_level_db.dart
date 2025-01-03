@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:hive/hive.dart';
 import '../../../model/model.dart';
 import '../../../settings/helper/get_di.dart';
@@ -69,6 +70,20 @@ class AssignedLevelDB {
       }).toList();
     }
     return null;
+  }
+
+  Future<List<LevelInfo>> fetchAllAssignedLevels() async {
+    try {
+      return box.values
+          .map((e) => LevelInfo(
+                levelKey: e.levelKey ?? '',
+                levelName: e.levelName ?? '',
+              ))
+          .toList();
+    } catch (e) {
+      log('Error fetching all assigned levels: $e');
+      return [];
+    }
   }
 
   Future<bool> deleteAssignedLevel() async {

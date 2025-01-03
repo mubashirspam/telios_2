@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/settings/settings.dart';
@@ -94,10 +93,7 @@ class MapLevelItem extends StatelessWidget {
                   BackButtonWidget(
                     isForward: true,
                     onPress: () async {
-                      Get.toNamed(
-                        RouterName.surveyLevel,
-                        arguments: mapLevel,
-                      );
+                      appRouter.push(ScreenPaths.survey(mapLevel.levelKey), extra: mapLevel);
                     },
                   )
                 ],

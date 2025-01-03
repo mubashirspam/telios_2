@@ -1,4 +1,4 @@
-import 'dart:developer';
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -479,7 +479,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
             hintText: widget.question.hint ?? '',
             validate: (n) {
               if (n == '0') {
-                return "Enter >0 or empty";
+                return "If 0 Leave it empty";
               } else {
                 return null;
               }

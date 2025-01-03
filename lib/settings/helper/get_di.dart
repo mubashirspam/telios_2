@@ -1,12 +1,11 @@
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/hive/isar.dart';
 import '../../view_model/view_model.dart';
 
-
-late final SharedPreferences prefs;
+// late final SharedPreferences prefs;
 
 Future<void> getDiInit() async {
   Get.put(AuthService());
@@ -15,35 +14,8 @@ Future<void> getDiInit() async {
   Get.put(LevelService());
   Get.put(AuthController());
   Get.put(LevelController());
+  await Future.delayed(const Duration(seconds: 1));
 }
-
-// Future<void> dbInit() async {
-//   try {
-//     if (!kIsWeb) {
-//       Future<Directory?>? dir;
-//       dir = getApplicationSupportDirectory();
-//       final Directory? directory = await dir;
-
-//       await Isar.open(
-//         name: db,
-//         [
-//           IsarUserSchema,
-//           IsarAssignedLevelSchema,
-//           IsarMapLevelModelSchema,
-//           IsarSurveyLevelModelSchema,
-//           IsarSurveyQusetionModelSchema,
-//           IsarSurveyAnswerModelSchema,
-//           IsarSurveyTempSchema,
-//           IsarMultiDropdownOptionModelSchema
-
-//         ],
-//         directory: '${directory?.path}',
-//       );
-//     }
-//   } catch (e) {
-//     log(e.toString());
-//   }
-// }
 
 Future<void> dbInit() async {
   try {

@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import 'settings/settings.dart';
+
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // await dotenv.load(fileName: '.env');
-  prefs = await SharedPreferences.getInstance();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   await dbInit();
   await getDiInit();
- 
+
+  FlutterNativeSplash.remove();
+  GoRouter.optionURLReflectsImperativeAPIs = true;
   runApp(const MyApp());
 }
 
@@ -18,16 +23,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return GetMaterialApp.router(
       title: 'Telios',
+      routeInformationProvider: appRouter.routeInformationProvider,
+      routeInformationParser: appRouter.routeInformationParser,
+      debugShowCheckedModeBanner: false,
+      routerDelegate: appRouter.routerDelegate,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        brightness: Brightness.light,
         scaffoldBackgroundColor: AppColor.backround,
+        fontFamily: GoogleFonts.montserrat().fontFamily,
       ),
-      // home: FormScreen(),
-      initialRoute: AppRoute.initialRoute,
-      getPages: AppRoute.getRouter,
     );
   }
 }
+
+

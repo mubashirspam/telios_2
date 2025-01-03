@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/model/map_level_model.dart';
+import 'package:telios_2/settings/route/app_router.dart';
+import 'package:telios_2/view/view.dart';
 import '../../../view_model/levels/level_controller.dart';
-import '../../widgets/back_button_widget.dart';
 
 class AppbarWidget extends StatelessWidget {
   final MapLevel level;
@@ -16,8 +17,7 @@ class AppbarWidget extends StatelessWidget {
       bottom: false,
       left: false,
       right: false,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: ContainerWidget(
         child: SizedBox(
           child: Row(
             children: [
@@ -28,7 +28,7 @@ class AppbarWidget extends StatelessWidget {
                   if (c.selectedLevel.value != -1) {
                     c.selectALevel(-1);
                   } else {
-                    Get.back();
+                    appRouter.pop();
                   }
                 },
               ),
@@ -38,7 +38,7 @@ class AppbarWidget extends StatelessWidget {
                 children: [
                   Text(
                     level.levelName!,
-                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),

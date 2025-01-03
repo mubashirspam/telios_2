@@ -9,10 +9,12 @@ import '../../settings/helper/responsive.dart';
 
 class SurveyLevelHome extends GetView<LevelController> {
   final MapLevel mapLevel;
+  final String id;
 
   const SurveyLevelHome({
     super.key,
     required this.mapLevel,
+    required this.id,
   });
 
   @override

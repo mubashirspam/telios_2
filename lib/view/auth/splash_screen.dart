@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
-import 'package:shimmer/shimmer.dart';
 
+import 'package:get/get.dart';
+
+import 'package:shimmer/shimmer.dart';
 import '../../settings/route/app_router.dart';
 import '../../settings/theme/colors.dart';
 import '../../view_model/auth/auth_controller.dart';
@@ -18,68 +18,64 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      debugPrint('Starting splash screen initialization');
+      await _initializeApp();
+    });
   }
 
-  Future<void> _checkLoginStatus() async {
+  Future<void> _initializeApp() async {
     final authController = Get.find<AuthController>();
+    
+    debugPrint('Checking login status from splash screen');
     await authController.checkLoginStatus();
+    debugPrint('Login check complete, isLoggedIn: ${authController.isLoggedIn}');
 
-    // Add a small delay to allow for a smooth transition
-    await Future.delayed(const Duration(seconds: 1));
-
+    // Clear local DB if trapdor
     if (authController.isTrapdor) {
-      authController.clearLocalDB();
+      debugPrint('User is trapdor, clearing local DB');
+      await authController.clearLocalDB();
     }
 
-    if (authController.isLoggedIn) {
-      Get.offNamed(RouterName.home);
-    } else {
-      Get.offNamed(RouterName.login);
+    // Let the router handle navigation
+    if (context.mounted) {
+      debugPrint('Navigating based on auth state: ${authController.isLoggedIn}');
+      if (authController.isLoggedIn) {
+        appRouter.go(ScreenPaths.home(tabIndex: 0));
+      } else {
+      appRouter.go(ScreenPaths.login);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      children: [
-        SizedBox(
-          width: double.maxFinite,
-          height: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  "assets/images/logo.png",
-                  width: 150,
-                  height: 150,
+      backgroundColor: AppColor.backround,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/images/logo.png',
+              height: 150,
+              width: 150,
+            ),
+            const SizedBox(height: 20),
+            Shimmer.fromColors(
+              baseColor: AppColor.primary,
+              highlightColor: AppColor.textSecondary,
+              child: const Text(
+                'Loading...',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 15),
-              SvgPicture.asset(
-                "assets/images/logo_typ.svg",
-                height: 25,
-              )
-            ],
-          ),
-        ),
-        SizedBox(
-          width: double.maxFinite,
-          height: double.maxFinite,
-          child: Shimmer.fromColors(
-            baseColor: Colors.grey.shade200.withOpacity(0.1),
-            highlightColor: AppColor.primary.withOpacity(0.1),
-            child: const SizedBox(
-              child: ColoredBox(color: Colors.white),
             ),
-          ),
+          ],
         ),
-      ],
-    ));
+      ),
+    );
   }
 }

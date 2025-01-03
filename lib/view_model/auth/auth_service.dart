@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/settings/settings.dart';
 import '../../model/model.dart';
@@ -21,6 +22,7 @@ class AuthService extends GetxService {
       await authRepo.saveToken(currentToken.value);
       await authRepo.saveTokenExpiration(DateTime.now().add(duration));
     } catch (e) {
+      debugPrint('Error initializing token: $e');
       Get.snackbar('Error', e.toString());
     }
   }
@@ -28,6 +30,7 @@ class AuthService extends GetxService {
   Future<void> refreshTokenIfNeeded() async {
     final token = await authRepo.getToken();
     final isExpired = await authRepo.isTokenExpired();
+    debugPrint('Current token: $token, isExpired: $isExpired');
     if (token == null || token.isEmpty || isExpired) {
       await initializeToken();
     } else {
@@ -36,18 +39,27 @@ class AuthService extends GetxService {
   }
 
   Future<bool> checkLoginStatus() async {
+    debugPrint('Checking login status...');
     final isLoggedIn = await authRepo.isLoggedIn();
+    debugPrint('Is logged in from storage: $isLoggedIn');
+    
     if (isLoggedIn) {
       final id = await authRepo.getUserId();
-      if (id != null) {
+      debugPrint('User ID from storage: $id');
+      
+      if (id != null && id.isNotEmpty) {
         userId.value = id;
         authed.value = true;
+
         isTrapdor.value = await authRepo.isTrapdor();
         isAdvancedUser.value = await authRepo.isAdvancedUser();
-
+        debugPrint('Auth state set to true, userId: $id');
         return true;
       }
     }
+    
+    debugPrint('Auth state set to false');
+    authed.value = false;
     return false;
   }
 
@@ -73,7 +85,8 @@ class AuthService extends GetxService {
             // await authRepo.setAdvancedUser(isAdvancedUserValue);
             isTrapdor.value = isTrapdorValue;
             // isAdvancedUser.value = isAdvancedUserValue;
-            Get.offAllNamed(RouterName.splash);
+            // Get.offAllNamed(RouterName.splash);
+            appRouter.go(ScreenPaths.splash);
           }
           return Right(loginModel);
         },
