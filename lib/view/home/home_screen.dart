@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
@@ -71,13 +70,12 @@ class _HomeScreenState extends State<HomeScreen>
       controller.fetchUser();
       Get.find<SurveyController>().fetchSurveyTempDB();
     });
-    final double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SizedBox(
-            width: Responsive.isTablet(context) ? 500 : double.maxFinite,
+        child: SizedBox(
+          width: double.maxFinite,
+          child: Center(
             child: RefreshIndicator(
               onRefresh: () async {
                 await controller.fetchUser();
@@ -90,143 +88,165 @@ class _HomeScreenState extends State<HomeScreen>
                       tabIndex: _tabController.index,
                       handleTabTapped: handleTabTapped,
                     ),
-                  if (Responsive.isDesktop(context))
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        height: MediaQuery.of(context).size.height,
-                        child: LazyIndexedStack(
-                          index: _tabController.index,
-                          children: const [
+                  // if (Responsive.isDesktop(context))
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      height: MediaQuery.of(context).size.height,
+                      child: LazyIndexedStack(
+                        index: _tabController.index,
+                        children: [
+                          if (!Responsive.isDesktop(context))
+                            HomeMobileTab(
+                              tabIndex: _tabController.index,
+                              handleTabTapped: handleTabTapped,
+                            )
+                          else
                             DashboardScreen(),
-                            AssignedLevelScreen(),
-                            SizedBox(
-                              child: Center(child: Text('Trainings')),
-                            ),
-                            SizedBox(
-                              child: Center(child: Text('Courses')),
-                            ),
-                          ],
-                        ),
+                          AssignedLevelScreen(handleTabTapped: handleTabTapped),
+                          SizedBox(
+                            child: Center(child: Text('Trainings')),
+                          ),
+                          SizedBox(
+                            child: Center(child: Text('Courses')),
+                          ),
+                        ],
                       ),
                     ),
-                  if (!Responsive.isDesktop(context))
-                    Expanded(
-                      child: SizedBox(
-                        child: ListView(
-                          children: [
-                            GetBuilder<AuthController>(builder: (c) {
-                              if (c.userResponse.state ==
-                                  ResponseState.loading) {
-                                return Shimmer(
-                                  gradient: LinearGradient(colors: [
-                                    AppColor.primary.withOpacity(0.3),
-                                    AppColor.pc.withOpacity(0.1)
-                                  ]),
-                                  child: HomeHeaderWidget(
-                                    user: UserData(),
-                                  ),
-                                );
-                              }
-
-                              if (c.userResponse.state == ResponseState.error) {
-                                return const Text("data");
-                              }
-                              if (c.userResponse.state ==
-                                  ResponseState.completed) {
-                                if (c.userResponse.data!
-                                        .teliosPersonVsTeliosSettingsstaticApkVersion !=
-                                    apkVersion) {
-                                  Future.delayed(
-                                          const Duration(milliseconds: 100))
-                                      .then((onValue) {
-                                    showUpdateDialog(
-                                      context: context,
-                                      localVersion: apkVersion,
-                                      storeVersion: c.userResponse.data!
-                                          .teliosPersonVsTeliosSettingsstaticApkVersion!,
-                                    );
-                                  });
-                                }
-
-                                return HomeHeaderWidget(
-                                    user: c.userResponse.data!);
-                              }
-                              return const Text("data");
-                            }),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20)
-                                      .copyWith(bottom: 70),
-                              child: SizedBox(
-                                child: Row(children: [
-                                  GetBuilder<AuthController>(builder: (c) {
-                                    if (!c.isTrapdor) {
-                                      return HomeButtonWidget(
-                                          width: width,
-                                          name: "Survey",
-                                          icon: Icons.fingerprint,
-                                          iconName: 'assets/icons/activity.svg',
-                                          onTap: () => handleTabTapped(1));
-                                    }
-                                    return const SizedBox();
-                                  }),
-                                  const SizedBox(width: 20),
-                                  HomeButtonWidget(
-                                    onTap: () {},
-                                    width: width,
-                                    name: "Trainings",
-                                    icon: Icons.model_training_sharp,
-                                  ),
-                                  const SizedBox(width: 20),
-                                  HomeButtonWidget(
-                                    onTap: () {},
-                                    width: width,
-                                    name: "Courses",
-                                    icon: Icons.computer_rounded,
-                                  ),
-                                ]),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => const PendingPage(),
-                                  ),
-                                );
-                              },
-                              child: button(
-                                context,
-                                "Pending data for sync",
-                                Icons.sync,
-                              ),
-                            ),
-                            button(
-                              context,
-                              "Settings",
-                              Icons.settings,
-                            ),
-                            InkWell(
-                              onTap: () async {
-                                _showPopupCard(context);
-                              },
-                              child: button(
-                                context,
-                                "Log out",
-                                Icons.logout,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  ),
+                  // if (!Responsive.isDesktop(context))
+                  //   HomeMobileTab(
+                  //     tabIndex: _tabController.index,
+                  //     handleTabTapped: handleTabTapped,
+                  //   )
                 ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class HomeMobileTab extends StatelessWidget {
+  final int tabIndex;
+  final Function(int index) handleTabTapped;
+  const HomeMobileTab({
+    super.key,
+    required this.tabIndex,
+    required this.handleTabTapped,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
+    return SizedBox(
+      width: Responsive.isTablet(context) ? 500 : double.maxFinite,
+      child: Center(
+        child: ListView(
+          children: [
+            GetBuilder<AuthController>(builder: (c) {
+              if (c.userResponse.state == ResponseState.loading) {
+                return Shimmer(
+                  gradient: LinearGradient(colors: [
+                    AppColor.primary.withOpacity(0.3),
+                    AppColor.pc.withOpacity(0.1)
+                  ]),
+                  child: HomeHeaderWidget(
+                    user: UserData(),
+                  ),
+                );
+              }
+
+              if (c.userResponse.state == ResponseState.error) {
+                return const Text("data");
+              }
+              if (c.userResponse.state == ResponseState.completed) {
+                if (c.userResponse.data!
+                        .teliosPersonVsTeliosSettingsstaticApkVersion !=
+                    apkVersion) {
+                  Future.delayed(const Duration(milliseconds: 100))
+                      .then((onValue) {
+                    showUpdateDialog(
+                      context: context,
+                      localVersion: apkVersion,
+                      storeVersion: c.userResponse.data!
+                          .teliosPersonVsTeliosSettingsstaticApkVersion!,
+                    );
+                  });
+                }
+
+                return HomeHeaderWidget(user: c.userResponse.data!);
+              }
+              return const Text("data");
+            }),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20)
+                  .copyWith(bottom: 20),
+              child: SizedBox(
+                child: Row(children: [
+                  GetBuilder<AuthController>(builder: (c) {
+                    if (!c.isTrapdor) {
+                      return HomeButtonWidget(
+                        width: width,
+                        name: "Survey",
+                        icon: Icons.fingerprint,
+                        iconName: 'assets/icons/activity.svg',
+                        onTap: () => handleTabTapped(1),
+                      );
+                    }
+                    return const SizedBox();
+                  }),
+                  const SizedBox(width: 20),
+                  HomeButtonWidget(
+                    onTap: () {},
+                    width: width,
+                    name: "Trainings",
+                    icon: Icons.model_training_sharp,
+                  ),
+                  const SizedBox(width: 20),
+                  HomeButtonWidget(
+                    onTap: () {},
+                    width: width,
+                    name: "Courses",
+                    icon: Icons.computer_rounded,
+                  ),
+                ]),
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const PendingPage(),
+                  ),
+                );
+              },
+              child: button(
+                context,
+                "Pending data for sync",
+                Icons.sync,
+              ),
+            ),
+            button(
+              context,
+              "Settings",
+              Icons.settings,
+            ),
+            InkWell(
+              onTap: () async {
+                _showPopupCard(context);
+              },
+              child: button(
+                context,
+                "Log out",
+                Icons.logout,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -286,99 +306,4 @@ class _HomeScreenState extends State<HomeScreen>
           ],
         ),
       );
-}
-
-class HomeButtonWidget extends StatelessWidget {
-  const HomeButtonWidget({
-    super.key,
-    required this.width,
-    required this.icon,
-    required this.name,
-    required this.onTap,
-    this.iconName,
-  });
-
-  final double width;
-  final IconData icon;
-  final String name;
-  final VoidCallback onTap;
-  final String? iconName;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          height:
-              Responsive.isMobile(context) ? (width - 40) / 3 : (500 - 40) / 3,
-          decoration: ShapeDecoration(
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            shadows: const [
-              BoxShadow(
-                color: Colors.white,
-                blurRadius: 0,
-                offset: Offset(0, 0),
-                spreadRadius: -1,
-              )
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Container(
-                width: 70,
-                height: 70,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
-                decoration: ShapeDecoration(
-                  gradient: const RadialGradient(
-                    center: Alignment(-0.35, 0.44),
-                    radius: 0.60,
-                    colors: [
-                      AppColor.secondary,
-                      AppColor.primary,
-                    ],
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(54),
-                  ),
-                ),
-                child: Center(
-                  child: iconName != null
-                      ? SvgPicture.asset(
-                          iconName!,
-                          width: 30,
-                        )
-                      : Icon(
-                          icon,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                ),
-              ),
-              Text(
-                name,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class WebHome extends StatelessWidget {
-  const WebHome({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:telios_2/view/view.dart';
 import '../../../model/model.dart';
 import '../../../settings/helper/responsive.dart';
 import '../../../settings/theme/colors.dart';
@@ -15,7 +16,10 @@ class ListViewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categoryMap = Get.find<SurveyController>().categoryList;
-    return SizedBox(
+    return ContainerWidget(
+      padding: const EdgeInsets.all(0),
+      margin: const EdgeInsets.all(15)
+          .copyWith(left: Responsive.isMobile(context) ? 15 : 0),
       width: Responsive.isMobile(context) ? double.maxFinite : 350,
       child: Column(
         children: [
@@ -25,12 +29,12 @@ class ListViewWidget extends StatelessWidget {
               child: ListView.builder(
                 itemCount: levels.length,
                 shrinkWrap: true,
-                padding: const EdgeInsets.all(15).copyWith(top: 0),
+                padding: const EdgeInsets.all(15),
                 itemBuilder: (context, index) {
                   final level = levels[index];
 
                   final bool isActive = controller.selectedLevel.value == index;
-                  Color cardColor = Colors.white;
+                  Color cardColor = AppColor.backround;
 
                   for (var c in categoryMap) {
                     if (c.questionId == level.category &&
@@ -43,6 +47,11 @@ class ListViewWidget extends StatelessWidget {
                   return Card(
                     margin: const EdgeInsets.only(bottom: 15),
                     color: isActive ? AppColor.primary : cardColor,
+                    elevation: 1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    shadowColor: Colors.black26,
                     surfaceTintColor: Colors.transparent,
                     child: ListTile(
                       onTap: () {
@@ -96,9 +105,8 @@ class ListViewWidget extends StatelessWidget {
                                           borderRadius:
                                               BorderRadius.circular(100.0),
                                           side: BorderSide(
-                                          color:    Colors.blueGrey.shade100,
+                                            color: Colors.blueGrey.shade100,
                                           )),
-                                    
 
                                       padding: const EdgeInsets.all(5),
                                       label: Text(

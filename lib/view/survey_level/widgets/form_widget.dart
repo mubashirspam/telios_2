@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -24,19 +22,12 @@ class FormWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ContainerWidget(
+      padding: EdgeInsets.all(0),
       height: Responsive.isMobile(context) ? double.maxFinite : 700,
-      margin: EdgeInsets.all(Responsive.isMobile(context) ? 0 : 20),
       width: !Responsive.isMobile(context) ? 350 : double.maxFinite,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-                color: AppColor.textSecondary.withOpacity(0.1),
-                blurRadius: 12,
-                offset: const Offset(1, 1))
-          ]),
+      margin: EdgeInsets.all(15)
+          .copyWith(right: Responsive.isMobile(context) ? 15 : 0),
       child: GetBuilder<SurveyController>(builder: (controller) {
         if (controller.r.state == ResponseState.loading ||
             controller.isFormLoading.value) {
@@ -110,7 +101,7 @@ class TabBarWidegt extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 20),
+                  padding: const EdgeInsets.only(top: 15, left: 15),
                   child: Text(
                     level.levelName!,
                     style: Theme.of(context).textTheme.titleMedium!.copyWith(
@@ -119,7 +110,7 @@ class TabBarWidegt extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 5, left: 20, bottom: 15),
+                  padding: const EdgeInsets.only(top: 0, left: 15, bottom: 15),
                   child: Text(
                     level.levelKey!,
                     style: Theme.of(context)
@@ -133,7 +124,7 @@ class TabBarWidegt extends StatelessWidget {
                     builder: (context, constraints) {
                       return PreferredSize(
                         preferredSize:
-                            const Size.fromHeight(60), // Set desired height
+                            const Size.fromHeight(50), // Set desired height
                         child: TabBar(
                           indicatorColor: AppColor.primary,
                           labelColor: AppColor.backround,
@@ -203,11 +194,11 @@ class _QuestionListViewState extends State<QuestionListView> {
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: Form(
-        key: _formKey,
-        child: ListView(
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(15),
+        child: Column(
           children: List.generate(widget.model.questions.length + 1, (index) {
             if (index == widget.model.questions.length) {
               return Obx(
@@ -307,7 +298,13 @@ class _QuestionWidgetState extends State<QuestionWidget> {
           }).toList() ??
           [];
 
-      _Mcontroller?.setSelectedOptions(selectedOptions);
+      final availableOptionValues =
+          availableOptions.map((option) => option.value).toSet();
+      final filteredSelectedOptions = selectedOptions
+          .where((option) => availableOptionValues.contains(option.value))
+          .toList();
+
+      _Mcontroller?.setSelectedOptions(filteredSelectedOptions);
     }
 
     // Handle nested options
@@ -334,12 +331,18 @@ class _QuestionWidgetState extends State<QuestionWidget> {
               })
               .map((e) => ValueItem(
                     label: e.name,
-                    value: e.id,
+                    value: DItem(e.name, e.id),
                   ))
               .toList() ??
           [];
 
-      _Mcontroller?.setSelectedOptions(selectedNestedOptions);
+      final availableNestedOptionValues =
+          availableNestedOptions.map((option) => option.value).toSet();
+      final filteredSelectedNestedOptions = selectedNestedOptions
+          .where((option) => availableNestedOptionValues.contains(option.value))
+          .toList();
+
+      _Mcontroller?.setSelectedOptions(filteredSelectedNestedOptions);
     }
 
     widget.question.multiAnswernestedAnswer
@@ -370,7 +373,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
             Text(widget.question.question,
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
           _buildAnswerWidget(),
         ],
       ),
@@ -424,7 +427,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
                 widget.question.options!.isNotEmpty
             ? MultiDropdownWidget(
                 hintText: widget.question.hint ?? '',
-                question: widget.question.question,
+                // question: widget.question.question,
                 items: widget.question.options!.map((option) {
                   return ValueItem(
                     label: option.name,
@@ -446,7 +449,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
                     d.isNotEmpty
                 ? MultiDropdownWidget(
                     hintText: widget.question.hint ?? '',
-                    question: widget.question.question,
+                    // question: widget.question.question,
                     items: d,
                     controller: _Mcontroller,
                     onSelectionChange: (value) {
@@ -531,65 +534,80 @@ class _QuestionWidgetState extends State<QuestionWidget> {
 }
 
 // class MultiDropdownWidget extends StatelessWidget {
-//   final Function(List<DItem>)? onSelectionChange;
+//   final void Function(List<DItem>)? onSelectionChange;
 //   final List<DropdownItem<DItem>> items;
 //   final MultiSelectController<DItem> controller;
+//   final List<DropdownItem> disabledOptions;
+//   final String hintText;
+//   final String question;
 
-//   final Question question;
-
-//   const MultiDropdownWidget({
-//     super.key,
-//     required this.question,
-//     required this.items,
-//     required this.onSelectionChange,
-//     required this.controller,
-//   });
+//   const MultiDropdownWidget(
+//       {super.key,
+//       required this.hintText,
+//       required this.question,
+//       required this.items,
+//       required this.onSelectionChange,
+//       this.disabledOptions = const [],
+//       required this.controller});
 
 //   @override
 //   Widget build(BuildContext context) {
-
-//     return MultiDropdown(
-//       items: [
-//         DropdownItem(label: "ddd", value: DItem("ddd", 0))
-//       ],
-//       controller: _controller,
-//       enabled: true,
-//       chipDecoration: const ChipDecoration(
-//         backgroundColor: AppColor.hc,
-//         wrap: true,
-//         runSpacing: 2,
-//         spacing: 10,
-//       ),
-//       dropdownDecoration: const DropdownDecoration(
-//         marginTop: 2,
-//         maxHeight: 500,
-//       ),
-//       validator: (value) {
-//         if (value == null || value.isEmpty) {
-//           return 'Please select a ${question.question}';
-//         }
-//         return null;
-//       },
-//       onSelectionChange: onSelectionChange,
-//       dropdownItemDecoration: DropdownItemDecoration(
-//         selectedIcon: const Icon(Icons.check_box, color: Colors.green),
-//         disabledIcon: Icon(Icons.lock, color: Colors.grey.shade300),
-//       ),
-//       fieldDecoration: FieldDecoration(
-//         hintText: question.hint,
-//         hintStyle: const TextStyle(color: Colors.black87),
-//         showClearIcon: true,
-//         border: OutlineInputBorder(
-//           borderRadius: BorderRadius.circular(12),
-//           borderSide: const BorderSide(color: Colors.grey),
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       mainAxisAlignment: MainAxisAlignment.start,
+//       mainAxisSize: MainAxisSize.min,
+//       children: [
+//         Text(
+//           question,
+//           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
 //         ),
-//         focusedBorder: OutlineInputBorder(
-//           borderRadius: BorderRadius.circular(12),
-//           borderSide: const BorderSide(
-//             color: Colors.black87,
+//         const SizedBox(height: 5),
+//         MultiDropdown<DItem>(
+//           items: items,
+//           controller: controller,
+//           enabled: true,
+//           searchEnabled: true,
+//           fieldDecoration: FieldDecoration(
+//             hintText: hintText,
+//             backgroundColor: AppColor.backround,
+//             // prefixIcon: const Icon(Icons.check_circle),
+//             border: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(7),
+//               borderSide: const BorderSide(color: Colors.grey),
+//             ),
+
+//             focusedBorder: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(7),
+//               borderSide: const BorderSide(
+//                 color: AppColor.primary,
+//               ),
+//             ),
+//           ),
+//           onSelectionChange: onSelectionChange,
+//           dropdownDecoration: DropdownDecoration(
+//             marginTop: 2,
+//             maxHeight: 600,
+//             header: Padding(
+//               padding: EdgeInsets.all(8),
+//               child: Text(
+//                 'Select $hintText from the list',
+//                 textAlign: TextAlign.start,
+//                 style: TextStyle(
+//                   fontSize: 14,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//             ),
+//           ),
+//           chipDecoration: ChipDecoration(
+//             wrap: true,
+//             deleteIcon: Icon(Icons.close, color: Colors.white, size: 16),
+//             backgroundColor: AppColor.primary,
+//             labelStyle: TextStyle(color: Colors.white),
+//             borderRadius: BorderRadius.circular(7),
 //           ),
 //         ),
-//       ),
+//       ],
 //     );
 //   }
 // }
@@ -601,12 +619,10 @@ class MultiDropdownWidget extends StatelessWidget {
   final List<ValueItem<dynamic>> disabledOptions;
 
   final String hintText;
-  final String question;
 
   const MultiDropdownWidget(
       {super.key,
       required this.hintText,
-      required this.question,
       required this.items,
       required this.onSelectionChange,
       this.disabledOptions = const [],
@@ -614,29 +630,20 @@ class MultiDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(question),
-        const SizedBox(height: 5),
-        MultiSelectDropDown(
-          controller: controller,
-          onOptionSelected: onSelectionChange,
-          disabledOptions: disabledOptions,
-          options: const [],
-          selectionType: SelectionType.multi,
-          chipConfig: const ChipConfig(wrapType: WrapType.scroll),
-          dropdownHeight: 300,
-          optionTextStyle: const TextStyle(fontSize: 16),
-          selectedOptionIcon: const Icon(Icons.check_circle),
-          borderRadius: 7,
-          fieldBackgroundColor: AppColor.backround,
-          borderColor: AppColor.primary,
-          hint: hintText,
-        ),
-      ],
+    return MultiSelectDropDown(
+      controller: controller,
+      onOptionSelected: onSelectionChange,
+      disabledOptions: disabledOptions,
+      options: const [],
+      selectionType: SelectionType.multi,
+      chipConfig: const ChipConfig(wrapType: WrapType.scroll),
+      dropdownHeight: 300,
+      optionTextStyle: const TextStyle(fontSize: 16),
+      selectedOptionIcon: const Icon(Icons.check_circle),
+      borderRadius: 7,
+      fieldBackgroundColor: AppColor.backround,
+      borderColor: AppColor.primary,
+      hint: hintText,
     );
   }
 }

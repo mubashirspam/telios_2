@@ -13,7 +13,7 @@ class ContainerWidget extends StatelessWidget {
     this.width,
     this.height,
     this.child,
-    this.margin = const EdgeInsets.all(10),
+    this.margin = const EdgeInsets.all(15),
     this.padding = const EdgeInsets.all(10),
   });
 

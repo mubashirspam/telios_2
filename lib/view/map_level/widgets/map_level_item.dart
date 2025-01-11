@@ -48,21 +48,9 @@ class MapLevelItem extends StatelessWidget {
       finalCategoryMap[0] = (remainingCount / surveyLevelCount) * 100;
     }
 
-    return Container(
-      decoration: ShapeDecoration(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        shadows: [
-          BoxShadow(
-            color: Colors.black12.withOpacity(0.04),
-            blurRadius: 100,
-            offset: const Offset(1, 1),
-            spreadRadius: 10,
-          )
-        ],
-      ),
+    return ContainerWidget(
+      padding: const EdgeInsets.all(0),
+      margin: const EdgeInsets.all(0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -93,7 +81,8 @@ class MapLevelItem extends StatelessWidget {
                   BackButtonWidget(
                     isForward: true,
                     onPress: () async {
-                      appRouter.push(ScreenPaths.survey(mapLevel.levelKey), extra: mapLevel);
+                      appRouter.push(ScreenPaths.survey(mapLevel.levelKey),
+                          extra: mapLevel);
                     },
                   )
                 ],

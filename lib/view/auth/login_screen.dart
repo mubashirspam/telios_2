@@ -40,7 +40,8 @@ class LoginScreen extends StatelessWidget {
               children: [
                 Text(
                   "Welcome back! Glad to see you, again!",
-                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),

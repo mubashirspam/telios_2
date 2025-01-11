@@ -14,7 +14,7 @@ class AuthController extends GetxController {
   ApiResponse<LoginModel> response = ApiResponse.initial();
   ApiResponse<UserData> userResponse = ApiResponse.initial();
   bool isPasswordVisible = false;
-  
+
   final _isLoggedIn = false.obs;
   final _userId = ''.obs;
   final _isTrapdor = false.obs;
@@ -36,19 +36,19 @@ class AuthController extends GetxController {
       _updateRouterAuthState();
       update();
     });
-    
+
     ever(_authService.userId, (String id) {
       debugPrint('User ID changed: $id');
       _userId.value = id;
       update();
     });
-    
+
     ever(_authService.isTrapdor, (bool trapdor) {
       debugPrint('Trapdor state changed: $trapdor');
       _isTrapdor.value = trapdor;
       update();
     });
-    
+
     ever(_authService.isAdvancedUser, (bool advanced) {
       debugPrint('Advanced user state changed: $advanced');
       _isAdvancedUser.value = advanced;
@@ -64,7 +64,7 @@ class AuthController extends GetxController {
   Future<void> initializeAuth() async {
     debugPrint('Initializing auth...');
     await checkLoginStatus();
-   
+
     debugPrint('Auth initialized. Logged in: ${_isLoggedIn.value}');
     _updateRouterAuthState();
     update();
@@ -113,13 +113,12 @@ class AuthController extends GetxController {
     update();
   }
 
-  void logout() {
-    _authService.logout();
-    // Get.offAllNamed(
-    //     RouterName.login);
-    appRouter.go(ScreenPaths.login);
+  void logout() async {
+    await _authService.logout();
+    await clearLocalDB();
+    await initializeAuth();
+    appRouter.go(ScreenPaths.splash);
 
-    // Navigate to login screen if not logged in
     update();
   }
 
@@ -141,13 +140,13 @@ class AuthController extends GetxController {
 
     update();
 
-    final localResult =
-        await _authService.fetchUser(userId: _authService.userId.value, isRemote: false);
+    final localResult = await _authService.fetchUser(
+        userId: _authService.userId.value, isRemote: false);
 
     localResult.fold(
       (failure) async {
-        final remoteResult =
-            await _authService.fetchUser(userId: _authService.userId.value, isRemote: true);
+        final remoteResult = await _authService.fetchUser(
+            userId: _authService.userId.value, isRemote: true);
         remoteResult.fold(
           (remoteFailure) {
             userResponse = ApiResponse.error(remoteFailure);
@@ -164,7 +163,8 @@ class AuthController extends GetxController {
         userResponse = ApiResponse.completed(localUserModel);
 
         update();
-        _authService.fetchUser(userId: _authService.userId.value, isRemote: true);
+        _authService.fetchUser(
+            userId: _authService.userId.value, isRemote: true);
       },
     );
   }

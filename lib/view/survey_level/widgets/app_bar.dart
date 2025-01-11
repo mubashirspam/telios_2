@@ -18,6 +18,7 @@ class AppbarWidget extends StatelessWidget {
       left: false,
       right: false,
       child: ContainerWidget(
+        margin: const EdgeInsets.all(15).copyWith(bottom: 0),
         child: SizedBox(
           child: Row(
             children: [

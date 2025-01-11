@@ -7,18 +7,16 @@ import 'package:telios_2/view/widgets/widgets.dart';
 import 'package:telios_2/view_model/view_model.dart';
 import 'package:telios_2/view_model/dashboard/dashboard_controller.dart';
 
-class DashboardScreen extends StatefulWidget {
+import 'widgets/home_header_widget.dart';
+
+class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  final dashboardController = Get.put(DashboardController());
-
-  @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<DashboardController>().fetchDashboardStats();
+    });
     return SizedBox(
       child: SingleChildScrollView(
         child: Column(
@@ -116,7 +114,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Expanded(
                   child: _buildCountCard(
                     context,
-                    'Pending',
+                    'Pending Data for Sync',
                     pendingCount.toString(),
                     Colors.red.shade100,
                   ),
@@ -278,7 +276,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onPressed: () {
                     controller.postSurveyAnswerRemote();
                   },
-                  icon: const Icon(Icons.sync, size: 18),
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.amber,
+                  ),
+                  icon: RotatingSyncIcon(
+                    isLoading: controller.u.state == ResponseState.loading,
+                  ),
                   label: Text(
                     controller.u.state == ResponseState.loading
                         ? 'Syncing'
@@ -297,7 +300,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 childAspectRatio: 15,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
-                mainAxisExtent: 150,
+                mainAxisExtent: 90,
               ),
               itemBuilder: (context, index) {
                 final data = controller.surveyTemp[index];
@@ -306,9 +309,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: ListTile(
                     title: Text(
                       data.surveyLevelName ?? '',
-                      style: Theme.of(context).textTheme.titleSmall,
+                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     subtitle: Column(
+                      spacing: 2,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(

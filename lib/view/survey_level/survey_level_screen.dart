@@ -6,7 +6,6 @@ import '../../model/model.dart';
 import '../../settings/helper/enums.dart';
 import '../../settings/helper/responsive.dart';
 
-
 class SurveyLevelHome extends GetView<LevelController> {
   final MapLevel mapLevel;
   final String id;
@@ -73,79 +72,74 @@ class SurveyLevelScreenBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
-      body: SizedBox(
-        width: double.maxFinite,
-        height: double.maxFinite,
-        child: Column(
-          children: [
-            AppbarWidget(level: mapLevel),
-           if (!Responsive.isMobile(context)) const SizedBox(height: 20),
-            if (!Responsive.isMobile(context))
-              Expanded(
-                child: SizedBox(
-                  width: double.maxFinite,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (controller.selectedLevel.value != -1)
-                        FormWidget(
-                          assignedLevelKey: mapLevel.assignedLevelKey!,
-                          mapLevel: mapLevel,
-                          level: controller.selectedSurveyLevelItem.value!,
-                        ),
-                      Expanded(
-                        child: (controller.isMapSelected.value ||
-                                controller.selectedLevel.value == -1)
-                            ? SfMapWidget(
-                                colorMapper:
-                                    Get.find<SurveyController>().colorMappers,
-                                levels: controller.surveyLevels,
-                                geoJsonBytes: controller.geoJsonBytes.value!,
-                                shapeDataField: controller.shapeDataField.value,
-                                selectedIndex: controller.selectedLevel.value,
-                              )
-                            : const SizedBox(),
+      // backgroundColor: Colors.amber,
+      body: Column(
+        children: [
+          AppbarWidget(level: mapLevel),
+          if (!Responsive.isMobile(context))
+            Expanded(
+              child: SizedBox(
+                width: double.maxFinite,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (controller.selectedLevel.value != -1)
+                      FormWidget(
+                        assignedLevelKey: mapLevel.assignedLevelKey!,
+                        mapLevel: mapLevel,
+                        level: controller.selectedSurveyLevelItem.value!,
                       ),
-                      if (!controller.isMapSelected.value)
-                        ListViewWidget(
-                          levels: controller.surveyLevels,
-                        )
-                    ],
-                  ),
+                    Expanded(
+                      child: (controller.isMapSelected.value ||
+                              controller.selectedLevel.value == -1)
+                          ? SfMapWidget(
+                              colorMapper:
+                                  Get.find<SurveyController>().colorMappers,
+                              levels: controller.surveyLevels,
+                              geoJsonBytes: controller.geoJsonBytes.value!,
+                              shapeDataField: controller.shapeDataField.value,
+                              selectedIndex: controller.selectedLevel.value,
+                            )
+                          : const SizedBox(),
+                    ),
+                    if (!controller.isMapSelected.value)
+                      ListViewWidget(
+                        levels: controller.surveyLevels,
+                      )
+                  ],
                 ),
               ),
-            if (Responsive.isMobile(context) &&
-                controller.selectedLevel.value != -1)
-              SizedBox(
-                child: FormWidget(
-                  assignedLevelKey: mapLevel.assignedLevelKey!,
-                  level: controller.selectedSurveyLevelItem.value!,
-                  mapLevel: mapLevel,
-                ),
+            ),
+          if (Responsive.isMobile(context) &&
+              controller.selectedLevel.value != -1)
+            Expanded(
+              child: FormWidget(
+                assignedLevelKey: mapLevel.assignedLevelKey!,
+                level: controller.selectedSurveyLevelItem.value!,
+                mapLevel: mapLevel,
               ),
-            if ((Responsive.isMobile(context) &&
-                    controller.isMapSelected.value) &&
-                controller.selectedLevel.value == -1)
-              Expanded(
-                child: SfMapWidget(
-                  colorMapper: Get.find<SurveyController>().colorMappers,
-                  levels: controller.surveyLevels,
-                  geoJsonBytes: controller.geoJsonBytes.value!,
-                  shapeDataField: controller.shapeDataField.value,
-                  selectedIndex: controller.selectedLevel.value,
-                ),
-              ),
-            if (Responsive.isMobile(context) &&
-                !controller.isMapSelected.value &&
-                controller.selectedLevel.value == -1)
-              Expanded(
-                  child: ListViewWidget(
+            ),
+          if ((Responsive.isMobile(context) &&
+                  controller.isMapSelected.value) &&
+              controller.selectedLevel.value == -1)
+            Expanded(
+              child: SfMapWidget(
+                colorMapper: Get.find<SurveyController>().colorMappers,
                 levels: controller.surveyLevels,
-              ))
-          ],
-        ),
+                geoJsonBytes: controller.geoJsonBytes.value!,
+                shapeDataField: controller.shapeDataField.value,
+                selectedIndex: controller.selectedLevel.value,
+              ),
+            ),
+          if (Responsive.isMobile(context) &&
+              !controller.isMapSelected.value &&
+              controller.selectedLevel.value == -1)
+            Expanded(
+                child: ListViewWidget(
+              levels: controller.surveyLevels,
+            ))
+        ],
       ),
     );
   }

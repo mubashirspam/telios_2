@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/hive/isar.dart';
+import '../../view_model/dashboard/dashboard_controller.dart';
 import '../../view_model/view_model.dart';
 
 // late final SharedPreferences prefs;
@@ -14,6 +15,7 @@ Future<void> getDiInit() async {
   Get.put(LevelService());
   Get.put(AuthController());
   Get.put(LevelController());
+  Get.put(DashboardController());
   await Future.delayed(const Duration(seconds: 1));
 }
 

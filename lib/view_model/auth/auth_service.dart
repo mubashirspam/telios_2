@@ -145,6 +145,6 @@ class AuthService extends GetxService {
     await authRepo.clearUserDB(userId.value);
     await authRepo.logOutToken(currentToken.value);
     authed.value = false;
-    Get.offAllNamed('/login');
+   
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 import 'package:telios_2/model/model.dart';
+import 'package:telios_2/view/view.dart';
 import 'package:telios_2/view_model/view_model.dart';
 import '../../../settings/settings.dart';
 import 'dart:developer';
@@ -25,25 +26,18 @@ class SfMapWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            children: [
-              Expanded(
-                child: BuildMap(
-                  colorMappers: colorMapper,
-                  levels: levels,
-                  shapeDataField: shapeDataField,
-                  geoJsonBytes: geoJsonBytes,
-                  selectedIndex: selectedIndex,
-                ),
-              ),
-            ],
+    return ContainerWidget(
+      child: Stack(
+        children: [
+          BuildMap(
+            colorMappers: colorMapper,
+            levels: levels,
+            shapeDataField: shapeDataField,
+            geoJsonBytes: geoJsonBytes,
+            selectedIndex: selectedIndex,
           ),
-        )
-      ],
+        ],
+      ),
     );
   }
 }
@@ -102,6 +96,10 @@ class _BuildMapState extends State<BuildMap> {
     return SfMaps(
       layers: [
         MapShapeLayer(
+          zoomPanBehavior: MapZoomPanBehavior(
+            enableDoubleTapZooming: true,
+            enablePinching: true,
+          ),
           source: _dataSource,
           showDataLabels: true,
           loadingBuilder: (BuildContext context) {
@@ -116,8 +114,10 @@ class _BuildMapState extends State<BuildMap> {
           },
           strokeColor: AppColor.primary,
           strokeWidth: 1,
+          
           selectionSettings: const MapSelectionSettings(
             color: AppColor.primary,
+
             strokeColor: Colors.black,
             strokeWidth: 1,
           ),
@@ -147,7 +147,6 @@ class _BuildMapState extends State<BuildMap> {
                     if (_levels[index].answers != null) ...[
                       ..._levels[index].answers!.map((entry) {
                         return Container(
-                          
                           margin: const EdgeInsets.only(bottom: 5),
                           decoration: BoxDecoration(
                             color: Color(int.parse(entry.color)),
