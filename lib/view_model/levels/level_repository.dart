@@ -117,7 +117,7 @@ class LevelRepository {
       final data = json.encode({
         "fieldData": {
           "countryId": "1",
-          "unit": "test",
+          "unit": surveyLevel.levelName,
           "levelKey": surveyLevel.levelKey
         },
         "script": "AddNewVillage",
