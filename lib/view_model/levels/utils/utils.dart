@@ -1,5 +1,4 @@
-
-
+import '../../../model/find_missing_level.dart';
 import '../../../model/model.dart';
 
 /// Converts a list of [DataObject] from remote data to a list of [AssignedLevel] for local use.
@@ -50,6 +49,46 @@ List<MapLevel> convertMapLevelRemoteToLocal({
   }).toList();
 }
 
+List<SurveyLevel> convertMissingRemoteToLocal({
+  required FindMissingLevel remoteData,
+  required String assignedLevelId,
+}) {
+  final data = remoteData.response?.data;
+
+  if (data == null || data.isEmpty) return [];
+
+  List<SurveyLevel> result = [];
+
+  for (var e in data) {
+    final mapLevelKey = e.fieldData?.levelKey;
+    final portal = e.portalData!.unitselfparent2;
+    
+    if (mapLevelKey == null || 
+        mapLevelKey.isEmpty || 
+        portal == null || 
+        portal.isEmpty) {
+      continue;
+    }
+
+    for (var p in portal) {
+      result.add(
+        SurveyLevel(
+          levelName: p.unitselfparent2Unit,
+          levelKey: p.unitselfparent2LevelKey,
+          assignedLevelKey: assignedLevelId,
+          assignedLevelName: '',
+          geoJsonLevelKey: mapLevelKey,
+          geoJsonLevelName: '',
+        ),
+      );
+    }
+  }
+
+  return result;
+}
+
+
+
 /// Converts a GeoJSON string to a list of [SurveyLevel].
 ///
 /// [geoJson] is the string representation of the GeoJSON data.
@@ -71,8 +110,6 @@ Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
       String levelKey = '';
       String assignedLevelKey = level.assignedLevelKey!;
       String assignedLevelName = level.assignedLevelName ?? '';
-
-
 
       switch (id) {
         case 1:

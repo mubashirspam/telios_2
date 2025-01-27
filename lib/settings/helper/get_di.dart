@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
@@ -50,9 +51,9 @@ Future<void> dbInit() async {
     await Hive.openBox<HiveSurveyQuestionModel>(HiveBoxes.surveyQuestions);
     await Hive.openBox<HiveSurveyTemp>(HiveBoxes.surveyTemp);
 
-    log("Hive initialized successfully");
+
   } catch (e) {
-    log('Failed to initialize Hive: $e');
+    debugPrint('Failed to initialize Hive: $e');
   }
 }
 

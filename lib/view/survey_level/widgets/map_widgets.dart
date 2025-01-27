@@ -91,7 +91,7 @@ class _BuildMapState extends State<BuildMap> {
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
 
-    log("Selected Index $_selectedIndex ::::::::  ${widget.levels.length}");
+   
 
     return SfMaps(
       layers: [

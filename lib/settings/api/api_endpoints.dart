@@ -22,4 +22,8 @@ class ApiEndPoints {
   static final postSurvey = '$v/TeliosUserBulkUploadGeneric/_find';
 
   static final syncSurvey = '$v/responseAndAnswersFetch/_find';
+
+  static final insertLevel = '$v/Telios_Unit/records';
+
+  static final findMissingLevel = '$v/NewAdded/_find';
 }

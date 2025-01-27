@@ -166,6 +166,10 @@ class SurveyService extends GetxService {
     await _repository.postSurveyAnswerDB(answerData);
   }
 
+  Future<void> deleteSurveyAnswerDB(SurveyAnswerModel answerData) async {
+    await _repository.deleteSurveyAnswerDB(answerData);
+  }
+
   //   Future<void> syncSurveyAnswerDB(List<SyncSurveyAnswerModel> answerData, String assignedLevelKey) async {
   //   await _repository.syncSurveyAnswerDB(answerData,assignedLevelKey);
   // }

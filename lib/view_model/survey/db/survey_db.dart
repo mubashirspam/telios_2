@@ -393,6 +393,18 @@ class SurveyDB {
       return false;
     }
   }
+  
+  Future<bool> deleteSurveyAnswerDB(SurveyAnswerModel answerData) async {
+    try {
+          String key =
+        '${answerData.assignedLevelKey}_${answerData.geoJsonLevelKey}_${answerData.surveyLevelKey}';
+      await answerBox.delete(key);
+      return true;
+    } catch (error) {
+      log('Error deleting data: $error');
+      return false;
+    }
+  }
 
   Future<bool> clearDropDownOptionDB() async {
     try {

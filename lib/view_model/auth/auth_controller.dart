@@ -8,6 +8,7 @@ import '../../settings/settings.dart';
 class AuthController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
 
+
   final _levelService = Get.find<LevelService>();
   final _surveyService = Get.find<SurveyService>();
 
@@ -117,6 +118,20 @@ class AuthController extends GetxController {
     await _authService.logout();
     await clearLocalDB();
     await initializeAuth();
+
+
+  final surveyController = Get.find<SurveyController>();
+  final levelController = Get.find<LevelController>();
+
+    surveyController.r = ApiResponse.initial();
+    surveyController.a = ApiResponse.initial();
+    surveyController.s = ApiResponse.initial();
+    surveyController.u = ApiResponse.initial();
+
+    levelController.response = ApiResponse.initial();
+    levelController.mapResponse = ApiResponse.initial();
+    levelController.surveyResponse = ApiResponse.initial();
+
     appRouter.go(ScreenPaths.splash);
 
     update();

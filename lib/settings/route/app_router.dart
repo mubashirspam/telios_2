@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import '../../model/model.dart';
 import '../../view/auth/page_not_found.dart';
 import '../../view/home/app_scaffold.dart';
 import '../../view/view.dart';

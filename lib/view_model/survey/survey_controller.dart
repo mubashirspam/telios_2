@@ -29,7 +29,7 @@ class SurveyController extends GetxController {
 
   List<SurveyTemp> surveyTemp = [];
 
-
+  RxBool clearData = false.obs;
 
   RxList<QuestionModel> questionsModelList = RxList<QuestionModel>([]);
   RxList<SurveyCategory> categoryList = RxList<SurveyCategory>([]);
@@ -91,7 +91,7 @@ class SurveyController extends GetxController {
         remoteResult.fold(
           (remoteFailure) {
             r = ApiResponse.error(remoteFailure);
-          
+
             update();
           },
           (success) async {
@@ -275,7 +275,6 @@ class SurveyController extends GetxController {
     String? assignedLevelKey,
     String? geoJsonLevelKey,
     String? surveyLevelKey,
-
   }) async {
     if (a.state == ResponseState.loading) {
       return;
@@ -294,8 +293,7 @@ class SurveyController extends GetxController {
       (failure) async {
         a = ApiResponse.error(failure);
 
-
-        if (assignedLevelKey != null ) {
+        if (assignedLevelKey != null) {
           syncSurveyAnswers(assignedLevelKey);
         }
 
@@ -393,14 +391,16 @@ class SurveyController extends GetxController {
   Future<void> takeSurvey({
     required SurveyLevel level,
     required MapLevel event,
+    required BuildContext context,
   }) async {
     if (isUploading.value) {
       return;
     }
 
-    if (_areAllFieldsEmpty()) {
+    if (_areAllFieldsEmpty() && clearData.value == false) {
       _showSnackbar(
         "Please fill out all fields before submitting!",
+        context,
         backgroundColor: Colors.yellow,
       );
       return;
@@ -417,13 +417,17 @@ class SurveyController extends GetxController {
       clearAnswers();
       await _updateControllers(event);
 
-      _showSnackbar(
-        'Survey submitted successfully for ${level.levelName} (${level.levelKey})',
-        backgroundColor: Colors.green,
-      );
+      await Future.delayed(const Duration(seconds: 1));
+
+      // _showSnackbar(
+      //   'Survey submitted successfully for ${level.levelName} (${level.levelKey})',
+      //   context,
+      //   backgroundColor: Colors.green,
+      // );
     } catch (e) {
       _showSnackbar(
         'Error submitting survey: $e',
+        context,
         backgroundColor: Colors.red,
       );
     } finally {
@@ -436,12 +440,18 @@ class SurveyController extends GetxController {
     return questions.every((question) => question.answer.value.isEmpty);
   }
 
-  void _showSnackbar(String message, {required Color backgroundColor}) {
-    Get.showSnackbar(GetSnackBar(
-      messageText: Text(message),
-      duration: const Duration(seconds: 1),
+  void _showSnackbar(String message, BuildContext context,
+      {required Color backgroundColor}) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
       backgroundColor: backgroundColor,
-      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 1),
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.all(10),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      padding: const EdgeInsets.all(10),
+      dismissDirection: DismissDirection.down,
     ));
   }
 
@@ -494,9 +504,12 @@ class SurveyController extends GetxController {
     SurveyAnswerModel answerData,
     SurveyTemp answerDataTemp,
   ) async {
-    await _service.postSurveyAnswerDB(answerData);
+    clearData.value
+        ? _service.deleteSurveyAnswerDB(answerData)
+        : await _service.postSurveyAnswerDB(answerData);
     await Future.delayed(const Duration(milliseconds: 200));
     await _service.postSurveyTempDB(answerDataTemp);
+    clearData.value = false;
   }
 
   Future<void> _updateControllers(MapLevel event) async {
@@ -515,7 +528,7 @@ class SurveyController extends GetxController {
     }
   }
 
-  Future<void> syncSurveyAnswers(String unitKey ) async {
+  Future<void> syncSurveyAnswers(String unitKey) async {
     if (s.state == ResponseState.loading) {
       return;
     }
@@ -534,8 +547,7 @@ class SurveyController extends GetxController {
       }
 
       s = ApiResponse.completed(r);
-     
-      
+
       update();
     });
   }

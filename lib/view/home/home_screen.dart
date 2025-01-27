@@ -54,13 +54,9 @@ class _HomeScreenState extends State<HomeScreen>
     context.go(ScreenPaths.home(tabIndex: _tabController.index));
   }
 
-  bool _isExpanded = true;
 
-  void _toggleExpansion() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-    });
-  }
+
+ 
 
   @override
   Widget build(BuildContext context) {

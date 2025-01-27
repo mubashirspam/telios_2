@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/view_model/view_model.dart';
+import '../../model/add_missing_response.dart';
 import '../../model/model.dart';
 import '../../settings/api/api_exceptions.dart';
 import '../../settings/helper/dialogues.dart';
@@ -152,6 +153,48 @@ class LevelService extends GetxService {
         );
       }
     }
+  }
+
+  Future<Either<MainFailure, List<SurveyLevel>>> findmissingLevelRemote(
+      String levelKey) async {
+    try {
+      await _authService.refreshTokenIfNeeded();
+      return executeWithTokenRefresh(() async {
+        final remoteData =
+            await _repository.findMissingLevelRemote(levelKey, currentToken);
+        final localData = convertMissingRemoteToLocal(
+            remoteData: remoteData, assignedLevelId: levelKey);
+
+        if (localData.isNotEmpty) {
+          for (var element in localData) {
+            await _repository.addmissingLevelDB(element);
+          }
+        }
+
+        return localData;
+      });
+    } on DioException catch (e) {
+      showSnackbar('Error on inserting survey', e.toString());
+      return Left(MainFailure(message: e.toString()));
+    }
+  }
+
+  Future<Either<MainFailure, AddMissingLevel>> addmissingLevelRemote(
+      SurveyLevel surveyLevel) async {
+    try {
+      await _authService.refreshTokenIfNeeded();
+      return executeWithTokenRefresh(
+          () => _repository.addmissingLevelRemote(surveyLevel, currentToken));
+    } on DioException catch (e) {
+      showSnackbar('Error on inserting survey', e.toString());
+      return Left(MainFailure(message: e.toString()));
+    }
+  }
+
+  Future<void> addmissingLevelDB(SurveyLevel surveyLevel, int count) async {
+    await _repository.addmissingLevelDB(surveyLevel);
+    await _repository.updateSurveyLevelCount(count,
+        surveyLevel.geoJsonLevelKey ?? '', surveyLevel.assignedLevelKey ?? '');
   }
 
   Future<bool> clearLevelsDB() async {

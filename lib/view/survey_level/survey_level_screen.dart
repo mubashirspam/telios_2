@@ -106,6 +106,9 @@ class SurveyLevelScreenBody extends StatelessWidget {
                     if (!controller.isMapSelected.value)
                       ListViewWidget(
                         levels: controller.surveyLevels,
+                        mapLevel: mapLevel,
+
+                      
                       )
                   ],
                 ),
@@ -138,6 +141,8 @@ class SurveyLevelScreenBody extends StatelessWidget {
             Expanded(
                 child: ListViewWidget(
               levels: controller.surveyLevels,
+              mapLevel: mapLevel,
+
             ))
         ],
       ),

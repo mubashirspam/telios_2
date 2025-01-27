@@ -1,22 +1,25 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-
 import 'package:telios_2/model/model.dart';
 import '../../settings/settings.dart';
 import '../survey/survey_controller.dart';
+import 'level_repository.dart';
 import 'level_service.dart';
 
 class LevelController extends GetxController {
   final _service = Get.find<LevelService>();
   final _sureveyController = Get.find<SurveyController>();
+  final _repository = LevelRepository();
 
   ApiResponse<List<AssignedLevel>> response = ApiResponse.initial();
   ApiResponse<List<MapLevel>> mapResponse = ApiResponse.initial();
   ApiResponse<List<SurveyLevel>> surveyResponse = ApiResponse.initial();
 
   RxBool isSurveyScreenLoading = true.obs;
+  RxBool addMissingLevel = false.obs;
 
   RxList<ListingModel> surveyLevels = RxList<ListingModel>([]);
 
@@ -49,14 +52,13 @@ class LevelController extends GetxController {
       await _sureveyController
           .selectAnAnswer(selectedSurveyLevelItem.value!.levelKey ?? '');
     }
-    log("selected value ${selectedLevel.value}");
+
     update();
   }
 
   void gotToNextLevel(AssignedLevel assignedLevel) {
     final i = assignedLevel.assignedLevelId;
 
-    log("assignedLevel id =============$i");
     //
 
     if (i != null) {
@@ -80,8 +82,8 @@ class LevelController extends GetxController {
           break;
       }
       // Get.toNamed(RouterName.mapLevel, arguments: assignedLevel);
-      appRouter.push(ScreenPaths.map(assignedLevel.levelKey), extra: assignedLevel);
-      
+      appRouter.push(ScreenPaths.map(assignedLevel.levelKey),
+          extra: assignedLevel);
     }
     update();
   }
@@ -135,7 +137,7 @@ class LevelController extends GetxController {
         _sureveyController.categoryList.length < 2) {
       // mapResponse =
       //     ApiResponse.error(MainFailure(message: "No Survey Data Found"));
-      log("message: No Survey Data Found");
+
       // return;
     }
 
@@ -152,12 +154,16 @@ class LevelController extends GetxController {
             levelId: levelId,
             id: level.value!.mId!,
             unitId: unitId);
+
         remoteResult.fold(
           (remoteFailure) {
             mapResponse = ApiResponse.error(remoteFailure);
             update();
           },
           (remoteUserModel) async {
+            await Future.delayed(const Duration(milliseconds: 100));
+            await _service.findmissingLevelRemote(levelId);
+            await Future.delayed(const Duration(milliseconds: 100));
             final answerData = await getMapLevelChartData(levelId);
             createMapLevelsList(remoteUserModel, answerData);
             filterdMapLevel = remoteUserModel;
@@ -178,7 +184,6 @@ class LevelController extends GetxController {
   }
 
   Future<void> fetchSurveyLevel(MapLevel event) async {
-    log("********************Fetch Survey Level Called********************");
     if (surveyResponse.state == ResponseState.loading) {
       return;
     }
@@ -206,6 +211,11 @@ class LevelController extends GetxController {
               success, _sureveyController.surveyLevelAnswers);
           await selectALevel(-1);
           await Future.delayed(const Duration(milliseconds: 200));
+          updateLevelCount(
+              oldCount: event.surveyLevelCount ?? 1,
+              newCount: surveyLevels.length,
+              levelId: event.levelKey!,
+              assignedLevelId: event.assignedLevelKey!);
           surveyResponse = ApiResponse.completed(success);
 
           update();
@@ -217,7 +227,6 @@ class LevelController extends GetxController {
       isSurveyScreenLoading.value = false;
     }
   }
-
 
   void searchMapLevel(String query) {
     debouncer.run(() {
@@ -340,5 +349,44 @@ class LevelController extends GetxController {
   Future<List<SurveyAnswerModel>> getMapLevelChartData(String levelId) async {
     await _sureveyController.fetchSurveyAnswers(assignedLevelKey: levelId);
     return _sureveyController.geoJsonLevelAnswers;
+  }
+
+  Future<void> addmissingLevel(
+      {required SurveyLevel surveyLevel,
+      required MapLevel mapLevels,
+      required int count,
+      required BuildContext context}) async {
+    addMissingLevel.value = true;
+
+    await _service.addmissingLevelRemote(surveyLevel).then((value) {
+      value.fold(
+        (f) {
+          addMissingLevel.value = false;
+          log(f.toString());
+        },
+        (s) async {
+          log(s.toString());
+          await _service.addmissingLevelDB(surveyLevel, count);
+          addMissingLevel.value = false;
+        },
+      );
+    });
+
+    addMissingLevel.value = false;
+
+    Navigator.pop(context);
+    fetchSurveyLevel(mapLevels);
+  }
+
+  Future<void> updateLevelCount(
+      {required int oldCount,
+      required int newCount,
+      required String levelId,
+      required String assignedLevelId}) async {
+    if (oldCount == newCount) {
+      return;
+    }
+    log('Updating count from $oldCount to $newCount');
+    _repository.updateSurveyLevelCount(newCount, levelId, assignedLevelId);
   }
 }

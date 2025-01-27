@@ -67,7 +67,7 @@ class AssignedLevelScreen extends StatelessWidget {
                         gridDelegate:
                             const SliverGridDelegateWithMaxCrossAxisExtent(
                           crossAxisSpacing: 15,
-                          mainAxisExtent: 250,
+                          mainAxisExtent: 210,
                           mainAxisSpacing: 15,
                           maxCrossAxisExtent: 450,
                         ),

@@ -53,6 +53,7 @@ class AssignedLevelItem extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
               ),
+              const SizedBox(height: 5),
               Column(
                 spacing: 5,
                 children: [
@@ -64,16 +65,16 @@ class AssignedLevelItem extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '${level.assignedLevel} Code',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall!
-                                  .copyWith(
-                                    color: AppColor.textSecondary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ),
+                            // Text(
+                            //   '${level.assignedLevel} Code',
+                            //   style: Theme.of(context)
+                            //       .textTheme
+                            //       .titleSmall!
+                            //       .copyWith(
+                            //         color: AppColor.textSecondary,
+                            //         fontWeight: FontWeight.w500,
+                            //       ),
+                            // ),
                             Text(
                               'Number of ${level.geoJsonLevel}',
                               style: Theme.of(context)
@@ -100,42 +101,22 @@ class AssignedLevelItem extends StatelessWidget {
                       SizedBox(
                         width: 20,
                         child: Column(
-                          spacing: 5,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              ":",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall!
-                                  .copyWith(
-                                    color: AppColor.textSecondary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ),
-                            Text(
-                              ":",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall!
-                                  .copyWith(
-                                    color: AppColor.textSecondary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ),
-                            Text(
-                              ":",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall!
-                                  .copyWith(
-                                    color: AppColor.textSecondary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                            ),
-                          ],
-                        ),
+                            spacing: 5,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: List.generate(
+                              2,
+                              (index) => Text(
+                                ":",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall!
+                                    .copyWith(
+                                      color: AppColor.textSecondary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            )),
                       ),
                       SizedBox(
                         child: Column(
@@ -143,16 +124,16 @@ class AssignedLevelItem extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(
-                              level.levelKey.toString(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall!
-                                  .copyWith(
-                                    color: AppColor.textPrimary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
+                            // Text(
+                            //   level.levelKey.toString(),
+                            //   style: Theme.of(context)
+                            //       .textTheme
+                            //       .titleSmall!
+                            //       .copyWith(
+                            //         color: AppColor.textPrimary,
+                            //         fontWeight: FontWeight.w600,
+                            //       ),
+                            // ),
                             Text(
                               level.geoJsonLevelCount.toString(),
                               style: Theme.of(context)

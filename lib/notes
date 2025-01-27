@@ -1,0 +1,413 @@
+{
+  "survey": [
+    {
+      "surveyLevelName ": "Nallayapalle",
+      "surveyLevelKey ": "IND-AP-504-4815-593348",
+      "assignedLevelKey ": "IND-AP-504",
+      "assignedLevelName ": "Y.S.R.",
+      "geojsonLevelKey": "IND-AP-504-4815",
+      "geojsonLevelName": "Atlur",
+      "surveyAnswers": [
+        {
+          "surveyId": "1",
+          "answers": [
+            {
+              "questionId ": 20,
+              "question ": "PC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 21,
+              "question ": "HC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 22,
+              "question ": "MC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 24,
+              "question ": "Language ISO",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 25,
+              "question ": "People Group",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 26,
+              "question ": "Social Issues",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 29,
+              "question ": "Notes",
+              "typeId ": 6,
+              "answer ": "",
+              "answerOptions ": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surveyLevelName ": "Thamballagondi",
+      "surveyLevelKey ": "IND-AP-504-4815-593351",
+      "assignedLevelKey ": "IND-AP-504",
+      "assignedLevelName ": "Y.S.R.",
+      "geojsonLevelKey": "IND-AP-504-4815",
+      "geojsonLevelName": "Atlur",
+      "surveyAnswers": [
+        {
+          "surveyId": "1",
+          "answers": [
+            {
+              "questionId ": 20,
+              "question ": "PC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 21,
+              "question ": "HC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 22,
+              "question ": "MC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 24,
+              "question ": "Language ISO",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 25,
+              "question ": "People Group",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 26,
+              "question ": "Social Issues",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 29,
+              "question ": "Notes",
+              "typeId ": 6,
+              "answer ": "",
+              "answerOptions ": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surveyLevelName ": "Gujjalavaripalle",
+      "surveyLevelKey ": "IND-AP-504-4815-593352",
+      "assignedLevelKey ": "IND-AP-504",
+      "assignedLevelName ": "Y.S.R.",
+      "geojsonLevelKey": "IND-AP-504-4815",
+      "geojsonLevelName": "Atlur",
+      "surveyAnswers": [
+        {
+          "surveyId": "1",
+          "answers": [
+            {
+              "questionId ": 20,
+              "question ": "PC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 21,
+              "question ": "HC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 22,
+              "question ": "MC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 24,
+              "question ": "Language ISO",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 25,
+              "question ": "People Group",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 26,
+              "question ": "Social Issues",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 29,
+              "question ": "Notes",
+              "typeId ": 6,
+              "answer ": "",
+              "answerOptions ": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surveyLevelName ": "Kondur",
+      "surveyLevelKey ": "IND-AP-504-4815-593357",
+      "assignedLevelKey ": "IND-AP-504",
+      "assignedLevelName ": "Y.S.R.",
+      "geojsonLevelKey": "IND-AP-504-4815",
+      "geojsonLevelName": "Atlur",
+      "surveyAnswers": [
+        {
+          "surveyId": "1",
+          "answers": [
+            {
+              "questionId ": 20,
+              "question ": "PC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 21,
+              "question ": "HC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 22,
+              "question ": "MC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 24,
+              "question ": "Language ISO",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 25,
+              "question ": "People Group",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 26,
+              "question ": "Social Issues",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 29,
+              "question ": "Notes",
+              "typeId ": 6,
+              "answer ": "",
+              "answerOptions ": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+
+{
+  "survey": [
+    {
+      "surveyLevelName ": "Nallayapalle",
+      "surveyLevelKey ": "IND-AP-504-4815-593348",
+      "assignedLevelKey ": "IND-AP-504",
+      "assignedLevelName ": "Y.S.R.",
+      "geojsonLevelKey": "IND-AP-504-4815",
+      "geojsonLevelName": "Atlur",
+      "surveyAnswers": [
+        {
+          "surveyId": "1",
+          "answers": [
+            {
+              "questionId ": 20,
+              "question ": "PC",
+              "typeId ": 5,
+              "answer ": "4",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 21,
+              "question ": "HC",
+              "typeId ": 5,
+              "answer ": "3",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 22,
+              "question ": "MC",
+              "typeId ": 5,
+              "answer ": "3",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 24,
+              "question ": "Language ISO",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": [
+                {
+                  "optionsId ": 1,
+                  "optionValue ": "Aranadan [aaf]"
+                },
+                {
+                  "optionsId ": 2,
+                  "optionValue ": "Adi [adi]"
+                }
+              ]
+            },
+            {
+              "questionId ": 25,
+              "question ": "People Group",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": [
+                {
+                  "optionsId ": 9,
+                  "optionValue ": "Bokar"
+                }
+              ]
+            },
+            {
+              "questionId ": 26,
+              "question ": "Social Issues",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": [
+                {
+                  "optionsId ": 4748,
+                  "optionValue ": "Access to Education"
+                }
+              ]
+            },
+            {
+              "questionId ": 29,
+              "question ": "Notes",
+              "typeId ": 6,
+              "answer ": "",
+              "answerOptions ": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "surveyLevelName ": "Gujjalavaripalle",
+      "surveyLevelKey ": "IND-AP-504-4815-593352",
+      "assignedLevelKey ": "IND-AP-504",
+      "assignedLevelName ": "Y.S.R.",
+      "geojsonLevelKey": "IND-AP-504-4815",
+      "geojsonLevelName": "Atlur",
+      "surveyAnswers": [
+        {
+          "surveyId": "1",
+          "answers": [
+            {
+              "questionId ": 20,
+              "question ": "PC",
+              "typeId ": 5,
+              "answer ": "8",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 21,
+              "question ": "HC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 22,
+              "question ": "MC",
+              "typeId ": 5,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 24,
+              "question ": "Language ISO",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 25,
+              "question ": "People Group",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 26,
+              "question ": "Social Issues",
+              "typeId ": 2,
+              "answer ": "",
+              "answerOptions ": []
+            },
+            {
+              "questionId ": 29,
+              "question ": "Notes",
+              "typeId ": 6,
+              "answer ": "",
+              "answerOptions ": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+},

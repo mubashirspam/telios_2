@@ -24,7 +24,7 @@ PostSurvey convertTempAnswerToPostRemoteAnswer(List<SurveyTemp> surveyTemp) {
               questionId: answer.questionId,
               question: answer.question,
               typeId: answer.typeId,
-              answer: answer.answer,
+              answer: answer.answer??'',
               answerOptions: answer.answerOptions?.map((opt) {
                 return Option(optionId: opt.id, optionValue: opt.name);
               }).toList(),
@@ -192,7 +192,7 @@ List<SurveyAnswerModel> convertSyncSurveyAnswerToLocal(
                                 answer: answer.answer,
                                 answerOptions:
                                     answer.answerOptions?.map((option) {
-                                      log(answer.answerOptions.toString());
+                                
                                   return DItem(
                                     option.optionValue ?? '',
                                     option.optionId ?? 0,

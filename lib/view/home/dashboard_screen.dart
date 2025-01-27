@@ -1,11 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/settings/settings.dart';
 import 'package:telios_2/view/widgets/widgets.dart';
 import 'package:telios_2/view_model/view_model.dart';
-import 'package:telios_2/view_model/dashboard/dashboard_controller.dart';
 
 import 'widgets/home_header_widget.dart';
 
@@ -48,7 +45,6 @@ class DashboardScreen extends StatelessWidget {
         final surveyLevelCount = stats['surveyLevelCount'] as int? ?? 0;
         final surveyedCount = stats['surveyedCount'] as int? ?? 0;
         final notSurveyedCount = surveyLevelCount - surveyedCount;
-        final pendingCount = notSurveyedCount;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,14 +107,14 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Expanded(
-                  child: _buildCountCard(
-                    context,
-                    'Pending Data for Sync',
-                    pendingCount.toString(),
-                    Colors.red.shade100,
-                  ),
-                ),
+                // Expanded(
+                //   child: _buildCountCard(
+                //     context,
+                //     'Pendi',
+                //     pendingCount.toString(),
+                //     Colors.red.shade100,
+                //   ),
+                // ),
               ],
             ),
           ],
@@ -139,11 +135,26 @@ class DashboardScreen extends StatelessWidget {
             final totalCategorizedSurveys =
                 stats['totalCategorizedSurveys'] as int? ?? 0;
             final surveyedCount = stats['surveyedCount'] as int? ?? 0;
+            final surveyLevelCount = stats['surveyLevelCount'] as int? ?? 0;
             final categoryMap = surveyController.categoryList;
 
-            log(categoryMap
-                .map((e) => '${e.questionId} : ${e.categoryName}')
-                .toString());
+            final notSurveyedCount = surveyLevelCount - surveyedCount;
+
+            final surveyedCountPercentage = surveyedCount > 0
+                ? (surveyedCount / surveyLevelCount) * 100
+                : 0;
+            final notSurveyedCountPercentage = notSurveyedCount > 0
+                ? (notSurveyedCount / surveyLevelCount) * 100
+                : 0;
+
+            final surveyStatusData = {
+              1: surveyedCountPercentage,
+              0: notSurveyedCountPercentage,
+            };
+
+            if (surveyLevelCount == 0) {
+              return SizedBox();
+            }
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,65 +170,131 @@ class DashboardScreen extends StatelessWidget {
                   height: 200,
                   child: Row(
                     children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 150,
-                          child: Stack(
-                            children: [
-                              Center(
-                                child: Text(
-                                  surveyedCount.toString(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium!
-                                      .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColor.primary,
-                                      ),
-                                ),
-                              ),
-                              Center(
-                                child: PieChartWidget(
-                                  radius: 35,
-                                  centerSpaceRadius: 35,
-                                  isNotGlobel: false,
-                                  data: categoryPercentages,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      // First pie chart for surveyed vs not surveyed
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ...categoryMap.map((category) {
-                              final count =
-                                  categoryList[category.questionId] ?? 0;
-                              Color color = category.categoryColor == null
-                                  ? Colors.grey.shade300
-                                  : Color(category.categoryColor!);
+                            Text(
+                              'Survey Status',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 5),
+                            SizedBox(
+                              height: 150,
+                              child: Stack(
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      '$surveyedCount/$surveyLevelCount',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium!
+                                          .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColor.primary,
+                                          ),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: PieChartWidget(
+                                      radius: 35,
+                                      centerSpaceRadius: 35,
+                                      isNotGlobel: false,
+                                      data: surveyStatusData,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildIdentification(
+                                    AppColor.primary, 'Surveyed', context),
+                                const SizedBox(width: 10),
+                                _buildIdentification(Colors.grey.shade300,
+                                    'Not Surveyed', context),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Second pie chart for categories
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Text(
+                              'Categories',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 5),
+                            SizedBox(
+                              height: 150,
+                              child: Stack(
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      totalCategorizedSurveys.toString(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium!
+                                          .copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColor.primary,
+                                          ),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: PieChartWidget(
+                                      radius: 35,
+                                      centerSpaceRadius: 35,
+                                      isNotGlobel: false,
+                                      data: categoryPercentages,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ...categoryMap.map((category) {
+                                      final count =
+                                          categoryList[category.questionId] ??
+                                              0;
+                                      Color color =
+                                          category.categoryColor == null
+                                              ? Colors.grey.shade300
+                                              : Color(category.categoryColor!);
 
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 5),
-                                child: _buildIdentification(
-                                  color,
-                                  "${category.categoryName} : $count",
-                                  context,
-                                ),
-                              );
-                            }),
-                            // Add uncategorized if present
-                            if (categoryList.containsKey(0))
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 5),
-                                child: _buildIdentification(
-                                  Colors.grey.shade300,
-                                  "Uncategorized : ${categoryList[0]}",
-                                  context,
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5),
+                                        child: _buildIdentification(
+                                          color,
+                                          "${category.categoryName} : $count",
+                                          context,
+                                        ),
+                                      );
+                                    }),
+                                    if (categoryList.containsKey(0))
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5),
+                                        child: _buildIdentification(
+                                          Colors.grey.shade300,
+                                          "Uncategorized : ${categoryList[0]}",
+                                          context,
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
+                            ),
                           ],
                         ),
                       ),
@@ -235,11 +312,14 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildIdentification(Color color, String name, BuildContext context) =>
       Row(
         children: [
-          ColoredBox(
-            color: color,
-            child: const SizedBox(
-              width: 15,
-              height: 15,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(100),
+            child: ColoredBox(
+              color: color,
+              child: const SizedBox(
+                width: 15,
+                height: 15,
+              ),
             ),
           ),
           const SizedBox(width: 10),

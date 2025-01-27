@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import '../../model/add_missing_response.dart';
+import '../../model/find_missing_level.dart';
 import '../../model/model.dart';
 import '../../settings/settings.dart';
 import 'db/db.dart';
@@ -17,7 +19,7 @@ class LevelRepository {
   Future<RemoteAssignedLeveleModel> fetchAssignedLevelRemote(
       {required String userId, required String token}) async {
     try {
-      log('API call => ${ApiEndPoints.assignedLevel}');
+      log('API call => ${ApiEndPoints.assignedLevel}',name: "Api Call");
 
       // Set headers and data for the API request.
       final headers = {
@@ -71,9 +73,11 @@ class LevelRepository {
   /// Fetches map levels from the remote server.
   /// Returns either a [RemoteMapLevelModel] on success or a [MainFailure] on failure.
   Future<RemoteMapLevelModel> fetchMapLevelRemote(
-      {required String unitId, required String userId, required String token}) async {
+      {required String unitId,
+      required String userId,
+      required String token}) async {
     try {
-      log('API call => ${ApiEndPoints.mapLevel} with unitId: $unitId and userId: $userId');
+      log('API call => ${ApiEndPoints.mapLevel} with unitId: $unitId and userId: $userId', name: "Api Call");
 
       // Set headers and data for the API request.
       final headers = {
@@ -85,7 +89,8 @@ class LevelRepository {
           {"userId": "=$userId"}
         ],
         "script.prerequest": "findAssignedGeojson",
-        "script.prerequest.param": "{\"unit\": \"$unitId\", \"userId\": \"$userId\"}"
+        "script.prerequest.param":
+            "{\"unit\": \"$unitId\", \"userId\": \"$userId\"}"
       });
 
       // Make the API request.
@@ -96,6 +101,63 @@ class LevelRepository {
       return RemoteMapLevelModel.fromJson(response.data);
     } on DioException catch (e, stackTrace) {
       log('Error occurred while fetching map levels: $e , $stackTrace',
+          stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<AddMissingLevel> addmissingLevelRemote(
+      SurveyLevel surveyLevel, String accessToken) async {
+    try {
+      log('API call => ${ApiEndPoints.insertLevel}', name: "Api Call");
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      };
+      final data = json.encode({
+        "fieldData": {
+          "countryId": "1",
+          "unit": "test",
+          "levelKey": surveyLevel.levelKey
+        },
+        "script": "AddNewVillage",
+        "script.param": "${surveyLevel.levelKey},${surveyLevel.geoJsonLevelKey}"
+      });
+      log(data.toString());
+
+      final response = await Dio().post(ApiEndPoints.insertLevel,
+          options: Options(headers: headers), data: data);
+      log(response.data.toString());
+      return AddMissingLevel.fromJson(response.data);
+    } on DioException catch (e, stackTrace) {
+      log('Error occurred while adding missing level: $e , $stackTrace',
+          stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<FindMissingLevel> findMissingLevelRemote(String levelKey, String token) async {
+    try {
+      log('API call => ${ApiEndPoints.findMissingLevel}', name: "Api Call");
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+      final data = json.encode({
+        "query": [
+          {"levelKey": levelKey, "newAddedFlag": "*"}
+        ]
+      });
+
+
+      final response = await Dio().post(ApiEndPoints.findMissingLevel,
+          options: Options(headers: headers), data: data);
+
+      log(response.data.toString() , name: "Missing Level");
+
+      return FindMissingLevel.fromJson(response.data);
+    } on DioException catch (e, stackTrace) {
+      log('Error occurred while finding missing level: $e , $stackTrace',
           stackTrace: stackTrace);
       rethrow;
     }
@@ -121,6 +183,10 @@ class LevelRepository {
   Future<void> updateSurveyLevelCount(
       int count, String levelId, String assignedLevelId) async {
     await _dbMapLevel.updateSurveyLevelCount(count, levelId, assignedLevelId);
+  }
+
+  Future<void> addmissingLevelDB(SurveyLevel surveyLevel) async {
+    await _dbSurveyLevel.addmissingLevelDB(surveyLevel);
   }
 
   /// Clears map levels from the local database.

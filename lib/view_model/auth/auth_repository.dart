@@ -13,7 +13,7 @@ class AuthRepository {
       required String password,
       required String token}) async {
     try {
-      log('Api call => ${ApiEndPoints.login} ');
+      log('Api call => ${ApiEndPoints.login} ', name: "Api Call");
       var headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
@@ -41,7 +41,7 @@ class AuthRepository {
   }
 
   Future<InitializeModel> initializeToken() async {
-    log('Api call => ${ApiEndPoints.initializeToken} ');
+    log('Api call => ${ApiEndPoints.initializeToken} ', name: "Api Call");
     try {
       var headers = {
         'Authorization': 'Basic $token==',
@@ -87,7 +87,7 @@ class AuthRepository {
     required String userId,
     required String token,
   }) async {
-    log('Api call => ${ApiEndPoints.fetchUser} ');
+    log('Api call => ${ApiEndPoints.fetchUser} ', name: "Api Call");
     try {
       var headers = {
         'Content-Type': 'application/json',

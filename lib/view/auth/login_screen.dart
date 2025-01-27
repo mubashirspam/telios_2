@@ -1,6 +1,6 @@
-import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/view_model/auth/auth.dart';
 import '../../settings/settings.dart';
@@ -12,6 +12,18 @@ class LoginScreen extends StatelessWidget {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  void _handleSubmit(BuildContext context) {
+    if (_formKey.currentState!.validate()) {
+      final controller = Get.find<AuthController>();
+      if (usernameController.value.text == "9562229979") {
+        controller.login(usernameController.value.text, 'pY29t4');
+      } else {
+        controller.login(
+            usernameController.value.text, passwordController.value.text);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,95 +45,94 @@ class LoginScreen extends StatelessWidget {
               ]),
           child: Form(
             key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Welcome back! Glad to see you, again!",
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 40),
-                TextFieldWidget(
-                  textEditingController:
-                      usernameController, // Use an appropriate TextEditingController for mobile number
+            child: RawKeyboardListener(
+              focusNode: FocusNode(),
+              onKey: (RawKeyEvent event) {
+                if (event is RawKeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.enter) {
+                  _handleSubmit(context);
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Welcome back! Glad to see you, again!",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 40),
+                  TextFieldWidget(
+                    textEditingController:
+                        usernameController, // Use an appropriate TextEditingController for mobile number
 
-                  fillColor: Colors.white,
-                  hintText: "Enter your mobile number",
-                  // labelText: "Mobile Number",
-                  keyboardType: TextInputType
-                      .phone, // Set keyboardType to TextInputType.phone for mobile numbers
-                  validate: (value) {
-                    RegExp regex = RegExp(
-                        r'^[0-9]{10}$'); // Adjust the regex pattern for mobile numbers
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a mobile number';
-                    } else if (!regex.hasMatch(value)) {
-                      return 'Invalid mobile number. Please enter a valid 10-digit mobile number.';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                GetBuilder<AuthController>(
-                  builder: (controller) => TextFieldWidget(
-                    textEditingController: passwordController,
                     fillColor: Colors.white,
-                    obscureText: controller.isPasswordVisible,
-                    maxLines: 1,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        controller.isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        controller.togglePasswordVisibility();
-                      },
-                    ),
-                    hintText: "Enter your password",
-
-                    // labelText: "Password",
-                    keyboardType: TextInputType.visiblePassword,
+                    hintText: "Enter your mobile number",
+                    // labelText: "Mobile Number",
+                    keyboardType: TextInputType
+                        .phone, // Set keyboardType to TextInputType.phone for mobile numbers
                     validate: (value) {
+                      RegExp regex = RegExp(
+                          r'^[0-9]{10}$'); // Adjust the regex pattern for mobile numbers
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a Password';
+                        return 'Please enter a mobile number';
+                      } else if (!regex.hasMatch(value)) {
+                        return 'Invalid mobile number. Please enter a valid 10-digit mobile number.';
                       }
-
                       return null;
                     },
                   ),
-                ),
-                const SizedBox(height: 30),
-                Row(
-                  children: [
-                    Expanded(
-                      child: GetBuilder<AuthController>(
-                        builder: (controller) => ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              log(usernameController.value.text);
-                              if (usernameController.value.text ==
-                                  "9562229979") {
-                                controller.login(
-                                    usernameController.value.text, 'pY29t4');
-                              } else {
-                                controller.login(usernameController.value.text,
-                                    passwordController.value.text);
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6)),
-                            backgroundColor: AppColor.primary,
-                          ),
-                          child:
-                              controller.response.state == ResponseState.loading
+                  const SizedBox(height: 20),
+                  GetBuilder<AuthController>(
+                    builder: (controller) => TextFieldWidget(
+                      textEditingController: passwordController,
+                      fillColor: Colors.white,
+                      obscureText: controller.isPasswordVisible,
+                      maxLines: 1,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          controller.isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          controller.togglePasswordVisibility();
+                        },
+                      ),
+                      hintText: "Enter your password",
+
+                      // labelText: "Password",
+                      keyboardType: TextInputType.visiblePassword,
+                      validate: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a Password';
+                        }
+
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GetBuilder<AuthController>(
+                          builder: (controller) => SizedBox(
+                            width: double.maxFinite,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: () => _handleSubmit(context),
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6)),
+                                backgroundColor: AppColor.primary,
+                              ),
+                              child: controller.response.state ==
+                                      ResponseState.loading
                                   ? const CupertinoActivityIndicator(
                                       color: AppColor.backround,
                                     )
@@ -132,12 +143,14 @@ class LoginScreen extends StatelessWidget {
                                           .titleMedium!
                                           .copyWith(color: Colors.white),
                                     ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                )
-              ],
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ),

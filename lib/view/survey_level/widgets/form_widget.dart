@@ -75,6 +75,29 @@ class TabBarWidegt extends StatelessWidget {
     required this.mapLevel,
   });
 
+  void showClearDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => CustomAlertDialog(
+        type: AlertDialogType.warning,
+        title: 'Clear Form',
+        message:
+            'Are you sure you want to clear all survey data? \n This action cannot be undone.',
+        onConfirm: () {
+          controller.clearAnswers();
+          controller.clearData.value = true;
+          controller.update();
+          controller.takeSurvey(
+            context: context,
+            level: level,
+            event: mapLevel,
+          );
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     int initialIndex = 0;
@@ -102,11 +125,30 @@ class TabBarWidegt extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 15, left: 15),
-                  child: Text(
-                    level.levelName!,
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                          fontWeight: FontWeight.bold,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        level.levelName!,
+                        style:
+                            Theme.of(context).textTheme.titleMedium!.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 15),
+                        child: TextButton(
+                          onPressed: () {
+                            showClearDialog(context);
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text('Clear'),
                         ),
+                      ),
+                    ],
                   ),
                 ),
                 Padding(
@@ -219,6 +261,7 @@ class _QuestionListViewState extends State<QuestionListView> {
                             widget.controller.takeSurvey(
                               level: widget.level,
                               event: widget.mapLevel,
+                              context: context,
                             );
                           }
                         },

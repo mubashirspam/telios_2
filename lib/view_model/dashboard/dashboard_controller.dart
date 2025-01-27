@@ -60,7 +60,7 @@ class DashboardController extends GetxController {
         }
       }
 
-            log('Total categorized surveys: $categoryMap');
+      
 
       // Calculate percentages for each category
       for (var category in categoryMap) {
@@ -139,7 +139,7 @@ class DashboardController extends GetxController {
         }
       }
 
-      log('Total categorized surveys: $categoryMap');
+
 
       for (var category in categoryMap) {
         int count = categoryList[category.questionId ?? 0] ?? 0;
