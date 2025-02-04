@@ -275,13 +275,13 @@ class LevelController extends GetxController {
         orElse: () => SurveyAnswerModel(),
       );
       final int category = matchingAnswer?.sCategory ?? 0;
-      final List<SurveyCategory>? c = _sureveyController.categoryList;
+      final List<SurveyCategory> c = _sureveyController.categoryList;
       final List<Answer>? a = matchingAnswer?.answers?.toList();
 
 // Creating a new list
       List<ListingAnswers> newList = [];
 
-      if (c != null && a != null) {
+      if (a != null) {
         for (var answer in a) {
           for (var category in c) {
             if (answer.questionId == category.questionId) {

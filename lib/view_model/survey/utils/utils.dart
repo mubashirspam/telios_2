@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:telios_2/model/model.dart';
 

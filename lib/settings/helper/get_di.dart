@@ -1,10 +1,8 @@
-import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/hive/isar.dart';
-import '../../view_model/dashboard/dashboard_controller.dart';
 import '../../view_model/view_model.dart';
 
 // late final SharedPreferences prefs;

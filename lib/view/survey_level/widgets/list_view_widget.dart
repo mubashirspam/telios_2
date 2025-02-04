@@ -130,7 +130,7 @@ class ListViewWidget extends StatelessWidget {
                                           ),
                                         ),
                                       );
-                                    }).toList(),
+                                    }),
                                 ],
                               ),
                             )

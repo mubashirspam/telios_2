@@ -8,7 +8,6 @@ version: 1.0.0+1
 environment:
   sdk: ">=3.4.4 <4.0.0"
 
-
 dependencies:
   flutter:
     sdk: flutter
@@ -33,10 +32,8 @@ dependencies:
   google_fonts: ^6.2.1
   internet_connection_checker: ^3.0.1
   flutter_native_splash: ^2.4.4
-  
-  # syncfusion_flutter_charts: ^26.2.13
-  
 
+  # syncfusion_flutter_charts: ^26.2.13
 
 dev_dependencies:
   flutter_test:
@@ -65,8 +62,6 @@ flutter_launcher_icons:
     generate: true
     image_path: "assets/images/logo.png"
 
-
-
 flutter:
   uses-material-design: true
 
@@ -76,7 +71,5 @@ flutter:
     - assets/icons/
     - assets/geojson/
     # - .env
-
-
 
   #

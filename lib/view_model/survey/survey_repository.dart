@@ -78,7 +78,7 @@ class SurveyRepository {
           options: Options(headers: headers), data: data);
 
       return RemoteDropdownOptionsModel.fromJson(response.data);
-    } on DioException catch (e, stackTrace) {
+    } on DioException {
       // log('Error occurred while fetching options$e , $stackTrace',
       //     stackTrace: stackTrace);
       rethrow;

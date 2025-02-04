@@ -6,7 +6,6 @@ import 'package:telios_2/model/model.dart';
 import 'package:telios_2/view/view.dart';
 import 'package:telios_2/view_model/view_model.dart';
 import '../../../settings/settings.dart';
-import 'dart:developer';
 
 class SfMapWidget extends StatelessWidget {
   final int selectedIndex;
@@ -166,7 +165,7 @@ class _BuildMapState extends State<BuildMap> {
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                     ]
                   ],
                 ),

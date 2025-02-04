@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:get/state_manager.dart';
 import '../../../settings/settings.dart';
-import '../../../view_model/survey/survey.dart';
 import '../../../view_model/view_model.dart';
 import '../../widgets/widgets.dart';
 
