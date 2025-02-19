@@ -1,10 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/model/model.dart';
 import 'package:telios_2/settings/settings.dart';
 import 'package:telios_2/view/view.dart';
 import 'package:telios_2/view_model/view_model.dart';
-
 
 class MapLevelScreen extends StatefulWidget {
   final AssignedLevel assignedLevel;
@@ -28,7 +29,8 @@ class _MapLevelScreenState extends State<MapLevelScreen> {
     final unitId = widget.assignedLevel.unitId!;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.fetchMapLevel(levelKey, unitId);
+      controller.fetchMapLevel(
+          levelKey, unitId, );
 
       // Get.find<SurveyController>().syncSurveyAnswers(levelKey);
     });
@@ -107,8 +109,8 @@ class _MapLevelScreenState extends State<MapLevelScreen> {
                                           backgroundColor: Color(0xFFF7F8F9),
                                           foregroundColor: AppColor.primary,
                                         ),
-                                        icon:
-                                            const Icon(Icons.filter_alt_outlined),
+                                        icon: const Icon(
+                                            Icons.filter_alt_outlined),
                                         onPressed: () {},
                                       ),
                                     ],
@@ -206,7 +208,7 @@ class _MapLevelScreenState extends State<MapLevelScreen> {
             child: RefreshIndicator(
               onRefresh: () async {
                 controller.fetchMapLevel(widget.assignedLevel.levelKey!,
-                    widget.assignedLevel.unitId!);
+                    widget.assignedLevel.unitId!,);
               },
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(

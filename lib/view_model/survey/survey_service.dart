@@ -99,11 +99,15 @@ class SurveyService extends GetxService {
     String? assignedLevelKey,
     String? geoJsonLevelKey,
     String? surveyLevelKey,
+   required  bool isNeigeria,
+
   }) async {
     final localResponse = await _repository.fetchSurveyAnswerDB(
       assignedLevelKey: assignedLevelKey,
       geoJsonLevelKey: geoJsonLevelKey,
       surveyLevelKey: surveyLevelKey,
+      isNeigeria: isNeigeria,
+ 
     );
 
     if (localResponse != null && localResponse.isNotEmpty) {

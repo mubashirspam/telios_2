@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:telios_2/settings/settings.dart';
@@ -47,6 +49,18 @@ class MapLevelItem extends StatelessWidget {
       categoryList[0] = remainingCount;
       finalCategoryMap[0] = (remainingCount / surveyLevelCount) * 100;
     }
+
+    // for (int i = 0; i < pieChartData.length; i++) {
+    //   final d = pieChartData[i];
+    //   log(' $i=============================================');
+    //   log("ID : ${d.id}");
+    //   log("name : ${d.name}");
+    //   log("category : ${d.category}");
+    //   d.answers
+    //       ?.map((e) => log(
+    //           "answer : ${e.answer} color :${e.color} question :${e.question}"))
+    //       .toList();
+    // }
 
     return ContainerWidget(
       padding: const EdgeInsets.all(0),

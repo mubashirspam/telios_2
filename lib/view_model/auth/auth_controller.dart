@@ -8,13 +8,14 @@ import '../../settings/settings.dart';
 class AuthController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
 
-
   final _levelService = Get.find<LevelService>();
   final _surveyService = Get.find<SurveyService>();
 
   ApiResponse<LoginModel> response = ApiResponse.initial();
   ApiResponse<UserData> userResponse = ApiResponse.initial();
   bool isPasswordVisible = false;
+
+  final RxBool isLogoutLoading = false.obs;
 
   final _isLoggedIn = false.obs;
   final _userId = ''.obs;
@@ -114,14 +115,19 @@ class AuthController extends GetxController {
     update();
   }
 
-  void logout() async {
+  void logout(BuildContext? context) async {
+    isLogoutLoading.value = true;
+
+    update();
     await _authService.logout();
+    await Future.delayed(const Duration(milliseconds: 100));
     await clearLocalDB();
+    await Future.delayed(const Duration(milliseconds: 100));
     await initializeAuth();
+    await Future.delayed(const Duration(milliseconds: 50));
 
-
-  final surveyController = Get.find<SurveyController>();
-  final levelController = Get.find<LevelController>();
+    final surveyController = Get.find<SurveyController>();
+    final levelController = Get.find<LevelController>();
 
     surveyController.r = ApiResponse.initial();
     surveyController.a = ApiResponse.initial();
@@ -132,8 +138,10 @@ class AuthController extends GetxController {
     levelController.mapResponse = ApiResponse.initial();
     levelController.surveyResponse = ApiResponse.initial();
 
+    isLogoutLoading.value = false;
+    update();
+    if (context != null) Navigator.of(context, rootNavigator: true).pop();
     appRouter.go(ScreenPaths.splash);
-
     update();
   }
 
@@ -148,7 +156,7 @@ class AuthController extends GetxController {
     if (currentUserId.isEmpty) {
       await checkLoginStatus();
       if (!isLoggedIn) {
-        logout();
+        logout(null);
         return;
       }
     }

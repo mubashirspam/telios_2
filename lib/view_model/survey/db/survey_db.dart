@@ -267,7 +267,16 @@ class SurveyDB {
     String? assignedLevelKey,
     String? geoJsonLevelKey,
     String? surveyLevelKey,
+    required bool isNeigeria,
   }) async {
+    if (isNeigeria) {
+      log("Is Neigeria => true");
+      geoJsonLevelKey = assignedLevelKey;
+      assignedLevelKey = null;
+    }
+    log(
+      'fetchSurveyAnswerDB => A: $assignedLevelKey , G: $geoJsonLevelKey , S: $surveyLevelKey',
+    );
     try {
       final allAnswers = answerBox.values.toList();
       List<HiveSurveyAnswerModel> filteredData = [];
@@ -295,7 +304,7 @@ class SurveyDB {
       }
 
       if (filteredData.isNotEmpty) {
-        return filteredData.map((hive) {
+        final data = filteredData.map((hive) {
           return SurveyAnswerModel(
             assignedLevelKey: hive.assignedLevelKey,
             geoJsonLevelKey: hive.geoJsonLevelKey,
@@ -323,6 +332,17 @@ class SurveyDB {
             }).toList(),
           );
         }).toList();
+
+        log('+========= Fetched data Answer Data Store in local DB +========= ');
+        for (var data in data) {
+          log(
+            '${data.sCategory} , ${data.gCategory} , ${data.aCategory} , ${data.assignedLevelKey} , ${data.geoJsonLevelKey} , ${data.surveyLevelKey} , ${data.assignedLevelName} , ${data.geoJsonLevelName} , ${data.surveyLevelName} ${data.answers}',
+          );
+        }
+
+        log('===============================================================');
+
+        return data;
       }
       return null;
     } catch (error) {
@@ -334,7 +354,7 @@ class SurveyDB {
   Future<List<SurveyAnswerModel>?> fetchAllSurveyAnswerDB() async {
     try {
       final allAnswers = answerBox.values.toList();
-      
+
       if (allAnswers.isNotEmpty) {
         return allAnswers.map((hive) {
           return SurveyAnswerModel(
@@ -372,8 +392,6 @@ class SurveyDB {
     }
   }
 
-
-
   Future<bool> clearSurveyQuestionDB() async {
     try {
       await questionBox.clear();
@@ -393,11 +411,11 @@ class SurveyDB {
       return false;
     }
   }
-  
+
   Future<bool> deleteSurveyAnswerDB(SurveyAnswerModel answerData) async {
     try {
-          String key =
-        '${answerData.assignedLevelKey}_${answerData.geoJsonLevelKey}_${answerData.surveyLevelKey}';
+      String key =
+          '${answerData.assignedLevelKey}_${answerData.geoJsonLevelKey}_${answerData.surveyLevelKey}';
       await answerBox.delete(key);
       return true;
     } catch (error) {

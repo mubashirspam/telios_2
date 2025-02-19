@@ -13,11 +13,13 @@ class FormWidget extends StatelessWidget {
   final SurveyLevel level;
   final MapLevel mapLevel;
 
+
   const FormWidget({
     super.key,
     required this.assignedLevelKey,
     required this.level,
     required this.mapLevel,
+
   });
 
   @override
@@ -51,6 +53,7 @@ class FormWidget extends StatelessWidget {
             level: level,
             controller: controller,
             mapLevel: mapLevel,
+          
           );
         }
         return const Center(
@@ -67,12 +70,14 @@ class TabBarWidegt extends StatelessWidget {
   final SurveyController controller;
   final MapLevel mapLevel;
 
+
   const TabBarWidegt({
     super.key,
     required this.questionModelList,
     required this.level,
     required this.controller,
     required this.mapLevel,
+
   });
 
   void showClearDialog(BuildContext context) {
@@ -91,6 +96,7 @@ class TabBarWidegt extends StatelessWidget {
             context: context,
             level: level,
             event: mapLevel,
+          
           );
           Navigator.of(context).pop();
         },
@@ -204,6 +210,7 @@ class TabBarWidegt extends StatelessWidget {
                         model: model,
                         level: level,
                         mapLevel: mapLevel,
+                       
                       );
                     }).toList(),
                   ),
@@ -216,6 +223,7 @@ class TabBarWidegt extends StatelessWidget {
 
 class QuestionListView extends StatefulWidget {
   final QuestionModel model;
+
   final SurveyController controller;
   final SurveyLevel level;
   final MapLevel mapLevel;
@@ -226,6 +234,7 @@ class QuestionListView extends StatefulWidget {
     required this.controller,
     required this.level,
     required this.mapLevel,
+
   });
 
   @override
@@ -262,6 +271,7 @@ class _QuestionListViewState extends State<QuestionListView> {
                               level: widget.level,
                               event: widget.mapLevel,
                               context: context,
+      
                             );
                           }
                         },

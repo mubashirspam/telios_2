@@ -63,7 +63,6 @@ class SurveyRepository {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       };
-     
 
       final data = json.encode({
         "query": [
@@ -114,8 +113,10 @@ class SurveyRepository {
     String? assignedLevelKey,
     String? geoJsonLevelKey,
     String? surveyLevelKey,
+    required bool isNeigeria,
   }) async {
     final localResponse = await _db.fetchSurveyAnswerDB(
+        isNeigeria: isNeigeria,
         assignedLevelKey: assignedLevelKey,
         geoJsonLevelKey: geoJsonLevelKey,
         surveyLevelKey: surveyLevelKey);
@@ -124,8 +125,6 @@ class SurveyRepository {
 
   Future<void> postSurveyAnswerDB(SurveyAnswerModel answerData) async {
     await _db.postSurveyAnswerDB(answerData);
-   
-   
   }
 
   Future<void> deleteSurveyAnswerDB(SurveyAnswerModel answerData) async {
@@ -156,6 +155,8 @@ class SurveyRepository {
 
   Future<SyncSurveyAnswerModelRemote> syncSurveyAnswers(
       {required String token, required String unitKey}) async {
+    log('Api call => ${ApiEndPoints.syncSurvey}====>>>>> $unitKey ',
+        name: "Api Call");
     try {
       final headers = {
         'Content-Type': 'application/json',

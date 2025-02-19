@@ -154,16 +154,20 @@ void _showPopupCard(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return CustomAlertDialog(
-        onConfirm: () {
-          final c = Get.find<AuthController>();
-          c.logout();
-          Navigator.of(context, rootNavigator: true).pop();
-        },
-        type: AlertDialogType.warning, // Change the type as needed
-        title: 'Are you sure you want to log out? ',
-        message:
-            "Logging out will end your current session, \nand you'll need to sign in again \nto access your account.\nPlease confirm your decision to log out",
+      return GetBuilder<AuthController>(
+        builder: (controller) {
+          return CustomAlertDialog(
+            onConfirm: () {
+             
+              controller.logout(context);
+            },
+            isLoading:  controller.isLogoutLoading.value,
+            type: AlertDialogType.warning, // Change the type as needed
+            title: 'Are you sure you want to log out? ',
+            message:
+                "Logging out will end your current session, \nand you'll need to sign in again \nto access your account.\nPlease confirm your decision to log out",
+          );
+        }
       );
     },
   );

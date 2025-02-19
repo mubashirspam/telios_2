@@ -143,7 +143,6 @@ class AuthService extends GetxService {
   Future<void> logout() async {
     await authRepo.clearUserId();
     await authRepo.clearUserDB(userId.value);
-    await authRepo.logOutToken(currentToken.value);
     authed.value = false;
    
   }

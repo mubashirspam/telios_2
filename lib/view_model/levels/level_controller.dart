@@ -20,6 +20,7 @@ class LevelController extends GetxController {
 
   RxBool isSurveyScreenLoading = true.obs;
   RxBool addMissingLevel = false.obs;
+  RxBool isNeigeria = false.obs;
 
   RxList<ListingModel> surveyLevels = RxList<ListingModel>([]);
 
@@ -58,6 +59,7 @@ class LevelController extends GetxController {
 
   void gotToNextLevel(AssignedLevel assignedLevel) {
     final i = assignedLevel.assignedLevelId;
+    log("i => $i");
 
     //
 
@@ -67,12 +69,14 @@ class LevelController extends GetxController {
         aId: i - 1,
         mId: i,
       );
+      isNeigeria.value = false;
       switch (i) {
         case 1:
           shapeDataField.value = 'Level2';
           break;
         case 2:
           shapeDataField.value = 'Level3';
+          isNeigeria.value = true;
           break;
         case 3:
           shapeDataField.value = 'Level4';
@@ -122,7 +126,11 @@ class LevelController extends GetxController {
     );
   }
 
-  Future<void> fetchMapLevel(String levelId, String unitId) async {
+  Future<void> fetchMapLevel(
+    String levelId,
+    String unitId,
+    // bool isNeigeria,
+  ) async {
     if (mapResponse.state == ResponseState.loading) {
       return;
     }
@@ -164,7 +172,9 @@ class LevelController extends GetxController {
             await Future.delayed(const Duration(milliseconds: 100));
             await _service.findmissingLevelRemote(levelId);
             await Future.delayed(const Duration(milliseconds: 100));
-            final answerData = await getMapLevelChartData(levelId);
+            final answerData = await getMapLevelChartData(
+              levelId,
+            );
             createMapLevelsList(remoteUserModel, answerData);
             filterdMapLevel = remoteUserModel;
             mapResponse = ApiResponse.completed(remoteUserModel);
@@ -173,7 +183,9 @@ class LevelController extends GetxController {
         );
       },
       (localUserModel) async {
-        final answerData = await getMapLevelChartData(levelId);
+        final answerData = await getMapLevelChartData(
+          levelId,
+        );
         createMapLevelsList(localUserModel, answerData);
         filterdMapLevel = localUserModel;
         mapResponse = ApiResponse.completed(localUserModel);
@@ -192,7 +204,8 @@ class LevelController extends GetxController {
     update();
     try {
       await _sureveyController.fetchSurveyAnswers(
-          geoJsonLevelKey: event.levelKey);
+          geoJsonLevelKey: event.levelKey,
+          isNeigeria: false,);
       await Future.delayed(const Duration(milliseconds: 200));
 
       final result = await _service.fetchSurveyLevel(
@@ -346,8 +359,17 @@ class LevelController extends GetxController {
     }
   }
 
-  Future<List<SurveyAnswerModel>> getMapLevelChartData(String levelId) async {
-    await _sureveyController.fetchSurveyAnswers(assignedLevelKey: levelId);
+// TODO (Suleiman) complete this
+
+  Future<List<SurveyAnswerModel>> getMapLevelChartData(
+    String levelId,
+  ) async {
+  
+      await _sureveyController.fetchSurveyAnswers(
+        assignedLevelKey: levelId,
+        isNeigeria: isNeigeria.value,
+      );
+   
     return _sureveyController.geoJsonLevelAnswers;
   }
 

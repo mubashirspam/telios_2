@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
@@ -275,6 +277,7 @@ class SurveyController extends GetxController {
     String? assignedLevelKey,
     String? geoJsonLevelKey,
     String? surveyLevelKey,
+   required bool isNeigeria ,
   }) async {
     if (a.state == ResponseState.loading) {
       return;
@@ -283,11 +286,17 @@ class SurveyController extends GetxController {
 
     update();
 
+
+    // syncSurveyAnswers(assignedLevelKey!);
+
     final localResult = await _service.fetchSurveyAnswerDB(
       surveyLevelKey: surveyLevelKey,
       geoJsonLevelKey: geoJsonLevelKey,
       assignedLevelKey: assignedLevelKey,
+      isNeigeria: isNeigeria,
+
     );
+
 
     localResult.fold(
       (failure) async {
@@ -392,6 +401,7 @@ class SurveyController extends GetxController {
     required SurveyLevel level,
     required MapLevel event,
     required BuildContext context,
+    
   }) async {
     if (isUploading.value) {
       return;
@@ -415,7 +425,7 @@ class SurveyController extends GetxController {
       final answerDataTemp = _createSurveyTemp(level, answers);
       await _submitSurveyData(answerData, answerDataTemp);
       clearAnswers();
-      await _updateControllers(event);
+      await _updateControllers(event, );
 
       await Future.delayed(const Duration(seconds: 1));
 
@@ -503,6 +513,7 @@ class SurveyController extends GetxController {
   Future<void> _submitSurveyData(
     SurveyAnswerModel answerData,
     SurveyTemp answerDataTemp,
+   
   ) async {
     clearData.value
         ? _service.deleteSurveyAnswerDB(answerData)
@@ -512,10 +523,11 @@ class SurveyController extends GetxController {
     clearData.value = false;
   }
 
-  Future<void> _updateControllers(MapLevel event) async {
+  Future<void> _updateControllers(MapLevel event, ) async {
+    
     await fetchSurveyTempDB();
     await Get.find<LevelController>()
-        .fetchMapLevel(event.assignedLevelKey!, '');
+        .fetchMapLevel(event.assignedLevelKey!, '',);
     await Future.delayed(const Duration(milliseconds: 100));
     await Get.find<LevelController>().fetchSurveyLevel(event);
   }
@@ -542,6 +554,8 @@ class SurveyController extends GetxController {
     }, (r) async {
       for (SurveyAnswerModel answer in r) {
         answer.sCategory = getSCategory(answer.answers);
+        log('=======================================');
+        log('SCategory: ${answer.sCategory} ,assignedLevelKey: ${answer.assignedLevelKey},geoJsonLevelKey: ${answer.geoJsonLevelKey},surveyLevelKey: ${answer.surveyLevelKey},');
 
         await _service.postSurveyAnswerDB(answer);
       }

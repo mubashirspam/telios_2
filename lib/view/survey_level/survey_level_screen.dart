@@ -63,6 +63,7 @@ class SurveyLevelHome extends GetView<LevelController> {
 class SurveyLevelScreenBody extends StatelessWidget {
   final LevelController controller;
   final MapLevel mapLevel;
+  
 
   const SurveyLevelScreenBody({
     super.key,
