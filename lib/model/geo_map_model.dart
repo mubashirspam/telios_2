@@ -84,9 +84,9 @@ class Feature {
     });
 
     factory Feature.fromJson(Map<String, dynamic> json) => Feature(
-        type: json["type"],
+        // type: json["type"],
         properties: json["properties"] == null ? null : FeatureProperties.fromJson(json["properties"]),
-        geometry: json["geometry"] == null ? null : Geometry.fromJson(json["geometry"]),
+        // geometry: json["geometry"] == null ? null : Geometry.fromJson(json["geometry"]),
     );
 
     Map<String, dynamic> toJson() => {

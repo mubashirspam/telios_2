@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import '../../../model/find_missing_level.dart';
 import '../../../model/model.dart';
 
@@ -94,16 +97,83 @@ List<SurveyLevel> convertMissingRemoteToLocal({
 /// [geoJson] is the string representation of the GeoJSON data.
 Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
     MapLevel level, int id) async {
+  log('🗺️ convertGeojsontoSurveyLevel - START');
+  log('📊 Parameters: levelKey=${level.levelKey}, assignedLevelKey=${level.assignedLevelKey}, id=$id');
+  
   final geoJson = level.geoJson;
   if (geoJson == null || level.assignedLevelKey == null) {
+    log('❌ GeoJSON or assignedLevelKey is null');
     return [];
   }
 
-  final features = geoMapModelFromJson(geoJson).features;
+  log('📝 GeoJSON length: ${geoJson.length} characters');
+  log('📝 GeoJSON preview: ${geoJson.length > 100 ? geoJson.substring(0, 100) + "..." : geoJson}');
 
-  if (features != null && features.isNotEmpty) {
-    return features.map((feature) {
+  try {
+    log('🔄 Parsing GeoJSON...');
+    
+    // First, let's parse the raw JSON to see its structure
+    final Map<String, dynamic> rawJson = json.decode(geoJson);
+    log('📊 Raw JSON keys: ${rawJson.keys.toList()}');
+    log('📊 Raw JSON type: ${rawJson["type"]}');
+    log('📊 Raw JSON name: ${rawJson["name"]}');
+    log('📊 Features type: ${rawJson["features"]?.runtimeType}');
+    log('📊 Features length: ${rawJson["features"]?.length}');
+    
+    // Check if features is actually a list
+    if (rawJson["features"] != null) {
+      final featuresData = rawJson["features"];
+      if (featuresData is List) {
+        log('✅ Features is a valid List with ${featuresData.length} items');
+        if (featuresData.isNotEmpty) {
+          log('📊 First feature keys: ${featuresData[0]?.keys.toList()}');
+          log('📊 First feature type: ${featuresData[0]?["type"]}');
+        }
+      } else {
+        log('❌ Features is not a List, it is: ${featuresData.runtimeType}');
+        log('❌ Features content: $featuresData');
+        return [];
+      }
+    } else {
+      log('❌ Features is null in JSON');
+      return [];
+    }
+    
+    final geoMapModel = geoMapModelFromJson(geoJson);
+    log('✅ GeoJSON parsed successfully');
+    
+    final features = geoMapModel.features;
+    log('📊 Features from parsed model: ${features?.length ?? 'null'}');
+    
+    if (features == null) {
+      log('❌ Features is null after parsing');
+      return [];
+    }
+    
+    if (features.isEmpty) {
+      log('❌ Features array is empty');
+      return [];
+    }
+
+    log('✅ Found ${features.length} features, processing...');
+    
+    List<SurveyLevel> surveyLevels = [];
+    
+    for (int i = 0; i < features.length; i++) {
+      final feature = features[i];
+      log('🔄 Processing feature $i/${features.length}');
+      log('📍 Feature type: ${feature.type}');
+      log('📍 Feature properties: ${feature.properties != null ? "exists" : "null"}');
+      log('📍 Feature geometry: ${feature.geometry != null ? "exists" : "null"}');
+      
       final p = feature.properties;
+      if (p == null) {
+        log('⚠️ Feature $i has null properties, skipping');
+        continue;
+      }
+      
+      log('📊 Properties details: level1=${p.level1}, level2=${p.level2}, level3=${p.level3}, level4=${p.level4}');
+      log('📊 Properties IDs: level1Id=${p.level1Id}, level2Id=${p.level2Id}, level3Id=${p.level3Id}, level4Id=${p.level4Id}');
 
       String geoJsonLevelName = '';
       String levelName = '';
@@ -111,35 +181,36 @@ Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
       String assignedLevelKey = level.assignedLevelKey!;
       String assignedLevelName = level.assignedLevelName ?? '';
 
+      log('⚙️ Processing with id=$id');
       switch (id) {
         case 1:
-          geoJsonLevelName = p?.level1 ?? "";
-          levelName = p?.level2 ?? "";
-          levelKey = p?.level2Id ?? "";
-
+          geoJsonLevelName = p.level1 ?? "";
+          levelName = p.level2 ?? "";
+          levelKey = p.level2Id ?? "";
+          log('✅ Case 1: geoJsonLevelName=$geoJsonLevelName, levelName=$levelName, levelKey=$levelKey');
           break;
         case 2:
-          geoJsonLevelName = p?.level2 ?? "";
-          levelName = p?.level3 ?? "";
-          levelKey = p?.level3Id ?? "";
-
+          geoJsonLevelName = p.level2 ?? "";
+          levelName = p.level3 ?? "";
+          levelKey = p.level3Id ?? "";
+          log('✅ Case 2: geoJsonLevelName=$geoJsonLevelName, levelName=$levelName, levelKey=$levelKey');
           break;
         case 3:
-          geoJsonLevelName = p?.level3 ?? "";
-          levelName = p?.level4 ?? "";
-          levelKey = p?.level4Id ?? "";
-
+          geoJsonLevelName = p.level3 ?? "";
+          levelName = p.level4 ?? "";
+          levelKey = p.level4Id ?? "";
+          log('✅ Case 3: geoJsonLevelName=$geoJsonLevelName, levelName=$levelName, levelKey=$levelKey');
           break;
         // Add more cases as needed
         default:
-          geoJsonLevelName = p?.level3 ?? "";
-          levelName = p?.level4 ?? "";
-          levelKey = p?.level4Id ?? "";
-
+          geoJsonLevelName = p.level3 ?? "";
+          levelName = p.level4 ?? "";
+          levelKey = p.level4Id ?? "";
+          log('✅ Default case: geoJsonLevelName=$geoJsonLevelName, levelName=$levelName, levelKey=$levelKey');
           break;
       }
 
-      return SurveyLevel(
+      final surveyLevel = SurveyLevel(
         // geoJsonLevelKey: geoJsonLevelKey,
         geoJsonLevelName: geoJsonLevelName,
         levelName: levelName,
@@ -148,8 +219,18 @@ Future<List<SurveyLevel>> convertGeojsontoSurveyLevel(
         assignedLevelName: assignedLevelName,
         geoJson: '',
       );
-    }).toList();
+      
+      surveyLevels.add(surveyLevel);
+      log('✅ Added survey level: ${surveyLevel.levelName} (${surveyLevel.levelKey})');
+    }
+    
+    log('🎉 convertGeojsontoSurveyLevel completed successfully: ${surveyLevels.length} survey levels created');
+    return surveyLevels;
+    
+  } catch (e) {
+    log('💥 Error parsing GeoJSON: ${e.toString()}');
+    log('📍 Error type: ${e.runtimeType}');
+    log('📍 Stack trace: ${StackTrace.current}');
+    return [];
   }
-
-  return [];
 }

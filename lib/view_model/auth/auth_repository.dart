@@ -167,6 +167,7 @@ class AuthRepository {
     debugPrint('Token expired: $isExpired (expiration: $expiration)');
     return isExpired;
   }
+  
 
   Future<void> clearUserId() async {
     debugPrint('Clearing user ID and auth state');

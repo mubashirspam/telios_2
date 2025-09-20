@@ -4,13 +4,12 @@ import 'package:dio/dio.dart';
 import 'package:telios_2/view_model/survey/db/survey_temp_db.dart';
 import '../../model/model.dart';
 import '../../settings/settings.dart';
-import '../levels/db/db.dart';
 import 'db/survey_db.dart';
 
 class SurveyRepository {
   final _db = SurveyDB.instance;
   final _tempDb = SurveyTempDB.instance;
-  final _surveyLevelDB = SurveyLevelDB.instance;
+
   final Dio _dio = Dio();
 
   Future<RemoteQuestionModel> fetchSurveyQustionRemote(

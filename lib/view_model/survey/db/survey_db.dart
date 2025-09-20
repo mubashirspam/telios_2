@@ -333,14 +333,11 @@ class SurveyDB {
           );
         }).toList();
 
-        log('+========= Fetched data Answer Data Store in local DB +========= ');
         for (var data in data) {
           log(
             '${data.sCategory} , ${data.gCategory} , ${data.aCategory} , ${data.assignedLevelKey} , ${data.geoJsonLevelKey} , ${data.surveyLevelKey} , ${data.assignedLevelName} , ${data.geoJsonLevelName} , ${data.surveyLevelName} ${data.answers}',
           );
         }
-
-        log('===============================================================');
 
         return data;
       }

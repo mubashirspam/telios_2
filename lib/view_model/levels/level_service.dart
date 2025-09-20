@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
@@ -68,56 +70,109 @@ class LevelService extends GetxService {
     required String unitId,
     required int id,
   }) async {
+    log('🚀 LevelService.fetchMapLevel() - START');
+    log('📊 Parameters: isRemote=$isRemote, levelId=$levelId, unitId=$unitId, id=$id');
+    log('🔑 Current userId: $userId, tokenExists: ${currentToken.isNotEmpty}');
+    
     if (isRemote) {
+      log('🌐 Fetching from remote source...');
       try {
+        log('🔄 Refreshing token if needed...');
         await _authService.refreshTokenIfNeeded();
+        log('✅ Token refresh completed');
+        
+        log('📡 Making API call to fetchMapLevelRemote...');
         final response = await executeWithTokenRefresh(() =>
             _repository.fetchMapLevelRemote(
                 unitId: unitId, token: currentToken, userId: userId));
+        log('📥 API response received');
 
         return response.fold(
-          (failure) => Left(failure),
+          (failure) {
+            log('❌ Remote API call failed: ${failure.message}');
+            return Left(failure);
+          },
           (success) async {
+            log('✅ Remote API call successful');
+            log('📝 Processing remote data...');
             try {
+              log('🔄 Converting remote data to local format...');
               final localData = convertMapLevelRemoteToLocal(
                   remoteData: success, assignedLevelId: levelId);
+              log('✅ Data conversion completed. Records count: ${localData.length}');
+              
+              log('💾 Saving data to local database...');
               await _repository.postMapLevelDB(localData, levelId);
+              log('✅ Data saved to local database');
 
+              log('🔄 Processing GeoJSON data for survey levels...');
+              int processedLevels = 0;
               for (MapLevel level in localData) {
+                log('📍 Processing level: ${level.levelKey}, hasGeoJson: ${level.geoJson != null && level.geoJson!.isNotEmpty}');
                 if (level.geoJson != null &&
                     level.geoJson!.isNotEmpty &&
                     level.levelKey != null) {
+                  log('🗺️ Converting GeoJSON to Survey Level for levelKey: ${level.levelKey}');
                   final surveyLevel = await convertGeojsontoSurveyLevel(
                     level,
                     id,
                   );
+                  log('✅ Survey level conversion completed. Survey count: ${surveyLevel.length}');
+                  
+                  log('💾 Saving survey level to database...');
                   await _repository.postSurveyLevelDB(
                       surveyLevel, level.levelKey!);
+                  log('✅ Survey level saved');
+                  
+                  log('🔢 Updating survey level count...');
                   await _repository.updateSurveyLevelCount(
                       surveyLevel.length, level.levelKey!, levelId);
+                  log('✅ Survey level count updated');
+                  
+                  processedLevels++;
                 }
               }
+              log('🎯 Total levels processed: $processedLevels/${localData.length}');
 
+              log('🎉 fetchMapLevel() completed successfully - Remote');
               return Right(localData);
             } catch (e) {
+              log('💥 Error processing remote data: ${e.toString()}');
+              log('📍 Stack trace: ${StackTrace.current}');
               return Left(MainFailure(
                   message: 'Error processing data: ${e.toString()}'));
             }
           },
         );
       } on DioException catch (e) {
+        log('🚨 DioException occurred: ${e.toString()}');
+        log('📍 Error type: ${e.type}');
+        log('📍 Error message: ${e.message}');
+        log('📍 Response data: ${e.response?.data}');
+        log('📍 Status code: ${e.response?.statusCode}');
         showSnackbar('Error on piechart loading', e.toString());
         return Left(MainFailure(message: e.toString()));
+      } catch (e) {
+        log('💥 Unexpected error in remote fetch: ${e.toString()}');
+        log('📍 Stack trace: ${StackTrace.current}');
+        return Left(MainFailure(message: 'Unexpected error: ${e.toString()}'));
       }
     } else {
+      log('💾 Fetching from local database...');
       try {
+        log('🔍 Querying local database for levelId: $levelId');
         final localData = await _repository.fetchMapLevelDB(levelId);
         if (localData != null) {
+          log('✅ Local data found. Records count: ${localData.length}');
+          log('🎉 fetchMapLevel() completed successfully - Local');
           return Right(localData);
         } else {
+          log('❌ No local data found for levelId: $levelId');
           return Left(MainFailure(message: 'User not found in local database'));
         }
       } catch (e) {
+        log('💥 Error fetching from local database: ${e.toString()}');
+        log('📍 Stack trace: ${StackTrace.current}');
         return Left(
           MainFailure(
             message: 'Error fetching user from local database: ${e.toString()}',

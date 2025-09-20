@@ -92,6 +92,7 @@ class LevelRepository {
         "script.prerequest.param":
             "{\"unit\": \"$unitId\", \"userId\": \"$userId\"}"
       });
+      log(data.toString());
 
       // Make the API request.
       final response = await Dio().post(ApiEndPoints.mapLevel,
@@ -105,6 +106,8 @@ class LevelRepository {
       rethrow;
     }
   }
+
+  
 
   Future<AddMissingLevel> addmissingLevelRemote(
       SurveyLevel surveyLevel, String accessToken) async {

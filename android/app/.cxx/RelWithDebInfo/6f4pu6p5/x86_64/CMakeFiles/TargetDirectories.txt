@@ -1,0 +1,2 @@
+/Users/mymac/project/geneza/telios_2/android/app/.cxx/RelWithDebInfo/6f4pu6p5/x86_64/CMakeFiles/rebuild_cache.dir
+/Users/mymac/project/geneza/telios_2/android/app/.cxx/RelWithDebInfo/6f4pu6p5/x86_64/CMakeFiles/edit_cache.dir

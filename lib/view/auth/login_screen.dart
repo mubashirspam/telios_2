@@ -9,8 +9,12 @@ import '../widgets/widgets.dart';
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  // final usernameController = TextEditingController();
+  // final passwordController = TextEditingController();
+
+     final usernameController = TextEditingController()..text='9177333380';
+  final passwordController = TextEditingController()..text="f55kze";
+
   final _formKey = GlobalKey<FormState>();
 
   void _handleSubmit(BuildContext context) {
